@@ -31,7 +31,7 @@ energy_method                         bash
 tb2j_filter 	                      IN PROCESS
 scf_output_analyser                   EMPTY 
 gaussian_filter                       DONE 
-wannier90_hamiltonian_reader          bash
+wannier90_hamiltonian_reader          IN PROCESS
 convergence_checker                   bash
 
 
