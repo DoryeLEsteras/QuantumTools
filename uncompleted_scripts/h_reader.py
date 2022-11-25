@@ -18,9 +18,14 @@ The input is directly the grep '0 0 0' of the hr file
 
 nwan = 84; 
 dorbitals = 20
+selected_col=29
+selected_row=1
 
-input_file = open('h_up_000.dat', 'r')
-output_file = open('test.txt', 'a')
+input_file = open('coh_up_m100.dat', 'r')
+output_file = open('coh_d_ligand_m100.txt', 'a')
+#input_file = open('coh_up_m100.dat', 'r')
+#output_file = open('coh_d_ligand_m100.txt', 'a')
+#output_file2 = open('final.txt', 'a')
 
 # create Hamiltonian
 hamiltonian = np.zeros((nwan, nwan))
@@ -70,10 +75,10 @@ for index1 in range(1, dorbitals+1, 1):
         old_index1 = index1 
         old_index2 = index2 + dorbitals 
         d_ligand_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-        if d_ligand_hamiltonian[index1-1][index2-1] < 0.01: #filter data here
-           d_ligand_hamiltonian[index1-1][index2-1] = 0
+        #if d_ligand_hamiltonian[index1-1][index2-1] < 0.01: #filter data here
+        #   d_ligand_hamiltonian[index1-1][index2-1] = 0
         output_file.write(str(d_ligand_hamiltonian[index1-1][index2-1]))
-        output_file.write(' | ')
+        output_file.write('  ')
     output_file.write('\n')
 
 for index1 in range(1, nwan-dorbitals+1, 1):
@@ -85,6 +90,20 @@ for index1 in range(1, nwan-dorbitals+1, 1):
         #output_file.write(' ')
     #output_file.write('\n')
 
+for index1 in range(1, nwan-dorbitals+1, 1):
+    for index2 in range(1, dorbitals+1, 1):
+        old_index1 = index1 + dorbitals 
+        old_index2 = index2 
+        ligand_d_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
+        #output_file.write(str(ligand_d_hamiltonian[index1-1][index2-1]))
+        #output_file.write(' ')
+    #output_file.write('\n')
 
+"""
+for row in range(selected_row-1, selected_row+5, 1):
+    for col in range(selected_col-1, selected_col+2, 1):
+        output_file2.write(str(d_ligand_hamiltonian[selected_row][selected_col]))
+        output_file2.write(' ')
+    output_file2.write('\n')
 
-
+"""
