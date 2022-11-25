@@ -2,3 +2,6 @@
 *.in
 *.out
 *.bak
+*.dat
+.DS_Store
+
