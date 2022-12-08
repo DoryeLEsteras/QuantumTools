@@ -1,9 +1,14 @@
 import numpy as np
 from argparse import ArgumentParser
-# To do list
+import subprocess 
+# TO DO LIST
+"""
+extend the path library and correct
+import suggested runs
+Finish the script!!
+arreglar formato files
+"""
 
-# extend the path library and correct
-#import suggested runs
 
 class k_path:
     def __init__(self,kpoints):
@@ -18,22 +23,6 @@ class k_path:
         win_output_name.write(self.kpoints)
         win_output_name.write(self.ending)  
 
-"""
-G 0      0      0   G 1/2   0    -1/2
-G 1/2   0    -1/2   G 1/2   1/2  -1/2
-G 1/2   1/2  -1/2   G 0     1/2   0
-G 0     1/2   0     G 0     0     0
-G 0     0     0     G 1/2   1/2   -1/2
-
-
-K_POINTS {crystal_b}
-6
-G 0    0   0 X 0.5  0   0 
-X 0.5  0   0 S 0.5  0.5 0
-S 0.5  0.5 0 Y 0   0.5 0 
-Y 0   0.5 0  G 0    0   0
-G 0    0   0 Z 0    0    0.5 
-"""
 
 # if a new path is added there is 2 things to do: 
 # to define here the path, and add an option to symmetry manager
@@ -94,90 +83,190 @@ def parser():
                         help=" number of Wannier functions for Wannier90 calculation")
     args = parser.parse_args()
     return args.input,args.out,args.kpath,args.k,args.nbands,args.nwan
-
-def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir): 
-    nscf_output_name = scf_input_name.replace('scf','nscf')
+def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir,k):  
+    nscf_output_long_name = scf_input_name.replace('scf','nscf')
+    nscf_output_long_name = nscf_output_long_name.split('/')
+    nscf_output_name = nscf_output_long_name[-1]
+    seed = nscf_output_name.replace('.nscf.in', '') 
     nscf_output = str(nscf_output_dir) + str(nscf_output_name)
     nscf_file = open(nscf_output , 'w')
+    read_vector = scf_input_file.readlines()
     nspin = security_check = '0'
-    for line in scf_input_file:
-        # removes '=' to isolate the words and reduce all the possibilities like
-        # calculation=, 'calculation ='scf', calculation =,  ... 
-        line_to_check = line.replace("=", ' ') 
+    for component in range(0, len(read_vector), 1):
+        line_to_check = read_vector[component].replace("=", ' ') 
+        line_to_check = line_to_check.replace(",", ' ') 
         line_to_check_vector = line_to_check.split()
-        # lines with one word are not going to be lists, thus evaluation of
-        # line_to_check_vector[0] would crash, append and 'end' pointer at the end
-        # of the vector guarantees line_to_check_vector is going to be a list always
         line_to_check_vector.append('end')
         if line_to_check_vector[0] == 'calculation':
            security_check = line_to_check_vector[1]
-           line = 'calculation = \'nscf\'\n'
+           read_vector[component] = 'calculation = \'nscf\'\n'
         if line_to_check_vector[0] == 'verbosity':
-          line = 'verbosity = \'high\'\n'
+          read_vector[component] = 'verbosity = \'high\'\n'
         if line_to_check_vector[0] == '&system' or line_to_check_vector[0] == '&SYSTEM':
-          line = '&SYSTEM\n' + 'nosym=.true.\n' + 'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
+          read_vector[component] = '&SYSTEM\n' + 'nosym=.true.\n' + 'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
         if line_to_check_vector[0] == '&electrons' or line_to_check_vector[0] == '&ELECTRONS':
-          line = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
+          read_vector[component] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
         if line_to_check_vector[0] == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
-          line = ''
-          scf_input_file.readline()
+          read_vector[component] = ''
+          read_vector[component+1] =''
         if line_to_check_vector[0] == 'prefix':
-          prefix = line
+          prefix = read_vector[component]
         if line_to_check_vector[0] == 'outdir':
-          outdir = line
+          outdir = read_vector[component]
         if line_to_check_vector[0] == 'nspin': 
             if line_to_check_vector[1] == '2' or line_to_check_vector[1] == '2,':
                 nspin = '2'
-        nscf_file.write(str(line))
-    return prefix,outdir,nspin,security_check,nscf_file
+        if line_to_check_vector[0] == 'lspinorb': 
+                nspin = '4'    
+        else:
+                nspin = '1'
+        nscf_file.write(str(read_vector[component]))   
+    nscf_file.close()
+    return prefix,outdir,nspin,security_check,nscf_file,seed
+def create_pw2wan_input(pw2wan_output_dir,nspin,outdir,prefix,seed): 
+    if nspin == '1':
+        pw2wan_output_name = str(seed + '.pw2wan.in')
+        pw2wan_output = str(pw2wan_output_dir) + str(pw2wan_output_name)
+        pw2wan_file = open(pw2wan_output , 'w')    
 
-"""
-def create_bs_input(scf_input_name,bs_output_dir,prefix,outdir,nspin):
-    # These lines prepare the filband removing strange symbols
-    filband = prefix.split("=")
-    filband = filband[1]
-    filband = filband.replace("'", "") 
-    filband = filband.replace("\n", "")
-    filband = filband.replace(" ", "") 
-    if nspin == '0':
-        bs_output_name = scf_input_name.replace('scf','bs')
-        bs_file = open(str(bs_output_dir) + str(bs_output_name) , 'w')
-        bs_file.write('&BANDS\n')
-        bs_file.write(prefix)
-        bs_file.write(outdir)
-        bs_file.write('filband = \'' + str(filband) + '.bands.dat\'\n')
-        bs_file.write('lsym=.true.\n')
-        bs_file.write('spin_component=1\n')
-        bs_file.write('/')
+        pw2wan_file.write('seedname = \'' + seed + '\'\n')  
+        pw2wan_file.write(outdir + '\n')  
+        pw2wan_file.write(prefix + '\n')  
+        pw2wan_file.write('spin_component = \'none\'\n')  
+        pw2wan_file.write('write_mmn = .true.\n')  
+        pw2wan_file.write('write_amn = .true.\n')  
+        pw2wan_file.write('write_unk = .false.\n')  
+        pw2wan_file.write('wan_mode = \'standalone\'\n') 
+        pw2wan_file.write('/') 
+        pw2wan_file.close()
+        
     if nspin == '2':
-        bs1_output_name = scf_input_name.replace('scf','bs1')
-        bs2_output_name = scf_input_name.replace('scf','bs2')
-        bs1_file = open(str(bs_output_dir) + str(bs1_output_name) , 'w')
-        bs2_file = open(str(bs_output_dir) + str(bs2_output_name) , 'w')
-        bs1_file.write('&BANDS\n')
-        bs1_file.write(prefix)
-        bs1_file.write(outdir)
-        bs1_file.write('filband = \'' + str(filband) + '.bands1.dat\'\n')
-        bs1_file.write('lsym=.true.\n')
-        bs1_file.write('spin_component=1\n')
-        bs1_file.write('/')
-        bs2_file.write('&BANDS\n')
-        bs2_file.write(prefix)
-        bs2_file.write(outdir)
-        bs2_file.write('filband = \'' + str(filband) + '.bands2.dat\'\n')
-        bs2_file.write('lsym=.true.\n')
-        bs2_file.write('spin_component=2\n')
-        bs2_file.write('/')
-"""
+        pw2wan_up_output_name = str(seed + '.up.pw2wan.in')
+        pw2wan_down_output_name = str(seed + '.down.pw2wan.in')
+        pw2wan_up_output = str(pw2wan_output_dir) + str(pw2wan_up_output_name)
+        pw2wan_down_output = str(pw2wan_output_dir) + str(pw2wan_down_output_name)
+        pw2wan_up_file = open(pw2wan_up_output , 'w')    
+        pw2wan_down_file = open(pw2wan_down_output , 'w')    
 
-provided_scf_input_file, provided_output_dir,selected_sym,k,nbands,nwan = parser()
+        pw2wan_up_file.write('seedname = \'' + seed + '.up\'\n')  
+        pw2wan_up_file.write(outdir + '\n')  
+        pw2wan_up_file.write(prefix + '\n')  
+        pw2wan_up_file.write('spin_component = \'up\'\n')  
+        pw2wan_up_file.write('write_mmn = .true.\n')  
+        pw2wan_up_file.write('write_amn = .true.\n')  
+        pw2wan_up_file.write('write_unk = .false.\n')  
+        pw2wan_up_file.write('wan_mode = \'standalone\'\n') 
+        pw2wan_up_file.write('/')  
+        pw2wan_up_file.close()
+
+        pw2wan_down_file.write('seedname = \'' + seed + '.down\'\n')  
+        pw2wan_down_file.write(outdir + '\n')  
+        pw2wan_down_file.write(prefix + '\n')  
+        pw2wan_down_file.write('spin_component = \'up\'\n')  
+        pw2wan_down_file.write('write_mmn = .true.\n')  
+        pw2wan_down_file.write('write_amn = .true.\n')  
+        pw2wan_down_file.write('write_unk = .false.\n')  
+        pw2wan_down_file.write('wan_mode = \'standalone\'\n') 
+        pw2wan_down_file.write('/')  
+        pw2wan_down_file.close()     
+    if nspin == '4':
+        pw2wan_output_name = str(seed + '.pw2wan.in')
+        pw2wan_output = str(pw2wan_output_dir) + str(pw2wan_output_name)
+        pw2wan_file = open(pw2wan_output , 'w')    
+        pw2wan_file.write('seedname = \'' + seed + '\'\n')  
+        pw2wan_file.write(outdir)  
+        pw2wan_file.write(prefix)  
+        pw2wan_file.write('spin_component = \'none\'\n')  
+        pw2wan_file.write('write_mmn = .true.\n')  
+        pw2wan_file.write('write_amn = .true.\n')  
+        pw2wan_file.write('write_unk = .false.\n') 
+        pw2wan_file.write('write_spn=.true.\n')
+        pw2wan_file.write('wan_mode = \'standalone\'\n') 
+        pw2wan_file.write('/\n') 
+        pw2wan_file.close()
+def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k): 
+    win_output = str(win_output_dir) + str(seed + '.win')
+    win_file = open(win_output , 'w')    
+    win_file.write('!!!!!VARIABLES TO SELECT!!!!!\n')
+    win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+    win_file.write('						    !	\n')
+    win_file.write('num_bands         =   ' + nbands + ' !\n')
+    win_file.write('num_wann          =  ' + nwan + '   !\n')
+    win_file.write('dis_win_max       =         !\n')
+    win_file.write('dis_win_min       =         !\n')
+    win_file.write('dis_froz_min      =         !\n')
+    win_file.write('dis_froz_max      =         !\n')
+    win_file.write('dis_num_iter      = 4000    !\n')
+    win_file.write('num_iter          = 500     !\n')
+    win_file.write('num_print_cycles  = 50      !\n')
+    win_file.write('                            !\n')
+    win_file.write('Begin Projections           !\n')
+    win_file.write('                            !\n')
+    win_file.write('End Projections             !\n')
+    win_file.write('                            !\n')
+    win_file.write('!KPATH                      !\n')
+    win_file.write('                            !\n')
+    win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+    win_file.write('\n')
+    win_file.write('\n')
+    win_file.write('!!!FLAGS TO PLOT AND DEBUG!!!\n')
+    win_file.write('                            !\n')
+    win_file.write('write_xyz= true             !\n')
+    win_file.write('write_hr=true               !\n')
+    win_file.write('bands_plot = true           !\n')
+    win_file.write('iprint=3                    !\n')
+    win_file.write('!restart=plot               !\n')
+    win_file.write('!restart=wannierise         !\n')
+    win_file.write('                            !\n')
+    win_file.write('! for fatbands              !\n')
+    win_file.write('                            !\n')
+    win_file.write('! for WF plot               !\n')
+    win_file.write('                            !\n')
+    win_file.write('                            !\n')
+    win_file.write('                            !\n')
+    win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+    win_file.write('\n')
+    win_file.write('\n')
+    win_file.write('!!!!!!!!!FIXED FLAGS!!!!!!!!!\n')
+    win_file.write('                            !\n')
+    if nspin == '4':
+        win_file.write('spinors = true                !\n')
+    win_file.write('guiding_centres = T         !\n')
+    win_file.write('Begin Unit_Cell_Cart        !\n') 
+    # task 1 cell parameters, 1. comprobar si son crystal, 2. si son cristal se transforman, 3. se insertan
+    win_file.write('End Unit_Cell_Cart          !\n') 
+    #task 2 atomic pos,  1. distinguir crystal o nagstrom, 2. limpiar los Fe1 Fe2..., 3. intertarlas
+    win_file.write('                            !\n')
+    win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+    #kmesh = subprocess.check_call(['/Users/Dorye/Downloads/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2])],stdout=subprocess.PIPE)
+    kmesh = subprocess.Popen(['/Users/Dorye/Downloads/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]),'wan'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)   
+    stdout_value = kmesh.communicate()
+    win_file.write(stdout_value)
+    echo "mp_grid   = $k1 $k2 $k3" >> "$win_input_name"
+echo "begin kpoints" >> "$win_input_name"
+echo "$($directorio_kmesh/kmesh.pl $k1 $k2 $k3 wan)" >> "$win_input_name"
+echo "end kpoints" >> "$win_input_name"
+    print(stdout_value)
+    #task 4, hacer lo mismo con el nscf que se me habia olvidado
+    win_file.close()
+    #if nspin == '2':
+        # task 5 usar subprocees con cp para crear el segundo archivo
+       #win_down_file.close()
+    # task 6 se returna dependiendo del nspin, el nombre del win para que despues
+    # el symetry manager meta el camino
+
+
+
+
+provided_scf_input_file, provided_output_dir, selected_sym, k, nbands, nwan = parser()
 scf_file = open(str(provided_scf_input_file), 'r')
-# create_bands_input reads the scf, creates bands.in and obtains prefix, outdir,
-# for bs files, security check (check provided scf is an scf calculation)
-# and the bands file to write the kpath
-prefix,outdir,nspin,security_check,nscf_file = create_nscf_input(provided_scf_input_file,scf_file,provided_output_dir)
-#create_bs_input(provided_scf_input_file,provided_output_dir,prefix,outdir,nspin)
+
+prefix,outdir,nspin,security_check,nscf_file,seed = create_nscf_input(provided_scf_input_file,scf_file,provided_output_dir,k)
+create_pw2wan_input(provided_output_dir,nspin,outdir,prefix,seed)
+create_win_input(provided_output_dir,nspin,outdir,prefix,seed,k)
 #sym_manager(selected_sym,win_file)
 #create_suggested_run
+scf_file.close()
+
 if security_check != '\'scf\'':
    print('ERROR: provided scf input does not correspond to scf calculation')
