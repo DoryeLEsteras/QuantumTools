@@ -1,5 +1,8 @@
 Scripts included:
 
+LIBRARIES
+
+run_manager                            DONE 
 
 INPUT GENERATION
 
@@ -17,10 +20,10 @@ create_qe_template                    EMPTY
 create_sw 	                      IN PROCESS
 create_band_alignment                 EMPTY
 create_bader_analysis                 EMPTY
-create_run                            DONE 
 create_wannier_fatbands               EMPTY  (this should be just an addition to the create_wannier)
 create_wannier_functions              EMPTY  (this should be just an addition to the create_wannier)
 create_strain                         bash
+create_wannier_tools                 EMPTY
 plotters......
 
 OUTPUT MANAGMENT
