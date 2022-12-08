@@ -47,7 +47,6 @@ def sym_manager(selected_sym,win_file):
         rmc.write_kpath(win_file)
     if selected_sym == 'ort':
         ort.write_kpath(win_file)
-
 def parser():
     parser = ArgumentParser(description="Script to create wannier90 calculation inputs")
     parser.add_argument("-input", "--input",
@@ -92,34 +91,69 @@ def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir,k):
     nscf_file = open(nscf_output , 'w')
     read_vector = scf_input_file.readlines()
     nspin = security_check = '0'
+
     for component in range(0, len(read_vector), 1):
         line_to_check = read_vector[component].replace("=", ' ') 
         line_to_check = line_to_check.replace(",", ' ') 
+        line_to_check = line_to_check.replace(")", ' ') 
+        line_to_check = line_to_check.replace("(", ' ') 
         line_to_check_vector = line_to_check.split()
         line_to_check_vector.append('end')
-        if line_to_check_vector[0] == 'calculation':
-           security_check = line_to_check_vector[1]
-           read_vector[component] = 'calculation = \'nscf\'\n'
-        if line_to_check_vector[0] == 'verbosity':
-          read_vector[component] = 'verbosity = \'high\'\n'
-        if line_to_check_vector[0] == '&system' or line_to_check_vector[0] == '&SYSTEM':
-          read_vector[component] = '&SYSTEM\n' + 'nosym=.true.\n' + 'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
-        if line_to_check_vector[0] == '&electrons' or line_to_check_vector[0] == '&ELECTRONS':
-          read_vector[component] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
-        if line_to_check_vector[0] == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
-          read_vector[component] = ''
-          read_vector[component+1] =''
-        if line_to_check_vector[0] == 'prefix':
-          prefix = read_vector[component]
-        if line_to_check_vector[0] == 'outdir':
-          outdir = read_vector[component]
-        if line_to_check_vector[0] == 'nspin': 
-            if line_to_check_vector[1] == '2' or line_to_check_vector[1] == '2,':
-                nspin = '2'
-        if line_to_check_vector[0] == 'lspinorb': 
-                nspin = '4'    
-        else:
-                nspin = '1'
+        counter = 0
+        for word in line_to_check_vector:
+            if word == 'nat':
+               nat = int(line_to_check_vector[counter + 1])
+            if word == 'calculation':
+               security_check = line_to_check_vector[counter + 1]
+               read_vector[component] = 'calculation = \'nscf\'\n'
+            if word == 'verbosity':
+              read_vector[component] = 'verbosity = \'high\'\n'
+            if word == '&system' or word == '&SYSTEM':
+              read_vector[component] = '&SYSTEM\n' + 'nosym=.true.\n' + 'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
+            if word == '&electrons' or word == '&ELECTRONS':
+              read_vector[component] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
+            if word == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
+              read_vector[component] = ''
+              read_vector[component+1] =''
+            if word == 'prefix':
+              prefix = read_vector[component]
+            if word == 'outdir':
+              outdir = read_vector[component]
+            if word == 'nspin': 
+                if line_to_check_vector[counter + 1] == '2':
+                    nspin = '2'
+            if word == 'lspinorb': 
+                    nspin = '4'    
+            else:
+                    nspin = '1'
+            if word == 'CELL_PARAMETERS':
+                cell_parameters_type = line_to_check_vector[counter + 1]
+                v1 = read_vector[component +1] 
+                v2 = read_vector[component +2] 
+                v3 =  read_vector[component +3]
+                v1 = v1.split();v2 = v2.split();v3 = v3.split()
+                cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])],[float(v2[0]),float(v2[1]),float(v2[2])],[float(v3[0]),float(v3[1]),float(v3[2])]])
+                if cell_parameters_type == 'crystal':
+                    for line in range(0,len(read_vector), 1):
+                        check = read_vector[line].replace('=', ' ')
+                        check = check.replace(',', ' ')
+                        check = check.split()
+                        counter2 = 0
+                        for word in check:
+                            if word == 'a':
+                                a =  float(check[counter2 + 1])               
+                            counter2 = counter2 +1
+                    cell_matrix = np.dot(cell_matrix,a)
+            if word == 'ATOMIC_POSITIONS':  
+                #HACER ESTO CON MATRICES
+                for i in range(0,nat,1):
+                    atomic_coord  = read_vector[component + 1 + i].split()
+                    #print(atomic_coord[0],atomic_coord[1],atomic_coord[2],atomic_coord[3])
+                    #vect = np.array([atomic_coord[0],atomic_coord[1],atomic_coord[2],atomic_coord[3]])
+                    #atomic_matrix[i][:] = [str(atomic_coord[0]),str(atomic_coord[1]),str(atomic_coord[2]),str(atomic_coord[3])]
+                    atomic_matrix[i][0] = str(atomic_coord[0])
+        #print(atomic_matrix)
+        counter = counter + 1
         nscf_file.write(str(read_vector[component]))   
     nscf_file.close()
     return prefix,outdir,nspin,security_check,nscf_file,seed
@@ -236,17 +270,19 @@ def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k):
     # task 1 cell parameters, 1. comprobar si son crystal, 2. si son cristal se transforman, 3. se insertan
     win_file.write('End Unit_Cell_Cart          !\n') 
     #task 2 atomic pos,  1. distinguir crystal o nagstrom, 2. limpiar los Fe1 Fe2..., 3. intertarlas
+    win_file.write('mp_grid   = ' + str(k[0]) + str(k[1]) + str(k[2]) + '        !\n')     
+    win_file.write('begin kpoints                            \n')
+
+    win_file.write('end kpoints                            \n')    
     win_file.write('                            !\n')
     win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
     #kmesh = subprocess.check_call(['/Users/Dorye/Downloads/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2])],stdout=subprocess.PIPE)
-    kmesh = subprocess.Popen(['/Users/Dorye/Downloads/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]),'wan'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)   
-    stdout_value = kmesh.communicate()
-    win_file.write(stdout_value)
-    echo "mp_grid   = $k1 $k2 $k3" >> "$win_input_name"
-echo "begin kpoints" >> "$win_input_name"
-echo "$($directorio_kmesh/kmesh.pl $k1 $k2 $k3 wan)" >> "$win_input_name"
-echo "end kpoints" >> "$win_input_name"
-    print(stdout_value)
+    #kmesh = subprocess.Popen(['/mnt/c/Users/Work/Documents/Scripts/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]),'wan'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)   
+    #stdout_value = kmesh.communicate()
+    #win_file.write(stdout_value)
+
+
+ #   print(stdout_value)
     #task 4, hacer lo mismo con el nscf que se me habia olvidado
     win_file.close()
     #if nspin == '2':
@@ -254,7 +290,7 @@ echo "end kpoints" >> "$win_input_name"
        #win_down_file.close()
     # task 6 se returna dependiendo del nspin, el nombre del win para que despues
     # el symetry manager meta el camino
-
+#task 6 meter fatbands y WF plot
 
 
 

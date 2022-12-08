@@ -25,6 +25,9 @@ create_wannier_functions              EMPTY  (this should be just an addition to
 create_strain                         bash
 create_wannier_tools                 EMPTY
 plotters......
+smearing_tester
+kpoint tester
+cutoff tester
 
 OUTPUT MANAGMENT
 
