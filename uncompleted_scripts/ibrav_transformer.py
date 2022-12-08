@@ -1,8 +1,8 @@
 import numpy as np
 import math 
 
-alpha = -13.1990838046
-beta = 35.9991209676
+alpha =  -16.9826330693
+beta = 47.9080908756
 
 # ibrav -12
 tgac = beta/alpha

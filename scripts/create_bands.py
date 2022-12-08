@@ -8,7 +8,6 @@ from argparse import ArgumentParser
 """
 
 # Extend path library
-
 """
  if a new path is added there is 2 things to do: 
  -to define the path (below class section)
@@ -59,55 +58,57 @@ def parser():
                         type=str,
                         required=False,
                         default='./',
-                        help="output directory ")
+                        help="Relative or absolute path for the  output directory ")
     parser.add_argument("-kpath", "--kpath",
                         type=str,
                         required=False,
                         default='none',
-                        help="Desired kpath\n actual library:\n hex : hexagonal\n rmc : rectangular monoclinic\n ort : orthorombic ")
-    
+                        help="Desired kpath. Actual library:\n hex : hexagonal\n" +\
+                        "rmc : rectangular monoclinic\n ort : orthorombic ")
     args = parser.parse_args()
     return args.input,args.out,args.kpath
+    
 def create_bands_input(scf_input_name,scf_input_file,bands_output_dir): 
-    bands_output_name = scf_input_name.replace('scf','bands')
+    bands_output_long_name = scf_input_name.replace('scf','bands')
+    bands_output_long_name = bands_output_long_name.split('/')
+    bands_output_name = bands_output_long_name[-1]
     bands_output = str(bands_output_dir) + str(bands_output_name)
     bands_file = open(bands_output , 'w')
     nspin = security_check = '0'
     for line in scf_input_file:
-        # removes '=' to isolate the words and reduce all the possibilities like
-        # calculation=, 'calculation ='scf', calculation =,  ... 
         line_to_check = line.replace("=", ' ') 
+        line_to_check = line_to_check.replace(",", ' ') 
         line_to_check_vector = line_to_check.split()
-        # lines with one word are not going to be lists, thus evaluation of
-        # line_to_check_vector[0] would crash, append and 'end' pointer at the end
-        # of the vector guarantees line_to_check_vector is going to be a list always
         line_to_check_vector.append('end')
         if line_to_check_vector[0] == 'calculation':
            security_check = line_to_check_vector[1]
            line = 'calculation = \'bands\'\n'
         if line_to_check_vector[0] == 'verbosity':
-          line = 'verbosity = \'high\'\n'
+           line = 'verbosity = \'high\'\n'
         if line_to_check_vector[0] == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
-          line = ''
-          scf_input_file.readline()
+           line = ''
+           scf_input_file.readline()
         if line_to_check_vector[0] == 'prefix':
-          prefix = line
+           prefix = line
         if line_to_check_vector[0] == 'outdir':
-          outdir = line
+           outdir = line
         if line_to_check_vector[0] == 'nspin': 
             if line_to_check_vector[1] == '2' or line_to_check_vector[1] == '2,':
                 nspin = '2'
         bands_file.write(str(line))
     return prefix,outdir,nspin,security_check,bands_file
+
 def create_bs_input(scf_input_name,bs_output_dir,prefix,outdir,nspin):
-    # These lines prepare the filband removing strange symbols
     filband = prefix.split("=")
     filband = filband[1]
     filband = filband.replace("'", "") 
     filband = filband.replace("\n", "")
     filband = filband.replace(" ", "") 
+    filband = filband.replace(",", "") 
     if nspin == '0':
-        bs_output_name = scf_input_name.replace('scf','bs')
+        bs_output_long_name = scf_input_name.replace('scf','bs')
+        bs_output_long_name = bs_output_long_name.split('/')
+        bs_output_name = bs_output_long_name[-1]
         bs_file = open(str(bs_output_dir) + str(bs_output_name) , 'w')
         bs_file.write('&BANDS\n')
         bs_file.write(prefix)
@@ -116,9 +117,14 @@ def create_bs_input(scf_input_name,bs_output_dir,prefix,outdir,nspin):
         bs_file.write('lsym=.true.\n')
         bs_file.write('spin_component=1\n')
         bs_file.write('/')
+        bs_file.close()
     if nspin == '2':
-        bs1_output_name = scf_input_name.replace('scf','bs1')
-        bs2_output_name = scf_input_name.replace('scf','bs2')
+        bs1_output_long_name = scf_input_name.replace('scf','bs1')
+        bs1_output_long_name = bs1_output_long_name.split('/')
+        bs1_output_name = bs1_output_long_name[-1]
+        bs2_output_long_name = scf_input_name.replace('scf','bs2')
+        bs2_output_long_name = bs2_output_long_name.split('/')
+        bs2_output_name = bs2_output_long_name[-1]
         bs1_file = open(str(bs_output_dir) + str(bs1_output_name) , 'w')
         bs2_file = open(str(bs_output_dir) + str(bs2_output_name) , 'w')
         bs1_file.write('&BANDS\n')
@@ -135,15 +141,16 @@ def create_bs_input(scf_input_name,bs_output_dir,prefix,outdir,nspin):
         bs2_file.write('lsym=.true.\n')
         bs2_file.write('spin_component=2\n')
         bs2_file.write('/')
+        bs1_file.close()
+        bs2_file.close()
 
 provided_scf_input_file, provided_output_dir,selected_sym = parser()
 scf_file = open(str(provided_scf_input_file), 'r')
-# create_bands_input reads the scf, creates bands.in and obtains prefix, outdir,
-# for bs files, security check (check provided scf is an scf calculation)
-# and the bands file to write the kpath
+
 prefix,outdir,nspin,security_check,bands_file = create_bands_input(provided_scf_input_file,scf_file,provided_output_dir)
 create_bs_input(provided_scf_input_file,provided_output_dir,prefix,outdir,nspin)
 sym_manager(selected_sym,bands_file)
-#create_suggested_run
+scf_file.close()
+bands_file.close()
 if security_check != '\'scf\'':
    print('ERROR: provided scf input does not correspond to scf calculation')
