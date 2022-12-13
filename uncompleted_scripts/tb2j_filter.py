@@ -197,7 +197,6 @@ def calculator_resolved_soc(ni,Jlabel,output_file,input_file):
     Jper= np.divide(Jorb,Jiso/100)
     Jorb=np.matrix.round(Jorb,3)
     Jper=np.matrix.round(Jper,1)
-    output_file.write(Jlabel + ' iso : ' + str(Jiso) + '\n')
     output_file.write(Jlabel + ' orb :\n' + str(Jorb[0][0]) + ' ' + str(Jorb[1][0]) + ' ' \
         + str(Jorb[2][0]) + ' ' + str(Jorb[3][0])  + ' ' + str(Jorb[4][0]) + '\n' \
         + str(Jorb[0][1]) + ' ' + str(Jorb[1][1]) + ' ' \
