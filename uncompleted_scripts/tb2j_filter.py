@@ -8,6 +8,9 @@ from argparse import ArgumentParser
     - readblock noresolved no soc, 
     - DMI, DMI/J
     - implement number of neigbours to calculate in the manager
+    -implement different modes
+    -automatic detection of n and optional n by user (i dont know if its worth)
+
 
     PAra los nuevos readblocks es solo conseguir un exchange.out adecuado y 
     crear otras funciones readblock y calculator para cada tipo reescribiendolas
@@ -135,7 +138,7 @@ def readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file):
     readed_line = input_file.readline()
     readed_line = readed_line.split()
     #DMI = np.add(DMI, np.array([readed_line[2],readed_line[3],readed_line[4]]))    
-    input_file.readline()  
+    input_file.readline()
     readed_line1 = input_file.readline()
     readed_line1 = readed_line1.replace("[", "")
     readed_line1 = readed_line1.replace("]", "")
@@ -177,11 +180,11 @@ def readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file):
     Jorb = np.add(Jorb,np.matrix([ [ float(readed_line1[0]), float(readed_line1[1]),float(readed_line1[2]),float(readed_line1[3]),float(readed_line1[4])], [ float(readed_line2[0]), float(readed_line2[1]),float(readed_line2[2]),float(readed_line2[3]),float(readed_line2[4])], [float(readed_line3[0]),float(readed_line3[1]),float(readed_line3[2]),float(readed_line3[3]),float(readed_line3[4])],[ float(readed_line4[0]), float(readed_line4[1]),float(readed_line4[2]),float(readed_line4[3]),float(readed_line4[4])],[ float(readed_line5[0]), float(readed_line5[1]),float(readed_line5[2]),float(readed_line5[3]),float(readed_line5[4])]]))
     for i in range(1, 75, 1):
         input_file.readline()
-    return Jiso,Jani,DMI 
+    return Jiso,Jani,DMI,Jorb 
 def calculator_resolved_soc(ni,Jlabel,output_file,input_file):
     Jiso = 0;Jani = np.zeros((3, 3));DMI = np.array([0,0,0]);Jorb = Jper = np.zeros((5, 5))
     for i in range(0,ni,1):
-        Jiso , Jani, DMI = readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file)
+        Jiso , Jani, DMI, Jorb = readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file)
     Jiso= round(Jiso/ni,3)
     Jani= np.divide(Jani,ni)
     Jani=np.matrix.round(Jani,3)
@@ -208,13 +211,17 @@ def calculator_resolved_soc(ni,Jlabel,output_file,input_file):
 def execution():
     provided_input_file,provided_output_file,n= parser()
     input_file = open(str(provided_input_file), 'r')
-    output_file = open(str(provided_output_file), 'a')
+    output_file = open(str(provided_output_file), 'w')
     line = input_file.readline()
     while line != 'Exchange: \n':
         line = input_file.readline()
     input_file.readline()
     input_file.readline()
     input_file.readline()
+
+    number_neighbors = len(n)
+    for index in range(0,int(number_neighbors),1):
+        calculator_resolved_soc(int(n[index]),'J' + str(index+1),output_file,input_file)
 
     """
     NO IMPLEMENTED
@@ -226,9 +233,9 @@ def execution():
     calculator_noresolved_nosoc(int(n[4]),'J5',output_file,input_file)
     calculator_noresolved_nosoc(int(n[5]),'J6',output_file,input_file)
     """
-    calculator_resolved_soc(int(n[0]),'J1',output_file,input_file)
-    calculator_resolved_soc(int(n[1]),'J2',output_file,input_file)
-    calculator_resolved_soc(int(n[2]),'J3',output_file,input_file)
+    #calculator_resolved_soc(int(n[0]),'J1',output_file,input_file)
+    #calculator_resolved_soc(int(n[1]),'J2',output_file,input_file)
+    #calculator_resolved_soc(int(n[2]),'J3',output_file,input_file)
     """
     calculator_resolved_soc(int(n[3]),'J4',output_file,input_file)
     calculator_resolved_soc(int(n[4]),'J5',output_file,input_file)
