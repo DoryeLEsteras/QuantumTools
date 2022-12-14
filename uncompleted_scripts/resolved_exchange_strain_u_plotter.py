@@ -1,27 +1,26 @@
 import numpy as np
 from argparse import ArgumentParser
-
+import matplotlib.pyplot as plt
 # TO DO LIST
 """
     
 """
 def parser():
     parser = ArgumentParser(description="Script to fix the matrices of Gaussian")
-    parser.add_argument("-input", "--input",
-                        type=str,
-                        required=True,
-                        help="""
-                        Relative or absolute path for the exchange file
-                        """)
-    parser.add_argument("-out", "--out",
+    parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=True,
                         help="""
                         Relative or absolute path for the output file
-                        """)     
+                        """)   
+    parser.add_argument("-inputdir", "--inputdir",
+                        type=str,
+                        required=True,
+                        help="""
+                        Relative or absolute path for the input file
+                        """)      
     args = parser.parse_args()
-    return args.input,args.out,
-
+    return args.inputdir,args.outdir
 def manage_input_files(input_file):
     counter = 0
     read_vector = input_file.readlines()
@@ -69,19 +68,89 @@ def manage_input_files(input_file):
             J3_t2g_eg = float(J3_1[1]) + float(J3_1[2]) + float(J3_1[4]) + float(J3_2[0]) + float(J3_2[3]) + float(J3_3[0]) + float(J3_3[3]) + float(J3_4[1]) + float(J3_4[2]) + float(J3_4[4]) + float(J3_5[0]) + float(J3_5[3])
             J3_eg_eg = float(J3_1[0]) + float(J3_1[3]) + float(J3_4[0]) + float(J3_4[3])
         counter = counter + 1 
-    return J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg
+    return J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg
+def create_JvsU_file(prefix,Umax,Umin,Unstep,output_file_to_write,input_dir):
+    strain = '100'
+    output_file_U.write('U' + '  ' + 'J1 iso' + '  ' + 'J2 iso' + '  ' + 'J3 iso' + '  ' + 'J1_t2g_t2g' + '  ' + 'J2_t2g_t2g' + '  ' + 'J3_t2g_t2g' + '  ' + 'J1_t2g_eg' + '  ' + 'J2_t2g_eg' + '  ' + 'J3_t2g_eg' + '  ' + 'J1_eg_eg' + '  ' + 'J2_eg_eg' + '  ' + 'J3_eg_eg' + '\n')
+    for U in np.arange(Umin,Umax,Unstep):
+        file_name = 'exchange.' + prefix + '.' + str(strain) + '.' + str(U)
+        input_file = open(input_dir + file_name,'r')
+        J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg = manage_input_files(input_file)
+        input_file.close()
+        output_file_U.write(str(U) + '  ' + str(J1iso) + '  ' + str(J2iso) + '  ' + str(J3iso) + '  ' + str(J1_t2g_t2g) + '  ' + str(J2_t2g_t2g) + '  ' + str(J3_t2g_t2g) + '  ' + str(J1_t2g_eg) + '  ' + str(J2_t2g_eg) + '  ' + str(J3_t2g_eg) + '  ' + str(J1_eg_eg) + '  ' + str(J2_eg_eg) + '  ' + str(J3_eg_eg ) + '\n')
+    output_file_U.close()
+def create_Jvsstrain_file(prefix,strmax,strmin,strnstep,output_file_to_write,input_dir):
+    U = Uscf
+    output_file_strain.write('strain' + '  ' + 'J1 iso' + '  ' + 'J2 iso' + '  ' + 'J3 iso' + '  ' + 'J1_t2g_t2g' + '  ' + 'J2_t2g_t2g' + '  ' + 'J3_t2g_t2g' + '  ' + 'J1_t2g_eg' + '  ' + 'J2_t2g_eg' + '  ' + 'J3_t2g_eg' + '  ' + 'J1_eg_eg' + '  ' + 'J2_eg_eg' + '  ' + 'J3_eg_eg' + '\n')
+    for strain in np.arange(strmin,strmax,strnstep):
+        file_name = 'exchange.' + prefix + '.' + str(strain) + '.' + str(U)
+        input_file = open(input_dir + file_name,'r')
+        J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg = manage_input_files(input_file)
+        input_file.close()
+        output_file_strain.write(str(strain) + '  ' + str(J1iso) + '  ' + str(J2iso) + '  ' + str(J3iso) + '  ' + str(J1_t2g_t2g) + '  ' + str(J2_t2g_t2g) + '  ' + str(J3_t2g_t2g) + '  ' + str(J1_t2g_eg) + '  ' + str(J2_t2g_eg) + '  ' + str(J3_t2g_eg) + '  ' + str(J1_eg_eg) + '  ' + str(J2_eg_eg) + '  ' + str(J3_eg_eg ) + '\n')
+    output_file_strain.close()
+def plotter(data_file,output_dir,xaxis_name):
+    x_axis = np.loadtxt(data_file, skiprows=1)[:, 0]
+    J1 = np.loadtxt(data_file, skiprows=1)[:, 1]
+    J2 = np.loadtxt(data_file, skiprows=1)[:, 2]
+    J3 = np.loadtxt(data_file, skiprows=1)[:, 3]
+    J1tt = np.loadtxt(data_file, skiprows=1)[:, 4]
+    J2tt= np.loadtxt(data_file, skiprows=1)[:, 5]
+    J3tt = np.loadtxt(data_file, skiprows=1)[:, 6]
+    J1te= np.loadtxt(data_file, skiprows=1)[:, 7]
+    J2te = np.loadtxt(data_file, skiprows=1)[:, 8]
+    J3te= np.loadtxt(data_file, skiprows=1)[:, 9]
+    J1ee = np.loadtxt(data_file, skiprows=1)[:, 10]
+    J2ee= np.loadtxt(data_file, skiprows=1)[:, 11]
+    J3ee = np.loadtxt(data_file, skiprows=1)[:, 12]
+    figsimple,ax = plt.subplots() 
+    ax.plot(x_axis,J1)
+    plt.savefig(output_dir + 'simple_panel_' + xaxis_name + '.png')
+    fig,axs = plt.subplots(4,3,figsize=[20,15]) 
+    plt.tight_layout() #avoid overlaps
+    axs[0,0].plot(x_axis,J1)
+    axs[0,0].set_title('J1 Total')
+    axs[0,1].plot(x_axis,J2)
+    axs[0,1].set_title('J2 Total')
+    axs[0,2].plot(x_axis,J3)
+    axs[0,2].set_title('J3 Total')
+    axs[1,0].plot(x_axis,J1tt)
+    axs[1,0].set_title('J1 t2g-t2g')
+    axs[1,1].plot(x_axis,J2tt)
+    axs[1,1].set_title('J2 t2g-t2g')
+    axs[1,2].plot(x_axis,J3tt)
+    axs[1,2].set_title('J3 t2g-t2g')
+    axs[2,0].plot(x_axis,J1te)
+    axs[2,0].set_title('J1 t2g-eg')
+    axs[2,1].plot(x_axis,J2te)
+    axs[2,1].set_title('J2 t2g-eg')
+    axs[2,2].plot(x_axis,J3te)
+    axs[2,2].set_title('J3 t2g-eg')
+    axs[3,0].plot(x_axis,J1ee)
+    axs[3,0].set_title('J1 eg-eg')
+    axs[3,1].plot(x_axis,J2ee)
+    axs[3,1].set_title('J2 eg-eg')
+    axs[3,2].plot(x_axis,J3ee)
+    axs[3,2].set_title('J3 eg-eg')
+    plt.savefig(output_dir + 'full_panel_' + xaxis_name + '.png')
 
 
 
-provided_input_file,provided_output_file = parser()
-input_file = open(str(provided_input_file), 'r')
-output_file = open(str(provided_output_file), 'w')
+prefix = 'crcl3'
+Uscf = 2.0; Umin =2.0; Umax =4.0; Unstep =1.0
+strmin =100; strmax =104; strnstep =1
+input_dir,output_dir = parser()
+strain_file = output_dir + 'out' + '_strain' + '.txt'
+U_file = output_dir + 'out' + '_u' + '.txt'
+output_file_strain = open(strain_file, 'w')
+output_file_U = open(U_file, 'w')
 
-for U in range()
-manage_input_files(input_file)
+create_JvsU_file(prefix,Umax,Umin,Unstep,output_file_U,input_dir)
+create_Jvsstrain_file(prefix,strmax,strmin,strnstep,output_file_strain,input_dir)
+plotter(strain_file,output_dir,'strain')
+plotter(U_file,output_dir,'U')
 
 
 
 
-
-
+  
