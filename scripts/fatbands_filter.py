@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 
 # TO DO LIST
@@ -89,3 +90,16 @@ if mode == 2:
         input_file.readline() 
 input_file.close()
 output_file.close()
+
+"""
+x_axis = np.array([]);y_axis = np.array([])
+output_file = open(str(provided_output_file), 'r')
+x_axis = np.loadtxt(output_file)[:, 0]
+y_axis = np.loadtxt(output_file)[:, 0]
+print(y_axis)
+fig,ax = plt.subplots() 
+ax.plot(x_axis,y_axis)
+plt.savefig(output_file + '.png')
+plt.show
+output_file.close()
+"""
