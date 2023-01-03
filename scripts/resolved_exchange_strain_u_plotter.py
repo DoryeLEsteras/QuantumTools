@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import matplotlib.pyplot as plt
 # TO DO LIST
 """
-    
+- Add more plots according to necessities 
 """
 def parser():
     parser = ArgumentParser(description="Script to fix the matrices of Gaussian")
@@ -72,7 +72,7 @@ def manage_input_files(input_file):
 def create_JvsU_file(prefix,Umax,Umin,Unstep,output_file_to_write,input_dir):
     strain = '100'
     output_file_U.write('U' + '  ' + 'J1 iso' + '  ' + 'J2 iso' + '  ' + 'J3 iso' + '  ' + 'J1_t2g_t2g' + '  ' + 'J2_t2g_t2g' + '  ' + 'J3_t2g_t2g' + '  ' + 'J1_t2g_eg' + '  ' + 'J2_t2g_eg' + '  ' + 'J3_t2g_eg' + '  ' + 'J1_eg_eg' + '  ' + 'J2_eg_eg' + '  ' + 'J3_eg_eg' + '\n')
-    for U in np.arange(Umin,Umax,Unstep):
+    for U in np.arange(Umin,Umax+1,Unstep):
         file_name = 'exchange.' + prefix + '.' + str(strain) + '.' + str(U)
         input_file = open(input_dir + file_name,'r')
         J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg = manage_input_files(input_file)
@@ -82,7 +82,7 @@ def create_JvsU_file(prefix,Umax,Umin,Unstep,output_file_to_write,input_dir):
 def create_Jvsstrain_file(prefix,strmax,strmin,strnstep,output_file_to_write,input_dir):
     U = Uscf
     output_file_strain.write('strain' + '  ' + 'J1 iso' + '  ' + 'J2 iso' + '  ' + 'J3 iso' + '  ' + 'J1_t2g_t2g' + '  ' + 'J2_t2g_t2g' + '  ' + 'J3_t2g_t2g' + '  ' + 'J1_t2g_eg' + '  ' + 'J2_t2g_eg' + '  ' + 'J3_t2g_eg' + '  ' + 'J1_eg_eg' + '  ' + 'J2_eg_eg' + '  ' + 'J3_eg_eg' + '\n')
-    for strain in np.arange(strmin,strmax,strnstep):
+    for strain in np.arange(strmin,strmax+1,strnstep):
         file_name = 'exchange.' + prefix + '.' + str(strain) + '.' + str(U)
         input_file = open(input_dir + file_name,'r')
         J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg, J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg = manage_input_files(input_file)
@@ -104,41 +104,41 @@ def plotter(data_file,output_dir,xaxis_name):
     J2ee= np.loadtxt(data_file, skiprows=1)[:, 11]
     J3ee = np.loadtxt(data_file, skiprows=1)[:, 12]
     figsimple,ax = plt.subplots() 
-    ax.plot(x_axis,J1)
+    ax.plot(x_axis,J1,'bo')
     plt.savefig(output_dir + 'simple_panel_' + xaxis_name + '.png')
     fig,axs = plt.subplots(4,3,figsize=[20,15]) 
     plt.tight_layout() #avoid overlaps
-    axs[0,0].plot(x_axis,J1)
+    axs[0,0].plot(x_axis,J1,'bo')
     axs[0,0].set_title('J1 Total')
-    axs[0,1].plot(x_axis,J2)
+    axs[0,1].plot(x_axis,J2,'bo')
     axs[0,1].set_title('J2 Total')
-    axs[0,2].plot(x_axis,J3)
+    axs[0,2].plot(x_axis,J3,'bo')
     axs[0,2].set_title('J3 Total')
-    axs[1,0].plot(x_axis,J1tt)
+    axs[1,0].plot(x_axis,J1tt,'bo')
     axs[1,0].set_title('J1 t2g-t2g')
-    axs[1,1].plot(x_axis,J2tt)
+    axs[1,1].plot(x_axis,J2tt,'bo')
     axs[1,1].set_title('J2 t2g-t2g')
-    axs[1,2].plot(x_axis,J3tt)
+    axs[1,2].plot(x_axis,J3tt,'bo')
     axs[1,2].set_title('J3 t2g-t2g')
-    axs[2,0].plot(x_axis,J1te)
+    axs[2,0].plot(x_axis,J1te,'bo')
     axs[2,0].set_title('J1 t2g-eg')
-    axs[2,1].plot(x_axis,J2te)
+    axs[2,1].plot(x_axis,J2te,'bo')
     axs[2,1].set_title('J2 t2g-eg')
-    axs[2,2].plot(x_axis,J3te)
+    axs[2,2].plot(x_axis,J3te,'bo')
     axs[2,2].set_title('J3 t2g-eg')
-    axs[3,0].plot(x_axis,J1ee)
+    axs[3,0].plot(x_axis,J1ee,'bo')
     axs[3,0].set_title('J1 eg-eg')
-    axs[3,1].plot(x_axis,J2ee)
+    axs[3,1].plot(x_axis,J2ee,'bo')
     axs[3,1].set_title('J2 eg-eg')
-    axs[3,2].plot(x_axis,J3ee)
+    axs[3,2].plot(x_axis,J3ee,'bo')
     axs[3,2].set_title('J3 eg-eg')
     plt.savefig(output_dir + 'full_panel_' + xaxis_name + '.png')
 
 
 
-prefix = 'crcl3'
-Uscf = 2.0; Umin =2.0; Umax =4.0; Unstep =1.0
-strmin =100; strmax =104; strnstep =1
+prefix = 'crbr3'
+Uscf = 2.0; Umin =2.0; Umax =6.0; Unstep =1.0
+strmin =95; strmax =105; strnstep =1
 input_dir,output_dir = parser()
 strain_file = output_dir + 'out' + '_strain' + '.txt'
 U_file = output_dir + 'out' + '_u' + '.txt'
