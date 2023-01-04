@@ -24,7 +24,7 @@ create_wannier_fatbands               EMPTY  (this should be just an addition to
 create_wannier_functions              EMPTY  (this should be just an addition to the create_wannier)
 create_strain                         bash
 create_wannier_tools                 EMPTY
-plotters......
+
 smearing_tester
 kpoint tester
 cutoff tester
@@ -32,17 +32,18 @@ cutoff tester
 OUTPUT MANAGMENT
 
 bands_repair	                      IN PROCESS
-squares                               EMPTY
+polinomials                           IN PROCESS
 energy_method                         bash
 tb2j_filter 	                      IN PROCESS
 scf_output_analyser                   EMPTY 
 gaussian_filter                       DONE 
-wannier90_hamiltonian_reader          IN PROCESS
+wannier90_hamiltonian_reader          COMPLETE
 convergence_checker                   bash
-fatbands_filter                       IN PROCESS
+fatbands_filter                       COMPLETE
 
+PLOTTERS
+resolved_exchange_strain_u_plotter   COMPLETE
 
 BASH launchers
-
 tb2j_launcher                        DONE
 

@@ -1,12 +1,16 @@
 import numpy as np
 from argparse import ArgumentParser
-import subprocess 
+import re
+from subprocess import run
 # TO DO LIST
 """
 extend the path library and correct
 import suggested runs
 Finish the script!!
 arreglar formato files
+completar opciones parser
+arreglar formato bonito con exclamaciones
+añadir que para plotear las WF tienes que activar el unk en el pw2
 """
 
 
@@ -145,18 +149,20 @@ def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir,k):
                             counter2 = counter2 +1
                     cell_matrix = np.dot(cell_matrix,a)
             if word == 'ATOMIC_POSITIONS':  
-                #HACER ESTO CON MATRICES
+                atomic_positions_type = line_to_check_vector[counter + 1]
+                atomic_matrix = np.chararray((nat, 4),itemsize=9)
                 for i in range(0,nat,1):
                     atomic_coord  = read_vector[component + 1 + i].split()
-                    #print(atomic_coord[0],atomic_coord[1],atomic_coord[2],atomic_coord[3])
-                    #vect = np.array([atomic_coord[0],atomic_coord[1],atomic_coord[2],atomic_coord[3]])
-                    #atomic_matrix[i][:] = [str(atomic_coord[0]),str(atomic_coord[1]),str(atomic_coord[2]),str(atomic_coord[3])]
-                    atomic_matrix[i][0] = str(atomic_coord[0])
-        #print(atomic_matrix)
+                    atomic_matrix[i][0] = atomic_coord[0];atomic_matrix[i][1] = atomic_coord[1];atomic_matrix[i][2] = atomic_coord[2];atomic_matrix[i][3] = atomic_coord[3]
+                atomic_matrix = atomic_matrix.decode("utf-8")
         counter = counter + 1
-        nscf_file.write(str(read_vector[component]))   
+        nscf_file.write(str(read_vector[component]))  
+    kmesh = run(['../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
+    output = kmesh.stdout
+    kmesh = output.decode("utf-8")
+    nscf_file.write(str(kmesh))
     nscf_file.close()
-    return prefix,outdir,nspin,security_check,nscf_file,seed
+    return prefix,outdir,nspin,security_check,nscf_file,seed,cell_matrix,atomic_matrix,nat,atomic_positions_type
 def create_pw2wan_input(pw2wan_output_dir,nspin,outdir,prefix,seed): 
     if nspin == '1':
         pw2wan_output_name = str(seed + '.pw2wan.in')
@@ -218,7 +224,7 @@ def create_pw2wan_input(pw2wan_output_dir,nspin,outdir,prefix,seed):
         pw2wan_file.write('wan_mode = \'standalone\'\n') 
         pw2wan_file.write('/\n') 
         pw2wan_file.close()
-def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k): 
+def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k,cell_matrix,atomic_matrix,nat,atomic_positions_type): 
     win_output = str(win_output_dir) + str(seed + '.win')
     win_file = open(win_output , 'w')    
     win_file.write('!!!!!VARIABLES TO SELECT!!!!!\n')
@@ -255,9 +261,10 @@ def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k):
     win_file.write('! for fatbands              !\n')
     win_file.write('                            !\n')
     win_file.write('! for WF plot               !\n')
-    win_file.write('                            !\n')
-    win_file.write('                            !\n')
-    win_file.write('                            !\n')
+    win_file.write('!wannier_plot_format= xcrysden                            !\n')
+    win_file.write('!wannier_plot_supercell= 3 3 1                            !\n')
+    win_file.write('!wannier_plot           =  true                            !\n')
+    win_file.write('!wannier_plot_list = x-y                            !\n')
     win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
     win_file.write('\n')
     win_file.write('\n')
@@ -266,40 +273,54 @@ def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k):
     if nspin == '4':
         win_file.write('spinors = true                !\n')
     win_file.write('guiding_centres = T         !\n')
-    win_file.write('Begin Unit_Cell_Cart        !\n') 
-    # task 1 cell parameters, 1. comprobar si son crystal, 2. si son cristal se transforman, 3. se insertan
-    win_file.write('End Unit_Cell_Cart          !\n') 
-    #task 2 atomic pos,  1. distinguir crystal o nagstrom, 2. limpiar los Fe1 Fe2..., 3. intertarlas
+    win_file.write('Begin Unit_Cell_Cart        !\n')
+    cell_matrix = str(cell_matrix).replace('[','')
+    cell_matrix = cell_matrix.replace(']','') 
+    win_file.write(cell_matrix + '\n')
+    win_file.write('End Unit_Cell_Cart          !\n')
+    for i in range(0,nat,1):      
+        for j in range(10):
+            atomic_matrix[i][0] = atomic_matrix[i][0].replace(str(j),'')
+    atomic_matrix = str(atomic_matrix).replace('[','')
+    atomic_matrix = str(atomic_matrix).replace(']','')
+    atomic_matrix = str(atomic_matrix).replace('\'','') 
+    win_file.write('\n')
+    if atomic_positions_type == 'crystal':
+        win_file.write('Begin Atoms_Frac                            \n')
+        win_file.write(str(atomic_matrix) + '\n')
+        win_file.write('End Atoms_Frac                            \n') 
+    if atomic_positions_type == 'angstrom':
+        win_file.write('Begin Atoms_Cart                            \n')
+        win_file.write(str(atomic_matrix) + '\n')
+        win_file.write('End Atoms_Cart                            \n')     
+    win_file.write('\n')   
     win_file.write('mp_grid   = ' + str(k[0]) + str(k[1]) + str(k[2]) + '        !\n')     
     win_file.write('begin kpoints                            \n')
-
+    kmesh = run(['../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True) 
+    output = kmesh.stdout
+    kmesh = output.decode("utf-8")
+    win_file.write(kmesh)
     win_file.write('end kpoints                            \n')    
     win_file.write('                            !\n')
     win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-    #kmesh = subprocess.check_call(['/Users/Dorye/Downloads/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2])],stdout=subprocess.PIPE)
-    #kmesh = subprocess.Popen(['/mnt/c/Users/Work/Documents/Scripts/QuantumTools/QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]),'wan'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)   
-    #stdout_value = kmesh.communicate()
-    #win_file.write(stdout_value)
+    win_file.close()   
 
-
- #   print(stdout_value)
-    #task 4, hacer lo mismo con el nscf que se me habia olvidado
-    win_file.close()
-    #if nspin == '2':
         # task 5 usar subprocees con cp para crear el segundo archivo
+            #if nspin == '2':
+    #    kmesh = run(['cp', win_output, str(k[1])]) 
        #win_down_file.close()
     # task 6 se returna dependiendo del nspin, el nombre del win para que despues
     # el symetry manager meta el camino
-#task 6 meter fatbands y WF plot
+#task 6 meter fatbands 
 
 
 
 provided_scf_input_file, provided_output_dir, selected_sym, k, nbands, nwan = parser()
 scf_file = open(str(provided_scf_input_file), 'r')
 
-prefix,outdir,nspin,security_check,nscf_file,seed = create_nscf_input(provided_scf_input_file,scf_file,provided_output_dir,k)
+prefix,outdir,nspin,security_check,nscf_file,seed,cell_matrix,atomic_matrix,nat,atomic_positions_type = create_nscf_input(provided_scf_input_file,scf_file,provided_output_dir,k)
 create_pw2wan_input(provided_output_dir,nspin,outdir,prefix,seed)
-create_win_input(provided_output_dir,nspin,outdir,prefix,seed,k)
+create_win_input(provided_output_dir,nspin,outdir,prefix,seed,k,cell_matrix,atomic_matrix,nat,atomic_positions_type)
 #sym_manager(selected_sym,win_file)
 #create_suggested_run
 scf_file.close()
