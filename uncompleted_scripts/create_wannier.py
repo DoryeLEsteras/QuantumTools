@@ -1,6 +1,5 @@
 import numpy as np
 from argparse import ArgumentParser
-import re
 from subprocess import run
 # TO DO LIST
 """
