@@ -259,9 +259,9 @@ if __name__ == '__main__':
     prefix = 'crcl3'
     spin =1.5
     T0 = 0
-    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.001 ; poly_U_mesh = 0.001
+    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
 
-   # format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
+    format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
 
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1iso')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1x')
