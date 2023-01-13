@@ -4,4 +4,6 @@
 *.bak
 *.dat
 .DS_Store
+exchange*
+*.win
 

@@ -6,7 +6,7 @@ from subprocess import run
 """
 generalize number of J
 generalize function
-add directories for the different outputs
+add directories for the different outputs (parser?)
 """
 
 def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
@@ -16,8 +16,8 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     """
     J1iso_vector = np.array([]);J2iso_vector = np.array([]);J3iso_vector = np.array([]);U_vector = np.array([]);strain_vector = np.array([])
     J1x_vector  = np.array([]);J1y_vector  = np.array([]);J1z_vector  = np.array([]);J2x_vector  = np.array([]);J2y_vector  = np.array([]);J2z_vector  = np.array([]);J3x_vector  = np.array([]);J3y_vector  = np.array([]);J3z_vector  = np.array([])
-    for strain in np.arange(strmin,strmax+1,strnstep):
-        for U in np.arange(Umin,Umax+1,Unstep):
+    for strain in np.arange(strmin,strmax+strnstep,strnstep):
+        for U in np.arange(Umin,Umax+ Unstep,Unstep):
             output_file_strain = open('exchange.' + str(prefix) + '.' + str(strain) + '.' + str(U), 'r')
             read_vector = output_file_strain.readlines()
             U_vector = np.append(U_vector,U)
@@ -113,23 +113,41 @@ def plotter_vs_U(x0,a,b,c,d,e,strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,J_l
     """
     For each Jij plots the polinomial with basic mesh vs U. J label is used as a label for the figures.
     """
+    file_to_read = prefix  + '.' + J_label +  '.poly_data.txt'
+    xdft = np.loadtxt(file_to_read)[:, 0]
+    ydft = np.loadtxt(file_to_read)[:, 1]
+    zdft = np.loadtxt(file_to_read)[:, 2]
     for i in np.arange(strmin,strmax + strnstep,strnstep):
         label = 'strain' + str(i)
+        xaxis = np.array([]);zaxis = np.array([])
+        for j in np.arange(0,len(xdft),1):
+            if xdft[j] > (i - strnstep) and xdft[j] < (i + strnstep):  
+               xaxis = np.append(xaxis,ydft[j])
+               zaxis = np.append(zaxis,zdft[j])
         x = np.array([]);y = np.array([]);z = np.array([])
         for j in np.arange(Umin,Umax + Unstep,Unstep):
             x = np.append(x,i)
             y = np.append(y,j)
             z = np.append(z,x0 + a*i + b*j + c*i*j +d*i*i + e*j*j)
         figsimple,ax = plt.subplots() 
-        #ax.plot(y,z ,'-')
-        ax.plot(y,z ,'bo')
+        ax.plot(y,z ,'-')
+        ax.plot(xaxis,zaxis ,'bo')
         plt.savefig(prefix + '.' + J_label +'.' + label + '.' + 'vsU' + '.png')
 def plotter_vs_strain(x0,a,b,c,d,e,strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,J_label):  
     """
     For each Jij plots the polinomial with basic mesh vs strain. J label is used as a label for the figures.
     """
+    file_to_read = prefix  + '.' + J_label +  '.poly_data.txt'
+    xdft = np.loadtxt(file_to_read)[:, 0]
+    ydft = np.loadtxt(file_to_read)[:, 1]
+    zdft = np.loadtxt(file_to_read)[:, 2]
     for j in np.arange(Umin,Umax + Unstep,Unstep):
         label = 'U' + str(j)
+        xaxis = np.array([]);zaxis = np.array([])
+        for i in np.arange(0,len(ydft),1):
+            if ydft[i] > (j - Unstep) and ydft[i] < (j + Unstep):  
+               xaxis = np.append(xaxis,xdft[i])
+               zaxis = np.append(zaxis,zdft[i])        
         x = np.array([]);y = np.array([]);z = np.array([])
         for i in np.arange(strmin,strmax + strnstep,strnstep):
             x = np.append(x,i)
@@ -137,7 +155,8 @@ def plotter_vs_strain(x0,a,b,c,d,e,strmax,strmin,strnstep,Umax,Umin,Unstep,prefi
             z = np.append(z,x0 + a*i + b*j + c*i*j +d*i*i + e*j*j)
         figsimple,ax = plt.subplots() 
         #ax.plot(x,z ,'-')
-        ax.plot(x,z ,'bo')
+        ax.plot(x,z ,'-')
+        ax.plot(xaxis,zaxis ,'bo')
         plt.savefig(prefix + '.' + J_label +'.' + label + '.' + 'vs_strain' + '.png')
 def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,prefix,J_label):
     """
@@ -152,7 +171,7 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
             x = np.append(x,i)
             y = np.append(y,j)
             z = np.append(z,x0 + a*i + b*j + c*i*j +d*i*i + e*j*j)    
-            print(str(i) + ' ' + str(j)+ ' ' + str(x0 + a*i + b*j + c*i*j +d*i*i + e*j*j))
+            #print(str(i) + ' ' + str(j)+ ' ' + str(x0 + a*i + b*j + c*i*j +d*i*i + e*j*j))
     np.savetxt(prefix + '.' + J_label + '.' + 'full_poly_file.txt', np.c_[x,y,z], delimiter=' ')
     poly_output_file.close()
 def calculate_curie(prefix,spin):
@@ -174,21 +193,54 @@ def calculate_curie(prefix,spin):
     J3x = np.loadtxt(prefix + '.' + 'J3x' + '.' + 'full_poly_file.txt')[:, 2]
     J3y = np.loadtxt(prefix + '.' + 'J3y' + '.' + 'full_poly_file.txt')[:, 2]
     J3z = np.loadtxt(prefix + '.' + 'J3z' + '.' + 'full_poly_file.txt')[:, 2]
-    Belgic_J1_vector = np.array([]);Belgic_J2_vector = np.array([]);Belgic_J3_vector = np.array([]);
+    J1plane = (J1x+J1y)/2
+    J2plane = (J2x+J2y)/2
+    J3plane = (J3x+J3y)/2
+    Belgic_J1_vector = np.array([]);Belgic_J2_vector = np.array([]);Belgic_J3_vector = np.array([])
     Belgic_Delta1_vector = np.array([]);Belgic_Delta2_vector = np.array([]);Belgic_Delta3_vector = np.array([])
     Tc_vector = np.array([])
     for i in np.arange(0,len(J1iso),1):
+       Belgic_J1 = (2*J1iso[i]+ J1plane[i] + J1z[i])/2
+       Belgic_J2 = (2*J2iso[i]+ J2plane[i] + J2z[i])/2
+       Belgic_J3 = (2*J3iso[i]+ J3plane[i] + J3z[i])/2
+       Belgic_Delta1 = ((J1iso[i] + J1z[i])-(J1iso[i] + J1plane[i]))/(2*Belgic_J1)
+       Belgic_Delta2 = ((J2iso[i] + J2z[i])-(J2iso[i] + J2plane[i]))/(2*Belgic_J2)
+       Belgic_Delta3 = ((J3iso[i] + J3z[i])-(J3iso[i] + J3plane[i]))/(2*Belgic_J3)
+       #print(J1iso[i],J2iso[i],J3iso[i],'/n',J1x[i],J2x[i],J3x[i],'/n',J1y[i],J2y[i],J3y[i],'/n',J1z[i],J2z[i],J3z[i],'/n',J1plane[i],J2plane[i],J3plane[i],'/n',Belgic_J1,Belgic_J2,Belgic_J3,'/n',Belgic_Delta1,Belgic_Delta2,Belgic_Delta3)
+
+       """
        Belgic_J1 = 4*(2*J1iso[i] + J1z[i] +0.5*J1x[i] +0.5*J1y[i])/9
-       Belgic_J1_vector = np.append(Belgic_J1_vector,Belgic_J1)
-       Belgic_Delta1 = 1- (8*(J1iso[i] +0.5*J1x[i] +0.5*J1y[i])/(9*Belgic_J1_vector[i]))
-       Belgic_Delta1_vector = np.append(Belgic_Delta1_vector,Belgic_Delta1)
        Belgic_J2 = 4*(2*J2iso[i] + J2z[i] +0.5*J2x[i] +0.5*J2y[i])/9
-       Belgic_J2_vector = np.append(Belgic_J2_vector,Belgic_J2)
-       Belgic_Delta2 = 1- (8*(J2iso[i] +0.5*J2x[i] +0.5*J2y[i])/(9*Belgic_J2_vector[i]))
-       Belgic_Delta2_vector = np.append(Belgic_Delta2_vector,Belgic_Delta2)  
        Belgic_J3 = 4*(2*J3iso[i] + J3z[i] +0.5*J3x[i] +0.5*J3y[i])/9
+       #Belgic_Delta1 = 1- (8*(J1iso[i] +0.5*J1x[i] +0.5*J1y[i])/(9*Belgic_J1))
+       #Belgic_Delta2 = 1- (8*(J2iso[i] +0.5*J2x[i] +0.5*J2y[i])/(9*Belgic_J2))
+       #Belgic_Delta3 = 1- (8*(J3iso[i] +0.5*J3x[i] +0.5*J3y[i])/(9*Belgic_J3))
+       Belgic_Delta1 = (1- (J1iso[i]+J1x[i])/(J1iso[i]+J1z[i]))/(1+ (J1iso[i]+J1x[i])/(J1iso[i]+J1z[i]))
+       Belgic_Delta2 = (1- (J2iso[i]+J2x[i])/(J2iso[i]+J2z[i]))/(1+ (J2iso[i]+J2x[i])/(J2iso[i]+J2z[i]))
+       Belgic_Delta3 = (1- (J3iso[i]+J3x[i])/(J3iso[i]+J3z[i]))/(1+ (J3iso[i]+J3x[i])/(J3iso[i]+J3z[i]))
+       """
+       """
+       if Belgic_Delta3 > 1.0:
+          Belgic_Delta3 = 1.0
+       if Belgic_Delta3 < -1.0:
+          Belgic_Delta3 = -1.0
+       if Belgic_Delta2 > 1.0:
+          Belgic_Delta2 = 1.0
+       if Belgic_Delta2 < -1.0:
+          Belgic_Delta2 = -1.0
+       if Belgic_Delta1 > 1.0:
+          Belgic_Delta1 = 1.0
+       if Belgic_Delta1 < -1.0:
+          Belgic_Delta1 = -1.0
+       """
+       Belgic_J1_vector = np.append(Belgic_J1_vector,Belgic_J1)
+       Belgic_J2_vector = np.append(Belgic_J2_vector,Belgic_J2)
        Belgic_J3_vector = np.append(Belgic_J3_vector,Belgic_J3)
-       Belgic_Delta3 = 1- (8*(J3iso[i] +0.5*J3x[i] +0.5*J3y[i])/(9*Belgic_J3_vector[i]))
+       #Belgic_Delta1 = (J1z[i]-J1x[i])/(2*J1z[i]+J1z[i]+J1x[i])
+       Belgic_Delta1_vector = np.append(Belgic_Delta1_vector,Belgic_Delta1)
+       #Belgic_Delta2 = (J2z[i]-J2x[i])/(2*J2z[i]+J2z[i]+J2x[i])
+       Belgic_Delta2_vector = np.append(Belgic_Delta2_vector,Belgic_Delta2)  
+       #Belgic_Delta3 = (J3z[i]-J3x[i])/(2*J3z[i]+J3z[i]+J3x[i])
        Belgic_Delta3_vector = np.append(Belgic_Delta3_vector,Belgic_Delta3)
        Belgic_Delta1 = np.round(Belgic_Delta1,4)
        Belgic_Delta2 = np.round(Belgic_Delta2,4)
@@ -196,44 +248,56 @@ def calculate_curie(prefix,spin):
        Belgic_J1 = np.round(Belgic_J1,4)
        Belgic_J2 = np.round(Belgic_J2,4)
        Belgic_J3 = np.round(Belgic_J3,4)
+       print(Belgic_Delta1,Belgic_Delta2,Belgic_Delta3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i])
        Tc = run(['python3', '../QuantumTools/strain_and_U_calculate_curie.py','-l', 'hon','-out', './curie.txt','-S',str(spin),'-st',str(strain[i]),'-u',str(U[i]),'-D', str(Belgic_Delta1),str(Belgic_Delta2),str(Belgic_Delta3),'-J',str(Belgic_J1),str(Belgic_J2),str(Belgic_J3)],capture_output=True)
-       print(str(Tc) +'/n')
+       #Tc = 'phi_C The negative. temperature is 5'
+       #print(str(Tc) +'/n')
        output = Tc.stdout
        Tc = output.decode("utf-8")
        Tc = Tc.split()
        if Tc[0] == 'phi_C':
             Tc = np.nan
+            #print(Tc)
        elif Tc[1] == 'Curie':
             Tc = float(Tc[4])
        elif Tc[2] == 'negative.':
             Tc = np.nan
+       else:
+            #print(str(Tc) +'/n')
+            #print('python3', '../QuantumTools/strain_and_U_calculate_curie.py','-l', 'hon','-out', './curie.txt','-S',str(spin),'-st',str(strain[i]),'-u',str(U[i]),'-D', str(Belgic_Delta1),str(Belgic_Delta2),str(Belgic_Delta3),'-J',str(Belgic_J1),str(Belgic_J2),str(Belgic_J3))
+            Tc = np.nan
+            print('case out of the model', Belgic_Delta1,Belgic_Delta2,Belgic_Delta,3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i])
+            print(J1iso[i],J1x[i],J1z[i])
+       #print(str(Tc) )
        Tc_vector = np.append(Tc_vector,Tc)
-       #print(Tc_vector)
+    #print(Tc_vector)
     Tc_file.close()
-    print(len(strain),len(U),len(Belgic_Delta1_vector),len(Belgic_J1_vector),len(Tc_vector))
+    print(len(strain),len(U),len(Belgic_Delta1_vector),len(Belgic_J1_vector),len(Belgic_Delta2_vector),len(Belgic_J2_vector),len(Belgic_Delta3_vector),len(Belgic_J3_vector),len(Tc_vector))
     np.savetxt(prefix + '.belgium_exchange_and_Curie.txt', np.c_[strain,U,Belgic_J1_vector,Belgic_J2_vector,Belgic_J3_vector,Belgic_Delta1_vector,Belgic_Delta2_vector,Belgic_Delta3_vector,Tc_vector], fmt="%s", delimiter=' ')
     map_file = open(prefix + '.Curie_map.txt', 'w')
     Tc_matrix = np.array([[]])
-    new_str_len = int((strmax-strmin)/strnstep)
-    new_U_len = int((Umax-Umin)/Unstep)
+    new_str_len = int((strmax-strmin)/poly_str_mesh)
+    new_U_len = int((Umax-Umin)/poly_U_mesh)
     Tc_matrix =Tc_vector.reshape(new_U_len+1, new_str_len+1)
     np.savetxt(map_file,Tc_matrix, fmt="%s", delimiter=' ')
     print(Tc_matrix)
     map_file.close()
     return new_str_len
-def Plot_3D_map(new_str_len,T0):
+def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     """
     Plots the heat map
     """
+    new_str_len  = int((strmax-strmin)/poly_str_mesh)
+    new_U_len = int((Umax-Umin)/poly_U_mesh)
     map_file = open(prefix + '.Curie_map.txt', 'r')
     arr = np.loadtxt(map_file , usecols=np.arange(0,new_str_len + 1))
     arr2 = arr - T0
-    arr2 = np.ma.masked_where(np.isnan(arr2), arr2)
-    
+    arr2 = np.ma.masked_where(np.isnan(arr2), arr2)   
     fig, ax = plt.subplots()
-    fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-10,vmax=10)
-    ax.set_yticks([0,1,2,3,4])
-    ax.set_xticks([0,1,2,3,4,5,6,7,8,9,10])
+    fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-15,vmax=15, aspect='auto')
+
+    ax.set_yticks([0, new_U_len/4, new_U_len/2, new_U_len*3/4, new_U_len])
+    ax.set_xticks([0,new_str_len/10,new_str_len*2/10,new_str_len*3/10,new_str_len*4/10,new_str_len*5/10,new_str_len*6/10,new_str_len*7/10,new_str_len*8/10,new_str_len*9/10,new_str_len])
     y_label_list = ['2','3','4','5','6']
     x_label_list = ['-5', '-4', '-3', '-2', '-1', '0','1', '2', '3', '4', '5']
     ax.set_xticklabels(x_label_list)
@@ -251,17 +315,22 @@ def poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,J_label):
 def perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,J_label):   
     x0,a,b,c,d,e = poly_magic(prefix,J_label)
     poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,prefix,J_label) 
-def perfom_full_Curie_calculation(prefix,spin,T0):
-    new_str_len = calculate_curie(prefix,spin)
-    Plot_3D_map(new_str_len,T0)
+def perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
+    calculate_curie(prefix,spin)
+    Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
 
 if __name__ == '__main__':
     prefix = 'crcl3'
     spin =1.5
-    T0 = 0
-    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
+    T0 = 23
+    #definitive 16k
+    #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
+        #test 4k
+    #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.1 ; poly_U_mesh = 0.1
+        #test lessk
+    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.3 ; poly_U_mesh = 0.3
 
-    format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
+    #format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
 
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1iso')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1x')
@@ -288,4 +357,5 @@ if __name__ == '__main__':
     perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
     perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
     perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
-    perfom_full_Curie_calculation(prefix,spin,T0)
+    perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
+    #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1z')
