@@ -266,7 +266,7 @@ def calculate_curie(prefix,spin):
             #print(str(Tc) +'/n')
             #print('python3', '../QuantumTools/strain_and_U_calculate_curie.py','-l', 'hon','-out', './curie.txt','-S',str(spin),'-st',str(strain[i]),'-u',str(U[i]),'-D', str(Belgic_Delta1),str(Belgic_Delta2),str(Belgic_Delta3),'-J',str(Belgic_J1),str(Belgic_J2),str(Belgic_J3))
             Tc = np.nan
-            print('case out of the model', Belgic_Delta1,Belgic_Delta2,Belgic_Delta,3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i])
+            print('case out of the model', Belgic_Delta1,Belgic_Delta2,Belgic_Delta3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i])
             print(J1iso[i],J1x[i],J1z[i])
        #print(str(Tc) )
        Tc_vector = np.append(Tc_vector,Tc)
@@ -328,7 +328,7 @@ if __name__ == '__main__':
         #test 4k
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.1 ; poly_U_mesh = 0.1
         #test lessk
-    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.3 ; poly_U_mesh = 0.3
+    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.03 ; poly_U_mesh = 0.03
 
     #format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
 
