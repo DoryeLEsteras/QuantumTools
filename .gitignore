@@ -3,6 +3,7 @@
 *.out
 *.bak
 *.dat
+*.png
 .DS_Store
 exchange*
 *.win

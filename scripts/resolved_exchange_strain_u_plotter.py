@@ -136,7 +136,7 @@ def plotter(data_file,output_dir,xaxis_name):
 
 
 
-prefix = 'crbr3'
+prefix = 'crcl3'
 Uscf = 2.0; Umin =2.0; Umax =6.0; Unstep =1.0
 strmin =95; strmax =105; strnstep =1
 input_dir,output_dir = parser()
