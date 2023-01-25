@@ -87,8 +87,10 @@ for line in input_file:
 for index1 in range(1, dorbitals+1, 1):
     for index2 in range(1, dorbitals+1, 1):
         d_d_hamiltonian[index1-1][index2-1] = hamiltonian[index1-1][index2-1]
-        if d_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
+        if d_d_hamiltonian[index1-1][index2-1] > 0 and d_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
            d_d_hamiltonian[index1-1][index2-1] = 0 
+        if d_d_hamiltonian[index1-1][index2-1] < 0 and d_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
+           d_d_hamiltonian[index1-1][index2-1] = 0         
         d_d_output_file.write(str(d_d_hamiltonian[index1-1][index2-1]))
         d_d_output_file.write(' ')
     d_d_output_file.write('\n')
@@ -100,7 +102,9 @@ for index1 in range(1, nwan-dorbitals+1, 1):
         old_index1 = index1 + dorbitals
         old_index2 = index2 + dorbitals
         ligand_ligand_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-        if ligand_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+        if ligand_ligand_hamiltonian[index1-1][index2-1] > 0 and ligand_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+           ligand_ligand_hamiltonian[index1-1][index2-1] = 0
+        if ligand_ligand_hamiltonian[index1-1][index2-1] < 0 and ligand_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
            ligand_ligand_hamiltonian[index1-1][index2-1] = 0
         l_l_output_file.write(str(ligand_ligand_hamiltonian[index1-1][index2-1]))
         l_l_output_file.write(' ')
@@ -113,7 +117,9 @@ for index1 in range(1, dorbitals+1, 1):
         old_index1 = index1 
         old_index2 = index2 + dorbitals 
         d_ligand_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-        if d_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+        if d_ligand_hamiltonian[index1-1][index2-1] > 0 and d_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+           d_ligand_hamiltonian[index1-1][index2-1] = 0 
+        if d_ligand_hamiltonian[index1-1][index2-1] < 0 and d_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
            d_ligand_hamiltonian[index1-1][index2-1] = 0 
         d_l_output_file.write(str(d_ligand_hamiltonian[index1-1][index2-1]))
         d_l_output_file.write('  ')
@@ -126,7 +132,9 @@ for index1 in range(1, nwan-dorbitals+1, 1):
         old_index1 = index1 + dorbitals 
         old_index2 = index2 
         ligand_d_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-        if ligand_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
+        if ligand_d_hamiltonian[index1-1][index2-1] > 0 and ligand_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
+           ligand_d_hamiltonian[index1-1][index2-1] = 0 
+        if ligand_d_hamiltonian[index1-1][index2-1] < 0 and ligand_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
            ligand_d_hamiltonian[index1-1][index2-1] = 0 
         l_d_output_file.write(str(ligand_d_hamiltonian[index1-1][index2-1]))
         l_d_output_file.write(' ')
