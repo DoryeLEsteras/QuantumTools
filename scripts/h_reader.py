@@ -37,7 +37,7 @@ def parser():
 The input is directly the grep '0 0 0' of the hr file
 """
 nwan = 56
-dorbitals = 10
+dorbitals = 20
 
 # personalized ranges of the matrix NOT IMPLEMENTED
 #selected_col=29

@@ -254,18 +254,31 @@ def calculate_curie(prefix,spin):
        J1num2 = (J1iso[i] + J1plane[i])*1000;J2num2 = (J2iso[i] + J2plane[i])*1000;J3num2 = (J3iso[i] + J3plane[i])*1000
        J1den = 2*Belgic_J1*1000;J2den = 2*Belgic_J2*1000;J3den = 2*Belgic_J3*1000
        Belgic_Delta1 = (J1num1-J1num2)/J1den;Belgic_Delta2 = (J2num1-J2num2)/J2den;Belgic_Delta3 = (J3num1-J3num2)/J3den
-       if Belgic_Delta1 > 1:
-          Belgic_Delta1 = 1
-       if Belgic_Delta1 < -1:
-          Belgic_Delta1 = 1       
-       if Belgic_Delta2 > 1:
-          Belgic_Delta2 = 1
-       if Belgic_Delta2 < -1:
-          Belgic_Delta2 = 1      
-       if Belgic_Delta3 > 1:
-          Belgic_Delta3 = 1
-       if Belgic_Delta3 < -1:
-          Belgic_Delta3 = 1       
+     #  if Belgic_Delta1 > 1:
+     #     Belgic_Delta1 = 1
+     #  if Belgic_Delta1 < -1:
+     #     Belgic_Delta1 = -1       
+     #  if Belgic_Delta2 > 1:
+     #     Belgic_Delta2 = 1
+     #  if Belgic_Delta2 < -1:
+     #     Belgic_Delta2 = -1     
+     #  if Belgic_Delta3 > 1:
+     #     Belgic_Delta3 = 1
+     #  if Belgic_Delta3 < -1:
+     #     Belgic_Delta3 = -1 
+ 
+      # if Belgic_Delta1 > 1:
+      #    Belgic_Delta1 = 'no conv'
+      # if Belgic_Delta1 < -1:
+      #    Belgic_Delta1 = 'no conv'       
+      # if Belgic_Delta2 > 1:
+      #    Belgic_Delta2 = 'no conv'
+      # if Belgic_Delta2 < -1:
+      #    Belgic_Delta2 = 'no conv'     
+      # if Belgic_Delta3 > 1:
+      #    Belgic_Delta3 = 'no conv'
+      # if Belgic_Delta3 < -1:
+      #    Belgic_Delta3 = 'no conv'       
        #Belgic_Delta1 = ((J1iso[i] + J1z[i])-(J1iso[i] + J1plane[i]))/(2*Belgic_J1)
        #Belgic_Delta2 = ((J2iso[i] + J2z[i])-(J2iso[i] + J2plane[i]))/(2*Belgic_J2)
        #Belgic_Delta3 = ((J3iso[i] + J3z[i])-(J3iso[i] + J3plane[i]))/(2*Belgic_J3)
@@ -283,8 +296,15 @@ def calculate_curie(prefix,spin):
        Belgic_Delta1_vector = np.append(Belgic_Delta1_vector,Belgic_Delta1)
        Belgic_Delta2_vector = np.append(Belgic_Delta2_vector,Belgic_Delta2)  
        Belgic_Delta3_vector = np.append(Belgic_Delta3_vector,Belgic_Delta3)
-
-
+      # for index in np.arange(0,len(Belgic_Delta1_vector),1):
+      #      if Belgic_Delta1_vector[index] == 'no conv':
+      #          Belgic_Delta1_vector[index] = (Belgic_Delta1_vector[index-1] + Belgic_Delta1_vector[index+1])/2
+      # for index in np.arange(0,len(Belgic_Delta2_vector),1):
+      #      if Belgic_Delta2_vector[index] == 'no conv':
+      #          Belgic_Delta2_vector[index] = (Belgic_Delta2_vector[index-1] + Belgic_Delta2_vector[index+1])/2
+      # for index in np.arange(0,len(Belgic_Delta3_vector),1):
+      #      if Belgic_Delta3_vector[index] == 'no conv':
+      #          Belgic_Delta3_vector[index] = (Belgic_Delta3_vector[index-1] + Belgic_Delta3_vector[index+1])/2
 
         
        #print(Belgic_Delta1,Belgic_Delta2,Belgic_Delta3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i])
@@ -317,7 +337,8 @@ def calculate_curie(prefix,spin):
             #print(Belgic_J3,'(2*' + str(J3iso[i]) + '+' + str(J3plane[i])  + '+' + str(J3z[i]) + ')/2')
             #print(Belgic_Delta3,'(' + str(J3iso[i]) + '+' + str(J3z[i])  + ')-(' + str(J3iso[i]) + '+'+ str(J3plane[i]) + ')/(2*' + Belgic_J3 + ')')
             #print(J1iso[i],J1x[i],J1z[i])
-            Tc = np.nan            
+            #Tc = np.nan  
+            Tc = np.nan         
        #print(str(Tc) )
        Tc_vector = np.append(Tc_vector,Tc)
        #print( Belgic_Delta1,Belgic_Delta2,Belgic_Delta3,Belgic_J1,Belgic_J2,Belgic_J3,strain[i],U[i],Tc)
@@ -344,6 +365,11 @@ def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     new_U_len = int((Umax-Umin)/poly_U_mesh)
     map_file = open(prefix + '.Curie_map.txt', 'r')
     arr = np.loadtxt(map_file , usecols=np.arange(0,new_str_len + 1))
+    #for index1 in np.arange(0,new_str_len,1):
+    #   for index2 in np.arange(0,new_U_len,1):
+    #       if arr[index1][index2] == 'no conv':
+    #          arr[index1][index2] = (arr[index1+1][index2] + arr[index1][index2+1] + arr[index1-1][index2] + arr[index1][index2-1])/4
+
     arr2 = arr - T0
     print(arr2)
     arr2 = np.ma.masked_where(np.isnan(arr2), arr2)   
@@ -373,7 +399,17 @@ def perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,p
 def perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     calculate_curie(prefix,spin)
     Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
-
+def banana_based_poli(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
+    U_vector = np.array([])
+    for strain in np.arange(strmin,strmax,strnstep):
+        if prefix == 'crcl3':
+            U = 0.0012 * strain * strain - 0.2126 * strain + 12.922
+        if prefix == 'crbr3':
+            U = 0.0018 * strain * strain - 0.3246 * strain + 18.369
+        if prefix == 'cri3':
+            U = 0.0027 * strain * strain - 0.4645 * strain + 24.392
+        U_vector = np.append(U_vector,U)
+    
 if __name__ == '__main__':
     prefix = 'crbr3'
     spin =1.5
@@ -403,16 +439,16 @@ if __name__ == '__main__':
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J3y')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J3z')
 
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1iso')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1x')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1y')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1z')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2iso')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2x')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2y')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2z')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3iso')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
-    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1iso')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1x')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1y')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1z')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2iso')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2x')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2y')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2z')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3iso')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
     perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
