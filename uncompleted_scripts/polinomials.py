@@ -201,13 +201,16 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
     #y_label_list = ['2','3','4','5','6']
     x_label_list = ['-5', '-2.5', '0', '2.5', '5']
     ax.set_xticklabels(x_label_list)
+    ax.tick_params(axis='both', which='major', labelsize=16)
     #ax.set_yticklabels(y_label_list) 
     #ax.set_zticks([])
     
-    plt.ylabel('U, eV', fontsize=12)
-    plt.xlabel('Strain, %', fontsize=12)
-    plt.title(J_label)
-    clb= fig.colorbar(surf, shrink=0.5, aspect=20)
+    plt.ylabel('U, eV', fontsize=25, labelpad=15)
+    plt.xlabel('ε, %', fontsize=25, labelpad=15)
+
+    ax.set_zlabel(r'J$_3$ , meV', fontsize=25, rotation=60, labelpad=15)
+    clb= fig.colorbar(surf, shrink=0.8, aspect=20)
+    clb.ax.tick_params(labelsize=15)
     #clb.ax.set_title('Tc (K)',fontsize=15)
     #plt.colorbar(fig, orientation="vertical", pad=0.2)
 
@@ -365,10 +368,13 @@ def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     new_U_len = int((Umax-Umin)/poly_U_mesh)
     map_file = open(prefix + '.Curie_map.txt', 'r')
     arr = np.loadtxt(map_file , usecols=np.arange(0,new_str_len + 1))
-    #for index1 in np.arange(0,new_str_len,1):
-    #   for index2 in np.arange(0,new_U_len,1):
-    #       if arr[index1][index2] == 'no conv':
-    #          arr[index1][index2] = (arr[index1+1][index2] + arr[index1][index2+1] + arr[index1-1][index2] + arr[index1][index2-1])/4
+   # for index1 in np.arange(0,new_str_len,1):
+     #  for index2 in np.arange(0,new_U_len,1):
+      #      arr[index1,index2] = arr[index1,index2] + 0.001
+
+              #arr[index1][index2] = arr[index1][index2-1] +0.001
+   # print(arr)
+
 
     arr2 = arr - T0
     print(arr2)
@@ -378,16 +384,17 @@ def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-23,vmax=13, aspect='auto') #CB
     #fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-42,vmax=20, aspect='auto') #CI
     ax.set_yticks([0, new_U_len/4, new_U_len/2, new_U_len*3/4, new_U_len])
-    ax.set_xticks([0,new_str_len/10,new_str_len*2/10,new_str_len*3/10,new_str_len*4/10,new_str_len*5/10,new_str_len*6/10,new_str_len*7/10,new_str_len*8/10,new_str_len*9/10,new_str_len])
+    ax.set_xticks([0,new_str_len*2.5/10,new_str_len*5/10,new_str_len*7.5/10,new_str_len])
     y_label_list = ['2','3','4','5','6']
-    x_label_list = ['-5', '-4', '-3', '-2', '-1', '0','1', '2', '3', '4', '5']
-    ax.set_xticklabels(x_label_list)
-    ax.set_yticklabels(y_label_list) 
-    plt.ylabel('U (eV)', fontsize=20)
-    plt.xlabel('Strain (%)', fontsize=20)
-    cb = plt.colorbar(fig, orientation="vertical", pad=0.2)
-    cb.set_label(label='Tc (K)', size='x-large', weight='bold')
+    x_label_list = ['-5', '-2.5', '0', '2.5', '5']
+    ax.set_xticklabels(x_label_list,size=20)
+    ax.set_yticklabels(y_label_list,size=20) 
+    plt.ylabel('U (eV)', fontsize=25,labelpad = 5)
+    plt.xlabel('ε, %', fontsize=25,labelpad = 5)
+    cb = plt.colorbar(fig, orientation="vertical", pad=0.1)
+    cb.set_label(label='Tc (K)', size=25)
     cb.ax.tick_params(labelsize='x-large')
+    cb.ax.tick_params(labelsize=20)
     plt.show()
 def poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,J_label):
     x0,a,b,c,d,e = poly_magic(prefix,J_label)
@@ -397,9 +404,9 @@ def perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,p
     x0,a,b,c,d,e = poly_magic(prefix,J_label)
     poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,prefix,J_label) 
 def perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
-    calculate_curie(prefix,spin)
+    #calculate_curie(prefix,spin)
     Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
-def banana_based_poli(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
+def banana_based_poli(prefix,strmax,strmin,strnstep):
     U_vector = np.array([])
     for strain in np.arange(strmin,strmax,strnstep):
         if prefix == 'crcl3':
@@ -439,16 +446,16 @@ if __name__ == '__main__':
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J3y')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J3z')
 
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1iso')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1x')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1y')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1z')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2iso')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2x')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2y')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2z')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3iso')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
-    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1iso')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1x')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1y')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J1z')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2iso')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2x')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2y')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J2z')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3iso')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
+    #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
     perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
