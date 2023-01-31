@@ -131,13 +131,21 @@ def calculator_resolved_nosoc(ni,Jlabel,output_file,input_file):
         + ' ' + str(Jorb[3][3]) + ' ' + str(Jorb[4][3]) + '\n' \
         +  str(Jorb[0][4]) + ' ' + str(Jorb[1][4]) + ' ' + str(Jorb[2][4]) \
         + ' ' + str(Jorb[3][4]) + ' ' + str(Jorb[4][4]) + '\n' + '\n')
-def readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file):
+def readblock_resolved_soc(Jiso,Jorb,Jani,absDMI,input_file):
     readed_line = input_file.readline()
     readed_line = readed_line.split()
     Jiso = Jiso + float(readed_line[1])
     readed_line = input_file.readline()
+    readed_line = readed_line.replace("(", "")
+    readed_line = readed_line.replace(")", "")
+    readed_line = readed_line.replace(",", "")
     readed_line = readed_line.split()
-    #DMI = np.add(DMI, np.array([readed_line[2],readed_line[3],readed_line[4]]))    
+    DMI = np.array([float(readed_line[2]),float(readed_line[3]),float(readed_line[4])])
+    #print(absDMI)
+    absDMI = np.add(absDMI,abs(DMI))
+    #DMI = np.array([0,0,0])
+    #DMI = np.add(DMI, np.array([float(readed_line[2]),float(readed_line[3]),float(readed_line[4])]))   
+    #np.abs(DMI,absDMI)
     input_file.readline()
     readed_line1 = input_file.readline()
     readed_line1 = readed_line1.replace("[", "")
@@ -180,14 +188,17 @@ def readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file):
     Jorb = np.add(Jorb,np.matrix([ [ float(readed_line1[0]), float(readed_line1[1]),float(readed_line1[2]),float(readed_line1[3]),float(readed_line1[4])], [ float(readed_line2[0]), float(readed_line2[1]),float(readed_line2[2]),float(readed_line2[3]),float(readed_line2[4])], [float(readed_line3[0]),float(readed_line3[1]),float(readed_line3[2]),float(readed_line3[3]),float(readed_line3[4])],[ float(readed_line4[0]), float(readed_line4[1]),float(readed_line4[2]),float(readed_line4[3]),float(readed_line4[4])],[ float(readed_line5[0]), float(readed_line5[1]),float(readed_line5[2]),float(readed_line5[3]),float(readed_line5[4])]]))
     for i in range(1, 75, 1):
         input_file.readline()
-    return Jiso,Jani,DMI,Jorb 
+    return Jiso,Jani,absDMI,Jorb 
 def calculator_resolved_soc(ni,Jlabel,output_file,input_file):
-    Jiso = 0;Jani = np.zeros((3, 3));DMI = np.array([0,0,0]);Jorb = Jper = np.zeros((5, 5))
+    Jiso = 0;Jani = np.zeros((3, 3));absDMI = np.array([0,0,0]);Jorb = Jper = np.zeros((5, 5))
     for i in range(0,ni,1):
-        Jiso , Jani, DMI, Jorb = readblock_resolved_soc(Jiso,Jorb,Jani,DMI,input_file)
+        Jiso , Jani, absDMI, Jorb = readblock_resolved_soc(Jiso,Jorb,Jani,absDMI,input_file)
     Jiso= round(Jiso/ni,3)
     Jani= np.divide(Jani,ni)
     Jani=np.matrix.round(Jani,3)
+    absDMI= np.divide(absDMI,ni)
+    absDMI=np.matrix.round(absDMI,4)
+    #print(absDMI)
     output_file.write(Jlabel + ' iso : ' + str(Jiso) + '\n')
     output_file.write(Jlabel + ' ani :\n' + str(Jani[0][0]) + ' ' \
     + str(Jani[1][0]) + ' ' + str(Jani[2][0]) + '\n' + str(Jani[0][1])\
@@ -207,6 +218,8 @@ def calculator_resolved_soc(ni,Jlabel,output_file,input_file):
         + ' ' + str(Jorb[3][3]) + ' ' + str(Jorb[4][3]) + '\n' \
         +  str(Jorb[0][4]) + ' ' + str(Jorb[1][4]) + ' ' + str(Jorb[2][4]) \
         + ' ' + str(Jorb[3][4]) + ' ' + str(Jorb[4][4]) + '\n' + '\n')
+    output_file.write(Jlabel + ' |DMI| :\n' + str(absDMI[0]) + ' ' \
+    + str(absDMI[1]) + ' ' + str(absDMI[2]) + '\n' + '\n')    
 def execution():
     provided_input_file,provided_output_file,n= parser()
     input_file = open(str(provided_input_file), 'r')

@@ -20,6 +20,7 @@ def parser():
 
     args = parser.parse_args()
     return args.inputdir
+
 def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     """"
     Takes the filtered exchange file and produces files in the format: str U J
@@ -27,6 +28,7 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     """
     J1iso_vector = np.array([]);J2iso_vector = np.array([]);J3iso_vector = np.array([]);U_vector = np.array([]);strain_vector = np.array([])
     J1x_vector  = np.array([]);J1y_vector  = np.array([]);J1z_vector  = np.array([]);J2x_vector  = np.array([]);J2y_vector  = np.array([]);J2z_vector  = np.array([]);J3x_vector  = np.array([]);J3y_vector  = np.array([]);J3z_vector  = np.array([])
+    DM1x_vector  = np.array([]);DM1y_vector  = np.array([]);DM1z_vector  = np.array([]);DM2x_vector  = np.array([]);DM2y_vector  = np.array([]);DM2z_vector  = np.array([]);DM3x_vector  = np.array([]);DM3y_vector  = np.array([]);DM3z_vector  = np.array([])
     for strain in np.arange(strmin,strmax+strnstep,strnstep):
         for U in np.arange(Umin,Umax+ Unstep,Unstep):
             output_file_strain = open('exchange.' + str(prefix) + '.' + str(strain) + '.' + str(U), 'r')
@@ -86,6 +88,24 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
                     J3ani  = J3ani.split()
                     J3z = float(J3ani[2])
                     J3z_vector = np.append(J3z_vector,J3z)
+                if readed_line[0] == 'J1' and readed_line[1] == '|DMI|':
+                    DM1 = read_vector[counter+1]
+                    DM1 = DM1.split()
+                    DM1x_vector = np.append(DM1x_vector,float(DM1[0]))
+                    DM1y_vector = np.append(DM1y_vector,float(DM1[1]))
+                    DM1z_vector = np.append(DM1z_vector,float(DM1[2]))
+                if readed_line[0] == 'J2' and readed_line[1] == '|DMI|':
+                    DM2 = read_vector[counter+1]
+                    DM2 = DM2.split()
+                    DM2x_vector = np.append(DM2x_vector,float(DM2[0]))
+                    DM2y_vector = np.append(DM2y_vector,float(DM2[1]))
+                    DM2z_vector = np.append(DM2z_vector,float(DM2[2]))
+                if readed_line[0] == 'J3' and readed_line[1] == '|DMI|':
+                    DM3 = read_vector[counter+1]
+                    DM3 = DM3.split()
+                    DM3x_vector = np.append(DM3x_vector,float(DM3[0]))
+                    DM3y_vector = np.append(DM3y_vector,float(DM3[1]))
+                    DM3z_vector = np.append(DM3z_vector,float(DM3[2]))
                 counter = counter + 1 
     np.savetxt(prefix + '.' + 'J1iso' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J1iso_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'J2iso' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J2iso_vector], delimiter=' ')
@@ -99,6 +119,16 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     np.savetxt(prefix + '.' + 'J3x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J3x_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'J3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J3y_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'J3z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J3z_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM1x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1x_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM2x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1y_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM3x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1z_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM1y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2x_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM2y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2y_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2z_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM1z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3x_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM2z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3y_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM3z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3z_vector], delimiter=' ')
+
 def func(I,x0,a,b,c,d,e):
     """
     Defines the polinomials that are going to be used, this function is used inside of poly_magic
@@ -207,16 +237,15 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
     
     plt.ylabel('U, eV', fontsize=25, labelpad=15)
     plt.xlabel('ε, %', fontsize=25, labelpad=15)
-
-    ax.set_zlabel(r'J$_3$ , meV', fontsize=25, rotation=60, labelpad=15)
-    clb= fig.colorbar(surf, shrink=0.8, aspect=20)
-    clb.ax.tick_params(labelsize=15)
     #clb.ax.set_title('Tc (K)',fontsize=15)
     #plt.colorbar(fig, orientation="vertical", pad=0.2)
 
     #cb.set_label(label='Tc (K)', size='x-large', weight='bold')
     #cb.ax.tick_params(labelsize='x-large')
     #plt.show()
+    ax.set_zlabel(r'J$_3$ , meV', fontsize=25, rotation=60, labelpad=15)
+    clb= fig.colorbar(surf, shrink=0.8, aspect=20)
+    clb.ax.tick_params(labelsize=15)
 def calculate_curie(prefix,spin):
     """
     Reads The estended poly files,computes Belgium parameters and Tc. As a results a file with the Heat map data is created in the appropiate format
@@ -381,7 +410,7 @@ def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     arr2 = np.ma.masked_where(np.isnan(arr2), arr2)   
     fig, ax = plt.subplots()
     #fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-10,vmax=10, aspect='auto') #CC
-    fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-23,vmax=13, aspect='auto') #CB
+    fig = plt.imshow(arr2, cmap='seismic', interpolation='hermite',origin='lower',vmin=-23,vmax=13, aspect='auto') #CB
     #fig = plt.imshow(arr2, cmap='seismic', interpolation='none',origin='lower',vmin=-42,vmax=20, aspect='auto') #CI
     ax.set_yticks([0, new_U_len/4, new_U_len/2, new_U_len*3/4, new_U_len])
     ax.set_xticks([0,new_str_len*2.5/10,new_str_len*5/10,new_str_len*7.5/10,new_str_len])
@@ -418,21 +447,22 @@ def banana_based_poli(prefix,strmax,strmin,strnstep):
         U_vector = np.append(U_vector,U)
     
 if __name__ == '__main__':
-    prefix = 'crbr3'
+    prefix = 'cri3'
     spin =1.5
-    #T0 = 23 # crcl3
-    T0 = 55.3 #crbr3
+    T0 = 23 # crcl3
+    #T0 = 55.3 #crbr3
     #T0 = 94.22 # cri3
     plt.rcParams['figure.max_open_warning'] = 0
     #definitive 16k
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
         #test 4k
-    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.1 ; poly_U_mesh = 0.1
+    strmax = 95; strmin = 105; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.25 ; poly_U_mesh = 0.25
         #test lessk
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.03 ; poly_U_mesh = 0.03
     #inputdir = parser()
-    #format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
-
+    format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
+    poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'DM2z')
+    
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1iso')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1x')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1y')
@@ -458,4 +488,4 @@ if __name__ == '__main__':
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
-    perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
+    #perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
