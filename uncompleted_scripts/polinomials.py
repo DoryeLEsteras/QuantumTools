@@ -36,10 +36,11 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
             U_vector = np.append(U_vector,U)
             strain_vector = np.append(strain_vector,strain)
             counter = 0
+            #print(read_vector)
             for line in read_vector:
                 readed_line = line.replace(';', '')
                 readed_line = readed_line.split()
-                readed_line.append('end')              
+                readed_line.append('end')            
                 if readed_line[0] == 'J1' and readed_line[1] == 'iso':
                     J1iso = float(readed_line[3])
                     J1iso_vector = np.append(J1iso_vector,J1iso)
@@ -120,13 +121,13 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     np.savetxt(prefix + '.' + 'J3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J3y_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'J3z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,J3z_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'DM1x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1x_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM2x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1y_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM3x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1z_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM1y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2x_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM1y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1y_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM1z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM1z_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM2x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2x_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'DM2y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2y_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2z_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM1z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3x_vector], delimiter=' ')
-    np.savetxt(prefix + '.' + 'DM2z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3y_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM2z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM2z_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM3x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3x_vector], delimiter=' ')
+    np.savetxt(prefix + '.' + 'DM3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3y_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'DM3z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3z_vector], delimiter=' ')
 
 def func(I,x0,a,b,c,d,e):
@@ -242,7 +243,7 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
 
     #cb.set_label(label='Tc (K)', size='x-large', weight='bold')
     #cb.ax.tick_params(labelsize='x-large')
-    #plt.show()
+    plt.show()
     ax.set_zlabel(r'J$_3$ , meV', fontsize=25, rotation=60, labelpad=15)
     clb= fig.colorbar(surf, shrink=0.8, aspect=20)
     clb.ax.tick_params(labelsize=15)
@@ -456,12 +457,12 @@ if __name__ == '__main__':
     #definitive 16k
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
         #test 4k
-    strmax = 95; strmin = 105; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.25 ; poly_U_mesh = 0.25
+    strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.1 ; poly_U_mesh = 0.1
         #test lessk
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.03 ; poly_U_mesh = 0.03
     #inputdir = parser()
-    format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
-    poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'DM2z')
+    #format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
+    #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'DM2z')
     
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1iso')
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'J1x')
@@ -488,4 +489,5 @@ if __name__ == '__main__':
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3x')
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3y')
     #perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'J3z')
+    perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,poly_U_mesh,'DM2z')
     #perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
