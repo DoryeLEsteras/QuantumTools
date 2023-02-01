@@ -6,7 +6,7 @@ from argparse import ArgumentParser
     All the workflow is working but just readblock for resolved no soc is done
     do the other 3 functions: 
     - readblock noresolved no soc, 
-    - DMI, DMI/J
+    - DMI, DMI/J (Resolved with SOC has |DM1 implemented|)
     - implement number of neigbours to calculate in the manager
     -implement different modes
     -automatic detection of n and optional n by user (i dont know if its worth)
