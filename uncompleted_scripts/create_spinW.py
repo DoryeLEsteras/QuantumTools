@@ -1,6 +1,7 @@
 import numpy as np
 from argparse import ArgumentParser
 import re
+import math
 
 """
  to do list
@@ -119,6 +120,8 @@ def data_extractor(prefix,spin,angle1_lattice,angle2_lattice,angle3_lattice,SIA,
     a = a.split()
     a = float(a[0])
     b = a
+    factorb = a*math.cos(30*2*math.pi/360)
+    factora = a*math.sin(30*2*math.pi/360)
     fileTB2J.readline()
     c = fileTB2J.readline()
     c = c.split()
@@ -130,11 +133,13 @@ def data_extractor(prefix,spin,angle1_lattice,angle2_lattice,angle3_lattice,SIA,
     at_pos = fileTB2J.readline()   
     at_pos = at_pos.split()
     if at_pos[0] == 'Cr1' or at_pos[0] == 'Cr2':
-        at1 = np.array([float(at_pos[1])/a,float(at_pos[2])/b,float(at_pos[3])/c])
+        at1 = np.array([float(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
+        print(at1)
     at_pos = fileTB2J.readline()   
     at_pos = at_pos.split()
     if at_pos[0] == 'Cr1' or at_pos[0] == 'Cr2':
-        at2 = np.array([float(at_pos[1])/a,float(at_pos[2])/b,float(at_pos[3])/c])
+        at2 = np.array([(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
+        print(at2)
     while line != 'Exchange: \n':
         line = fileTB2J.readline()
     fileTB2J.readline()
@@ -161,12 +166,40 @@ def data_extractor(prefix,spin,angle1_lattice,angle2_lattice,angle3_lattice,SIA,
             counter = counter +1 
         Jiso_mean = np.append(Jiso_mean,Jmean/ni) 
         Jmean = 0
-    return a,b,c,at1,at2,Jiso_vector,Jiso_mean,Jani_matrix,DMI_matrix,NN_matrix,Label_atom_1_vector,Label_atom_2_vector,nn,number_neighbors,Label_exchange_vector
+    clean_indices = np.array([]);clean_label_exchange_vector = []
+    for index_vector_to_compare in range(0,len(Label_atom_1_vector),1):
+        for index in range(index_vector_to_compare + 1,len(Label_atom_1_vector),1):
+            #print(index_vector_to_compare,index)
+            if np.array_equal(NN_matrix[index_vector_to_compare][:],-NN_matrix[index][:]) == True and Label_atom_1_vector[index_vector_to_compare] == Label_atom_2_vector[index] and Label_atom_2_vector[index_vector_to_compare] == Label_atom_1_vector[index]:
+                clean_indices = np.append(clean_indices,index_vector_to_compare)
+
+# Soy muy consciente de que esto es muy refactorizable. Basicamente empece el codigo contando 
+#dos veces todos las interacciones. Deberia ser tan facil como subir arriba y comenzar con
+# ni -> ni/2 y derivados, pero estoy cansado y tengo que seguri adelante. Por ahora estas
+# lineas reescriben los indices y funcionan
+    clean_Jani_matrix = np.array([[]]);clean_DMI_matrix = np.array([[]]);clean_NN_matrix = np.array([[]])
+    clean_label_atom_1_vector = [];clean_label_atom_2_vector = [];clean_Label_exchange_vector = []
+    for i in clean_indices:
+        clean_Jani_matrix = np.append(clean_Jani_matrix,Jani_matrix[int(i), :] )
+        clean_DMI_matrix = np.append(clean_DMI_matrix,DMI_matrix[int(i), :] )
+        clean_NN_matrix = np.append(clean_NN_matrix,NN_matrix[int(i), :])
+        clean_label_atom_1_vector.append(Label_atom_1_vector[int(i)])
+        clean_label_atom_2_vector.append(Label_atom_2_vector[int(i)])
+    clean_NN_matrix =np.resize(clean_NN_matrix,(len(clean_indices),3))
+    clean_DMI_matrix =np.resize(clean_DMI_matrix,(len(clean_indices),3))
+    clean_Jani_matrix =np.resize(clean_Jani_matrix,(len(clean_indices),3))
+    for index in range(0,number_neighbors,1):
+        ni = int(n[index])   
+        for index2 in range(0,int(ni/2),1):
+            clean_Label_exchange = str(index+1) + "_" +str(index2+1)
+            clean_Label_exchange_vector.append(clean_Label_exchange)
+    return a,b,c,at1,at2,Jiso_vector,Jiso_mean,clean_Jani_matrix,clean_DMI_matrix,clean_NN_matrix,clean_label_atom_1_vector,clean_label_atom_2_vector,nn,number_neighbors,clean_Label_exchange_vector
 def createSW(prefix,fileSW,a,b,c,at1,at2,Jiso_vector,Jiso_mean,Jani_matrix,DMI_matrix,NN_matrix,Label_atom_1_vector,Label_atom_2_vector,nn,number_neighbors,U,strain,Label_exchange_vector):
+    nn = int(nn/2)   # esto es el parche a la falta de refactorizacion, seria muy simple de arreglar! Pero estoy petado
     fileSW.write("clc\n")
     fileSW.write("clear class\n")
     fileSW.write(prefix + "=spinw;\n")
-    fileSW.write("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%crystal and magnetic stucture%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n%")
+    fileSW.write("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%crystal and magnetic stucture%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
     fileSW.write(prefix + ".genlattice('lat_const',[" + str(a)+ " " + str(b) + " " + str(c) +"]);\n")
     fileSW.write(prefix + ".genlattice('angled',[" + str(angle1_lattice) + " " + str(angle2_lattice) + " " + str(angle3_lattice) + "]);\n")
     fileSW.write(prefix + ".addatom('label','Cr','r',[" + str(at1[0]) +  " " + str(at1[1]) +  " " + str(at1[2]) + "],'S',"+ str(spin) + " , 'color', 'red');\n")
