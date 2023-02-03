@@ -120,8 +120,6 @@ def data_extractor(prefix,spin,angle1_lattice,angle2_lattice,angle3_lattice,SIA,
     a = a.split()
     a = float(a[0])
     b = a
-    factorb = a*math.cos(30*2*math.pi/360)
-    factora = a*math.sin(30*2*math.pi/360)
     fileTB2J.readline()
     c = fileTB2J.readline()
     c = c.split()
@@ -133,13 +131,13 @@ def data_extractor(prefix,spin,angle1_lattice,angle2_lattice,angle3_lattice,SIA,
     at_pos = fileTB2J.readline()   
     at_pos = at_pos.split()
     if at_pos[0] == 'Cr1' or at_pos[0] == 'Cr2':
-        at1 = np.array([float(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
-        print(at1)
+        #at1 = np.array([float(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
+        at1 =np.array([0,0,float(at_pos[3])/c])
     at_pos = fileTB2J.readline()   
     at_pos = at_pos.split()
     if at_pos[0] == 'Cr1' or at_pos[0] == 'Cr2':
-        at2 = np.array([(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
-        print(at2)
+        #at2 = np.array([(float(at_pos[1])+factora)/a,float(at_pos[2])/factorb,float(at_pos[3])/c])
+        at2 =np.array([0.333333,0.6666667,float(at_pos[3])/c])
     while line != 'Exchange: \n':
         line = fileTB2J.readline()
     fileTB2J.readline()
