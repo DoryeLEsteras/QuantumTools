@@ -4,7 +4,14 @@ from argparse import ArgumentParser
 
 # TO DO LIST
 """
-Done
+- One day, it would be nice if also directly plots the bands
+"""
+
+# DESCRIPTION
+"""
+This script filters the fatbands, there are 2 modes, mode 1 extract the full
+bands according to a cutoff, the mode 2 extracts just the pieces of the bands 
+that satisfy the cutoff.
 """
 
 def parser():
@@ -13,24 +20,27 @@ def parser():
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the exchange file
+                        Data file containing the fatbands.
                         """)
     parser.add_argument("-out", "--out",
                         type=str,
                         required=True,
                         help="""
-                        Output file name and directory
+                        Output file name including directory for the filtered 
+                        fatbands file
                         """)    
     parser.add_argument("-cut", "--cut",
                         type=float,
                         required=True,
-                        help="cutoff for extracting the bands ")
+                        help="cutoff to filter the fatbands (0-1) ")
     parser.add_argument("-mode", "--mode",
                         type=int,
                         required=True,
-                        help="Mode1 to filter full bands, mode 2: surface only mode ")
+                        help="Mode1: filter full bands, Mode 2: filter pieces of bands ")
     args = parser.parse_args()
     return args.input,args.out,args.cut,args.mode
+
+
 
 provided_input_file,provided_output_file,cutoff,mode= parser()
 input_file = open(str(provided_input_file), 'r')
@@ -52,8 +62,6 @@ with open(str(provided_input_file),'r') as f:
         read_line.append('end')
         if read_line[0] == 'end':
             nbands = nbands +1
-
-
 
 
 readed_line = '0'; check = 'no'; read_matrix = np.zeros((nk, 3))

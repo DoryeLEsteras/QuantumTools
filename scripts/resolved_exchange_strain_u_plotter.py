@@ -1,27 +1,53 @@
 import numpy as np
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
+
 # TO DO LIST
 """
-- Add more plots according to necessities 
+- Refactor (1. if the number of J's is generalized, all the functions, specially 
+the plotter are going to be reduced
+2. The function J vs U is basically a declassified copy of Jvs_strain,
+there should be a way of refactorizing this)
+- Extend to more than 3 J's
+- Check if Unstep or strnstep != 1 make crash the code
+- Maybe introducing parameters by input
 """
+
+# DESCRIPTION
+"""
+The code reads filtered exchange files and produces files, plots and tables.
+The tables doesn't have format.
+The script can loop over U and strain however it works for single U's and strains
+and by the other hand looping strain with more than one U has not been tested.
+
+IN: filtered excahnge files
+OUT: Files, figures and tables of resolved exchange 
+"""
+
 def parser():
-    parser = ArgumentParser(description="Script to fix the matrices of Gaussian")
+    parser = ArgumentParser(description="Script to plot resolved exchange")
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the output file
+                        Directory where files and figure will be generated
                         """)   
     parser.add_argument("-inputdir", "--inputdir",
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the input file
+                        Directory where filtered exchange files are
                         """)      
     args = parser.parse_args()
     return args.inputdir,args.outdir
 def manage_input_files(input_file):
+    """
+    Loads all the resolved exchange parameters for a particular input.
+    This input is a filtered exchange file. Works with every filtered input,
+    independently of the SOC/noSOC nature, but the information used is purely
+    resolved no soc. 
+    The function also creates the t2g-t2g, eg-eg and t2g-eg interactions
+    """
     counter = 0
     read_vector = input_file.readlines()
     for line in read_vector:
@@ -141,78 +167,17 @@ def manage_input_files(input_file):
        J3_x2y2_x2y2, J3_dxz_dxz,J3_dyz_dyz, J3_dxy_dxy, J3_dz2_dxz,\
        J3_dz2_dyz, J3_dz2_dx2y2,J3_dz2_dxy, J3_dxz_dyz, J3_dxz_dx2y2,\
        J3_dxz_dxy, J3_dyz_dxy, J3_dyz_dx2y2, J3_dxy_dx2y2
-def create_J_vs_U_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir):
-    for strain in np.arange(strmin,strmax+strnstep,strnstep):
-        strain_file_name = str(output_dir) + '/' + prefix + '.resolved_exchange_' + \
-                           str(strain) + '_strain' + '_vsU.txt'
-        strain_output_file = open(strain_file_name, 'w')
-        strain_output_file.write('U' + ' ' + 'J1iso' + ' ' + 'J2iso' + ' ' + 'J3iso' + ' ' + \
-            'J1_t2g_t2g' + ' ' +  'J2_t2g_t2g' + ' ' +  'J3_t2g_t2g' + ' '     + \
-            'J1_t2g_eg' + ' ' + 'J2_t2g_eg' + ' ' +  'J3_t2g_eg' + ' '         + \
-            'J1_eg_eg' + ' ' +  'J2_eg_eg' + ' ' +  'J3_eg_eg' + ' ' + \
-            'J1_dz2_dz2' + ' ' + 'J1_x2y2_x2y2' + ' ' +  'J1_dxz_dxz' + ' ' + \
-            'J1_dyz_dyz' + ' ' +  'J1_dxy_dxy' + ' ' +  'J1_dz2_dxz' + ' ' + \
-            'J1_dz2_dyz' + ' ' +  'J1_dz2_dx2y2' + ' ' + 'J1_dz2_dxy' + ' ' + \
-            'J1_dxz_dyz' + ' ' +  'J1_dxz_dx2y2' + ' ' + 'J1_dxz_dxy' + ' ' +  \
-            'J1_dyz_dxy' + ' ' +  'J1_dyz_dx2y2' + ' ' +  'J1_dxy_dx2y2' + ' ' + \
-            'J2_dz2_dz2' + ' ' + 'J2_x2y2_x2y2' + ' ' +  'J2_dxz_dxz' + ' ' + \
-            'J2_dyz_dyz' + ' ' +  'J2_dxy_dxy' + ' ' +  'J2_dz2_dxz' + ' ' + \
-            'J2_dz2_dyz' + ' ' +  'J2_dz2_dx2y2' + ' ' + 'J2_dz2_dxy' + ' ' + \
-            'J2_dxz_dyz' + ' ' +  'J2_dxz_dx2y2' + ' ' + 'J2_dxz_dxy' + ' ' + \
-            'J2_dyz_dxy' + ' ' +  'J2_dyz_dx2y2' + ' ' +  'J2_dxy_dx2y2' + ' ' + \
-            'J3_dz2_dz2' + ' ' + 'J3_x2y2_x2y2' + ' ' +  'J3_dxz_dxz' + ' ' + \
-            'J3_dyz_dyz' + ' ' +  'J3_dxy_dxy' + ' ' +  'J3_dz2_dxz' + ' ' + \
-           'J3_dz2_dyz' + ' ' +  'J3_dz2_dx2y2' + ' ' + 'J3_dz2_dxy' + ' ' +  \
-           'J3_dxz_dyz' + ' ' +  'J3_dxz_dx2y2' + ' ' + 'J3_dxz_dxy' + ' ' + \
-           'J3_dyz_dxy' + ' ' +  'J3_dyz_dx2y2' + ' ' +  'J3_dxy_dx2y2' + '\n')
-        for U in np.arange(Umin,Umax+Unstep,Unstep):
-            input_name = 'exchange.' + str(prefix) + '.' + str(strain) + '.' + str(U)
-            input_file = open(input_dir+ '/' +input_name, 'r')
-            J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg,\
-                J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg,J1_dz2_dz2,\
-                J1_x2y2_x2y2, J1_dxz_dxz,J1_dyz_dyz, J1_dxy_dxy, J1_dz2_dxz,\
-                J1_dz2_dyz, J1_dz2_dx2y2,J1_dz2_dxy, J1_dxz_dyz, J1_dxz_dx2y2,\
-                J1_dxz_dxy, J1_dyz_dxy, J1_dyz_dx2y2, J1_dxy_dx2y2,J2_dz2_dz2,\
-                J2_x2y2_x2y2, J2_dxz_dxz,J2_dyz_dyz, J2_dxy_dxy, J2_dz2_dxz,\
-                J2_dz2_dyz, J2_dz2_dx2y2,J2_dz2_dxy, J2_dxz_dyz, J2_dxz_dx2y2,\
-                J2_dxz_dxy, J2_dyz_dxy, J2_dyz_dx2y2, J2_dxy_dx2y2,J3_dz2_dz2,\
-                J3_x2y2_x2y2, J3_dxz_dxz,J3_dyz_dyz, J3_dxy_dxy, J3_dz2_dxz,\
-                J3_dz2_dyz, J3_dz2_dx2y2,J3_dz2_dxy, J3_dxz_dyz, J3_dxz_dx2y2,\
-                J3_dxz_dxy, J3_dyz_dxy, J3_dyz_dx2y2, J3_dxy_dx2y2 \
-                = manage_input_files(input_file)   
-            input_file.close()
-            strain_output_file.write(str(U) + ' ' + str(J1iso) + ' ' + str(J2iso) + ' ' + \
-                 str(J3iso) + ' ' + str(J1_t2g_t2g) + ' ' +  str(J2_t2g_t2g) + \
-                 ' ' +  str(J3_t2g_t2g) + ' ' + str(J1_t2g_eg) + ' ' + \
-                 str(J2_t2g_eg) + ' ' +  str(J3_t2g_eg) + ' ' + str(J1_eg_eg) +\
-                 ' ' +  str(J2_eg_eg) + ' ' +  str(J3_eg_eg) + ' ' + \
-                 str(J1_dz2_dz2) + ' ' + str(J1_x2y2_x2y2) + ' ' +  \
-                 str(J1_dxz_dxz) + ' ' + str(J1_dyz_dyz) + ' ' +  \
-                 str(J1_dxy_dxy) + ' ' +  str(J1_dz2_dxz) + ' ' + \
-                 str(J1_dz2_dyz) + ' ' +  str(J1_dz2_dx2y2) + ' ' + \
-                 str(J1_dz2_dxy) + ' ' +  str(J1_dxz_dyz) + ' ' +  \
-                 str(J1_dxz_dx2y2) + ' ' + str(J1_dxz_dxy) + ' ' +  \
-                 str(J1_dyz_dxy) + ' ' +  str(J1_dyz_dx2y2) + ' ' + \
-                 str(J1_dxy_dx2y2) + ' ' + str(J2_dz2_dz2) + ' ' + \
-                 str(J2_x2y2_x2y2) + ' ' +  str(J2_dxz_dxz) + ' ' + \
-                 str(J2_dyz_dyz) + ' ' +  str(J2_dxy_dxy) + ' ' + \
-                 str(J2_dz2_dxz) + ' ' + str(J2_dz2_dyz) + ' ' +  \
-                 str(J2_dz2_dx2y2) + ' ' + str(J2_dz2_dxy) + ' ' +  \
-                 str(J2_dxz_dyz) + ' ' +  str(J2_dxz_dx2y2) + ' ' + \
-                 str(J2_dxz_dxy) + ' ' +  str(J2_dyz_dxy) + ' ' +  \
-                 str(J2_dyz_dx2y2) + ' ' +  str(J2_dxy_dx2y2) + ' ' + \
-                 str(J3_dz2_dz2) + ' ' + str(J3_x2y2_x2y2) + ' ' +  \
-                 str(J3_dxz_dxz) + ' ' + str(J3_dyz_dyz) + ' ' +  \
-                 str(J3_dxy_dxy) + ' ' +  str(J3_dz2_dxz) + ' ' + \
-                 str(J3_dz2_dyz) + ' ' +  str(J3_dz2_dx2y2) + ' ' + \
-                 str(J3_dz2_dxy) + ' ' +  str(J3_dxz_dyz) + ' ' +  \
-                 str(J3_dxz_dx2y2) + ' ' + str(J3_dxz_dxy) + ' ' +  \
-                 str(J3_dyz_dxy) + ' ' +  str(J3_dyz_dx2y2) + ' ' +  \
-                 str(J3_dxy_dx2y2)+ '\n') 
-        strain_output_file.close()
-        plot_total(strain_file_name,output_dir,'strain')
-        plotter(strain_file_name,output_dir,'U')
 def create_J_vs_strain_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir):
+    """
+    This function calls manage_input_files to loop over a strain and U.
+    The result is a colection of files (one for each U value) where all the
+    resolved exchange parameters are presented vs strain.
+    Also files containing the data in format of matrices are generated,
+    thus paper tables can be generated.
+    Finally this function calls the plotters generating the graphs of
+    Total exchange with t2g-t2g, t2g-eg and eg-eg and also the ones containing 
+    all the resolved channels in the paper format.
+    """
     matrix_to_plot_tablesJ1 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
     matrix_to_plot_tablesJ2 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
     matrix_to_plot_tablesJ3 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
@@ -320,52 +285,167 @@ def create_J_vs_strain_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,outpu
         U_output_file.close()
         plot_total(U_file_name,output_dir,'Strain')
         plot_resolved(U_file_name,output_dir,'Strain')
-    return matrix_to_plot_tablesJ1,matrix_to_plot_tablesJ2,matrix_to_plot_tablesJ3
-def plotter_panel_debug(data_file,output_dir,xaxis_name):
-    x_axis = np.loadtxt(data_file, skiprows=1)[:, 0]
-    J1 = np.loadtxt(data_file, skiprows=1)[:, 1]
-    J2 = np.loadtxt(data_file, skiprows=1)[:, 2]
-    J3 = np.loadtxt(data_file, skiprows=1)[:, 3]
-    J1tt = np.loadtxt(data_file, skiprows=1)[:, 4]
-    J2tt= np.loadtxt(data_file, skiprows=1)[:, 5]
-    J3tt = np.loadtxt(data_file, skiprows=1)[:, 6]
-    J1te= np.loadtxt(data_file, skiprows=1)[:, 7]
-    J2te = np.loadtxt(data_file, skiprows=1)[:, 8]
-    J3te= np.loadtxt(data_file, skiprows=1)[:, 9]
-    J1ee = np.loadtxt(data_file, skiprows=1)[:, 10]
-    J2ee= np.loadtxt(data_file, skiprows=1)[:, 11]
-    J3ee = np.loadtxt(data_file, skiprows=1)[:, 12]
-    figsimple,ax = plt.subplots() 
-    ax.plot(x_axis,J1,'bo')
-    plt.savefig(output_dir + 'simple_panel_' + xaxis_name + '.png')
-    fig,axs = plt.subplots(4,3,figsize=[20,15]) 
-    plt.tight_layout() #avoid overlaps
-    axs[0,0].plot(x_axis,J1,'bo')
-    axs[0,0].set_title('J1 Total')
-    axs[0,1].plot(x_axis,J2,'bo')
-    axs[0,1].set_title('J2 Total')
-    axs[0,2].plot(x_axis,J3,'bo')
-    axs[0,2].set_title('J3 Total')
-    axs[1,0].plot(x_axis,J1tt,'bo')
-    axs[1,0].set_title('J1 t2g-t2g')
-    axs[1,1].plot(x_axis,J2tt,'bo')
-    axs[1,1].set_title('J2 t2g-t2g')
-    axs[1,2].plot(x_axis,J3tt,'bo')
-    axs[1,2].set_title('J3 t2g-t2g')
-    axs[2,0].plot(x_axis,J1te,'bo')
-    axs[2,0].set_title('J1 t2g-eg')
-    axs[2,1].plot(x_axis,J2te,'bo')
-    axs[2,1].set_title('J2 t2g-eg')
-    axs[2,2].plot(x_axis,J3te,'bo')
-    axs[2,2].set_title('J3 t2g-eg')
-    axs[3,0].plot(x_axis,J1ee,'bo')
-    axs[3,0].set_title('J1 eg-eg')
-    axs[3,1].plot(x_axis,J2ee,'bo')
-    axs[3,1].set_title('J2 eg-eg')
-    axs[3,2].plot(x_axis,J3ee,'bo')
-    axs[3,2].set_title('J3 eg-eg')
-    plt.savefig(output_dir + 'full_panel_' + xaxis_name + '.png')
+    text_file1 = open(output_dir + '/' + prefix + 'tablesJ1.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file1,matrix_to_plot_tablesJ1[i,:,:] , fmt="%s", delimiter=' ')
+        text_file1.close()
+        text_file1 = open(output_dir + '/' + prefix + 'tablesJ1.txt','a')
+        text_file1.write('\n')
+    text_file1.close()
+    text_file2 = open(output_dir + '/' + prefix + 'tablesJ2.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file2,matrix_to_plot_tablesJ2[i,:,:] , fmt="%s", delimiter=' ')
+        text_file2.close()
+        text_file2 = open(output_dir + '/' + prefix + 'tablesJ2.txt','a')
+        text_file2.write('\n')
+    text_file2.close()
+    text_file3 = open(output_dir + '/' + prefix + 'tablesJ3.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file3,matrix_to_plot_tablesJ3[i,:,:] , fmt="%s", delimiter=' ')
+        text_file3.close()
+        text_file3 = open(output_dir + '/' + prefix + 'tablesJ3.txt','a')
+        text_file3.write('\n')
+    text_file3.close()
+def create_J_vs_U_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir):
+    """
+    This function should be a copy of the previous one, but was not used so is
+    not complete, which is very sad because it should be the same just, changing
+    the order of the loops. Shouldn't be trusted thus was never used, should be 
+    refactorized.
+    """
+    matrix_to_plot_tablesJ1 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
+    matrix_to_plot_tablesJ2 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
+    matrix_to_plot_tablesJ3 = np.zeros((int((strmax+1-strmin)/strnstep),5,5))
+    for strain in np.arange(strmin,strmax+strnstep,strnstep):
+        strain_file_name = str(output_dir) + '/' + prefix + '.resolved_exchange_' + \
+                           str(strain) + '_strain' + '_vsU.txt'
+        strain_output_file = open(strain_file_name, 'w')
+        strain_output_file.write('U' + ' ' + 'J1iso' + ' ' + 'J2iso' + ' ' + 'J3iso' + ' ' + \
+            'J1_t2g_t2g' + ' ' +  'J2_t2g_t2g' + ' ' +  'J3_t2g_t2g' + ' '     + \
+            'J1_t2g_eg' + ' ' + 'J2_t2g_eg' + ' ' +  'J3_t2g_eg' + ' '         + \
+            'J1_eg_eg' + ' ' +  'J2_eg_eg' + ' ' +  'J3_eg_eg' + ' ' + \
+            'J1_dz2_dz2' + ' ' + 'J1_x2y2_x2y2' + ' ' +  'J1_dxz_dxz' + ' ' + \
+            'J1_dyz_dyz' + ' ' +  'J1_dxy_dxy' + ' ' +  'J1_dz2_dxz' + ' ' + \
+            'J1_dz2_dyz' + ' ' +  'J1_dz2_dx2y2' + ' ' + 'J1_dz2_dxy' + ' ' + \
+            'J1_dxz_dyz' + ' ' +  'J1_dxz_dx2y2' + ' ' + 'J1_dxz_dxy' + ' ' +  \
+            'J1_dyz_dxy' + ' ' +  'J1_dyz_dx2y2' + ' ' +  'J1_dxy_dx2y2' + ' ' + \
+            'J2_dz2_dz2' + ' ' + 'J2_x2y2_x2y2' + ' ' +  'J2_dxz_dxz' + ' ' + \
+            'J2_dyz_dyz' + ' ' +  'J2_dxy_dxy' + ' ' +  'J2_dz2_dxz' + ' ' + \
+            'J2_dz2_dyz' + ' ' +  'J2_dz2_dx2y2' + ' ' + 'J2_dz2_dxy' + ' ' + \
+            'J2_dxz_dyz' + ' ' +  'J2_dxz_dx2y2' + ' ' + 'J2_dxz_dxy' + ' ' + \
+            'J2_dyz_dxy' + ' ' +  'J2_dyz_dx2y2' + ' ' +  'J2_dxy_dx2y2' + ' ' + \
+            'J3_dz2_dz2' + ' ' + 'J3_x2y2_x2y2' + ' ' +  'J3_dxz_dxz' + ' ' + \
+            'J3_dyz_dyz' + ' ' +  'J3_dxy_dxy' + ' ' +  'J3_dz2_dxz' + ' ' + \
+           'J3_dz2_dyz' + ' ' +  'J3_dz2_dx2y2' + ' ' + 'J3_dz2_dxy' + ' ' +  \
+           'J3_dxz_dyz' + ' ' +  'J3_dxz_dx2y2' + ' ' + 'J3_dxz_dxy' + ' ' + \
+           'J3_dyz_dxy' + ' ' +  'J3_dyz_dx2y2' + ' ' +  'J3_dxy_dx2y2' + '\n')
+        counter = 0
+        for U in np.arange(Umin,Umax+Unstep,Unstep):
+            input_name = 'exchange.' + str(prefix) + '.' + str(strain) + '.' + str(U)
+            input_file = open(input_dir+ '/' +input_name, 'r')
+            J1iso,J2iso,J3iso,J1_t2g_t2g, J2_t2g_t2g, J3_t2g_t2g,J1_t2g_eg,\
+                J2_t2g_eg, J3_t2g_eg,J1_eg_eg, J2_eg_eg, J3_eg_eg,J1_dz2_dz2,\
+                J1_x2y2_x2y2, J1_dxz_dxz,J1_dyz_dyz, J1_dxy_dxy, J1_dz2_dxz,\
+                J1_dz2_dyz, J1_dz2_dx2y2,J1_dz2_dxy, J1_dxz_dyz, J1_dxz_dx2y2,\
+                J1_dxz_dxy, J1_dyz_dxy, J1_dyz_dx2y2, J1_dxy_dx2y2,J2_dz2_dz2,\
+                J2_x2y2_x2y2, J2_dxz_dxz,J2_dyz_dyz, J2_dxy_dxy, J2_dz2_dxz,\
+                J2_dz2_dyz, J2_dz2_dx2y2,J2_dz2_dxy, J2_dxz_dyz, J2_dxz_dx2y2,\
+                J2_dxz_dxy, J2_dyz_dxy, J2_dyz_dx2y2, J2_dxy_dx2y2,J3_dz2_dz2,\
+                J3_x2y2_x2y2, J3_dxz_dxz,J3_dyz_dyz, J3_dxy_dxy, J3_dz2_dxz,\
+                J3_dz2_dyz, J3_dz2_dx2y2,J3_dz2_dxy, J3_dxz_dyz, J3_dxz_dx2y2,\
+                J3_dxz_dxy, J3_dyz_dxy, J3_dyz_dx2y2, J3_dxy_dx2y2 \
+                = manage_input_files(input_file) 
+
+            matrix_to_plot_tablesJ1[counter,:,:] = [\
+                [J1_dz2_dz2,J1_dz2_dxz,J1_dz2_dyz,J1_dz2_dx2y2,J1_dz2_dxy], \
+                [J1_dz2_dxz,J1_dxz_dxz,J1_dxz_dyz,J1_dxz_dx2y2,J1_dxz_dxy],\
+                [J1_dz2_dyz,J1_dxz_dyz,J1_dyz_dyz,J1_dyz_dx2y2,J1_dyz_dxy],\
+                [J1_dz2_dx2y2,J1_dxz_dx2y2,J1_dyz_dx2y2,J1_x2y2_x2y2,J1_dxy_dx2y2],\
+                [J1_dz2_dxy,J1_dxz_dxy,J1_dyz_dxy,J1_dxy_dx2y2,J1_dxy_dxy]
+            ]
+            matrix_to_plot_tablesJ2[counter,:,:] = [
+                [J2_dz2_dz2,J2_dz2_dxz,J2_dz2_dyz,J2_dz2_dx2y2,J2_dz2_dxy],
+                [J2_dz2_dxz,J2_dxz_dxz,J2_dxz_dyz,J2_dxz_dx2y2,J2_dxz_dxy],
+                [J2_dz2_dyz,J2_dxz_dyz,J2_dyz_dyz,J2_dyz_dx2y2,J2_dyz_dxy],
+                [J2_dz2_dx2y2,J2_dxz_dx2y2,J2_dyz_dx2y2,J2_x2y2_x2y2,J2_dxy_dx2y2],
+                [J2_dz2_dxy,J2_dxz_dxy,J2_dyz_dxy,J2_dxy_dx2y2,J2_dxy_dxy]
+            ]
+            matrix_to_plot_tablesJ3[counter,:,:] = [
+                [J3_dz2_dz2,J3_dz2_dxz,J3_dz2_dyz,J3_dz2_dx2y2,J3_dz2_dxy],
+                [J3_dz2_dxz,J3_dxz_dxz,J3_dxz_dyz,J3_dxz_dx2y2,J3_dxz_dxy],
+                [J3_dz2_dyz,J3_dxz_dyz,J3_dyz_dyz,J3_dyz_dx2y2,J3_dyz_dxy],
+                [J3_dz2_dx2y2,J3_dxz_dx2y2,J3_dyz_dx2y2,J3_x2y2_x2y2,J3_dxy_dx2y2],
+                [J3_dz2_dxy,J3_dxz_dxy,J3_dyz_dxy,J3_dxy_dx2y2,J3_dxy_dxy]
+            ]
+            input_file.close()
+            strain_output_file.write(str(U) + ' ' + str(J1iso) + ' ' + str(J2iso) + ' ' + \
+                 str(J3iso) + ' ' + str(J1_t2g_t2g) + ' ' +  str(J2_t2g_t2g) + \
+                 ' ' +  str(J3_t2g_t2g) + ' ' + str(J1_t2g_eg) + ' ' + \
+                 str(J2_t2g_eg) + ' ' +  str(J3_t2g_eg) + ' ' + str(J1_eg_eg) +\
+                 ' ' +  str(J2_eg_eg) + ' ' +  str(J3_eg_eg) + ' ' + \
+                 str(J1_dz2_dz2) + ' ' + str(J1_x2y2_x2y2) + ' ' +  \
+                 str(J1_dxz_dxz) + ' ' + str(J1_dyz_dyz) + ' ' +  \
+                 str(J1_dxy_dxy) + ' ' +  str(J1_dz2_dxz) + ' ' + \
+                 str(J1_dz2_dyz) + ' ' +  str(J1_dz2_dx2y2) + ' ' + \
+                 str(J1_dz2_dxy) + ' ' +  str(J1_dxz_dyz) + ' ' +  \
+                 str(J1_dxz_dx2y2) + ' ' + str(J1_dxz_dxy) + ' ' +  \
+                 str(J1_dyz_dxy) + ' ' +  str(J1_dyz_dx2y2) + ' ' + \
+                 str(J1_dxy_dx2y2) + ' ' + str(J2_dz2_dz2) + ' ' + \
+                 str(J2_x2y2_x2y2) + ' ' +  str(J2_dxz_dxz) + ' ' + \
+                 str(J2_dyz_dyz) + ' ' +  str(J2_dxy_dxy) + ' ' + \
+                 str(J2_dz2_dxz) + ' ' + str(J2_dz2_dyz) + ' ' +  \
+                 str(J2_dz2_dx2y2) + ' ' + str(J2_dz2_dxy) + ' ' +  \
+                 str(J2_dxz_dyz) + ' ' +  str(J2_dxz_dx2y2) + ' ' + \
+                 str(J2_dxz_dxy) + ' ' +  str(J2_dyz_dxy) + ' ' +  \
+                 str(J2_dyz_dx2y2) + ' ' +  str(J2_dxy_dx2y2) + ' ' + \
+                 str(J3_dz2_dz2) + ' ' + str(J3_x2y2_x2y2) + ' ' +  \
+                 str(J3_dxz_dxz) + ' ' + str(J3_dyz_dyz) + ' ' +  \
+                 str(J3_dxy_dxy) + ' ' +  str(J3_dz2_dxz) + ' ' + \
+                 str(J3_dz2_dyz) + ' ' +  str(J3_dz2_dx2y2) + ' ' + \
+                 str(J3_dz2_dxy) + ' ' +  str(J3_dxz_dyz) + ' ' +  \
+                 str(J3_dxz_dx2y2) + ' ' + str(J3_dxz_dxy) + ' ' +  \
+                 str(J3_dyz_dxy) + ' ' +  str(J3_dyz_dx2y2) + ' ' +  \
+                 str(J3_dxy_dx2y2)+ '\n') 
+            counter = counter + 1
+        for index1 in range(0,counter,1):
+            for index2 in range(0,5,1):
+                for index3 in range(0,5,1):
+                    if index2 != index3:     
+                        matrix_to_plot_tablesJ1[index1,index2,index3] \
+                            = matrix_to_plot_tablesJ1[index1,index2,index3]/2
+                        matrix_to_plot_tablesJ2[index1,index2,index3] \
+                            = matrix_to_plot_tablesJ2[index1,index2,index3]/2
+                        matrix_to_plot_tablesJ3[index1,index2,index3] \
+                            = matrix_to_plot_tablesJ3[index1,index2,index3]/2
+        strain_output_file.close()
+        plot_total(strain_file_name,output_dir,'U')
+        plot_resolved(strain_file_name,output_dir,'U')
+    text_file1 = open(output_dir + '/' + prefix + 'tablesJ1.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file1,matrix_to_plot_tablesJ1[i,:,:] , fmt="%s", delimiter=' ')
+        text_file1.close()
+        text_file1 = open(output_dir + '/' + prefix + 'tablesJ1.txt','a')
+        text_file1.write('\n')
+    text_file1.close()
+    text_file2 = open(output_dir + '/' + prefix + 'tablesJ2.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file2,matrix_to_plot_tablesJ2[i,:,:] , fmt="%s", delimiter=' ')
+        text_file2.close()
+        text_file2 = open(output_dir + '/' + prefix + 'tablesJ2.txt','a')
+        text_file2.write('\n')
+    text_file2.close()
+    text_file3 = open(output_dir + '/' + prefix + 'tablesJ3.txt','w')
+    for i in range(0,counter,1):
+        np.savetxt(text_file3,matrix_to_plot_tablesJ3[i,:,:] , fmt="%s", delimiter=' ')
+        text_file3.close()
+        text_file3 = open(output_dir + '/' + prefix + 'tablesJ3.txt','a')
+        text_file3.write('\n')
+    text_file3.close()
 def plot_resolved(data_file,output_dir,label):
+    """
+    These is one of the 2 plotters. Plots the fully resolved photos, is highly
+    refactorizable
+    """
     x_axis = np.loadtxt(data_file, skiprows=1)[:, 0]
     J1iso= np.loadtxt(data_file, skiprows=1)[:, 1]
     J2iso= np.loadtxt(data_file, skiprows=1)[:, 2]
@@ -426,7 +506,6 @@ def plot_resolved(data_file,output_dir,label):
     J3_dxy_dx2y2 = np.loadtxt(data_file, skiprows=1)[:, 57]
     x_axis = x_axis - 100
     figresolved,ax = plt.subplots(2,2,figsize=[12,10])   
-    plt.tight_layout() #avoid overlaps
     ax[0][0].plot(x_axis,J1tt,'-ok', color='black' )
     ax[0][0].plot(x_axis,J1_dxz_dxz ,'-ok' , color='pink'  )
     ax[0][0].plot(x_axis,J1_dyz_dyz ,'-ok' , color='blue')
@@ -436,6 +515,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][0].plot(x_axis,J1_dyz_dxy ,'-ok', color='red' )  
     ax[0][0].set_ylabel(r'$J_1$ (t$_{2g}$-t$_{2g}$), meV')
     ax[0][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[0][1].plot(x_axis, J1te ,'-ok', color='black' )  
     ax[0][1].plot(x_axis, J1_dz2_dxz ,'-ok', color='pink' )  
@@ -446,6 +526,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][1].plot(x_axis, J1_dxy_dx2y2 ,'-ok', color='red' )  
     ax[0][1].set_ylabel(r'$J_1$ (t$_{2g}$-e$_{g}$), meV')
     ax[0][1].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[1][0].plot(x_axis,J1ee,'-ok', color='black' )
     ax[1][0].plot(x_axis,J1_x2y2_x2y2,'-ok' , color='green'  )
@@ -453,12 +534,12 @@ def plot_resolved(data_file,output_dir,label):
     ax[1][0].plot(x_axis,J1_dz2_dz2,'-ok', color='blue' )   
     ax[1][0].set_ylabel(r'$J_1$ (e$_{g}$-e$_{g}$), meV')
     ax[1][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
     #plt.show()
     plt.savefig(output_dir + '/' + prefix + '.resolved_J1_vs' + label  + '.png')
     # ax[0].axhline(y=0.0, color='black', linestyle='--')
     # ax[1].axhline(y=0.0, color='black', linestyle='--')
     # ax[2].axhline(y=0.0, color='black', linestyle='--')
-    #plt.savefig(output_dir + '/' + prefix + '.Total_J_vs' + label  + '.png')
     figresolved,ax = plt.subplots(2,2,figsize=[12,10])   
     plt.tight_layout() #avoid overlaps
     ax[0][0].set_ylim(-0.1, 0.1)
@@ -471,6 +552,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][0].plot(x_axis,J2_dyz_dxy ,'-ok', color='red' )  
     ax[0][0].set_ylabel(r'$J_1$ (t$_{2g}$-t$_{2g}$), meV')
     ax[0][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[0][1].plot(x_axis, J2te ,'-ok', color='black' )  
     ax[0][1].plot(x_axis, J2_dz2_dxz ,'-ok', color='pink' )  
@@ -481,6 +563,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][1].plot(x_axis, J2_dxy_dx2y2 ,'-ok', color='red' )  
     ax[0][1].set_ylabel(r'$J_2$ (t$_{2g}$-e$_{g}$), meV')
     ax[0][1].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[1][0].plot(x_axis,J2ee,'-ok', color='black' )
     ax[1][0].plot(x_axis,J2_x2y2_x2y2,'-ok' , color='green'  )
@@ -488,6 +571,8 @@ def plot_resolved(data_file,output_dir,label):
     ax[1][0].plot(x_axis,J2_dz2_dz2,'-ok', color='blue' )   
     ax[1][0].set_ylabel(r'$J_2$ (e$_{g}$-e$_{g}$), meV')
     ax[1][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
+
     #plt.show()
     plt.savefig(output_dir + '/' + prefix + '.resolved_J2_vs' + label  + '.png')
     figresolved,ax = plt.subplots(2,2,figsize=[12,10])   
@@ -501,6 +586,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][0].plot(x_axis,J3_dyz_dxy ,'-ok', color='red' )  
     ax[0][0].set_ylabel(r'$J_1$ (t$_{2g}$-t$_{2g}$), meV')
     ax[0][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[0][1].plot(x_axis, J3te ,'-ok', color='black' )  
     ax[0][1].plot(x_axis, J3_dz2_dxz ,'-ok', color='pink' )  
@@ -511,6 +597,7 @@ def plot_resolved(data_file,output_dir,label):
     ax[0][1].plot(x_axis, J3_dxy_dx2y2 ,'-ok', color='red' )  
     ax[0][1].set_ylabel(r'$J_3$ (t$_{2g}$-e$_{g}$), meV')
     ax[0][1].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
 
     ax[1][0].plot(x_axis,J3ee,'-ok', color='black' )
     ax[1][0].plot(x_axis,J3_x2y2_x2y2,'-ok' , color='green'  )
@@ -518,9 +605,14 @@ def plot_resolved(data_file,output_dir,label):
     ax[1][0].plot(x_axis,J3_dz2_dz2,'-ok', color='blue' )   
     ax[1][0].set_ylabel(r'$J_3$ (e$_{g}$-e$_{g}$), meV')
     ax[1][0].set_xlabel(r'$\epsilon$, %')
+    figresolved.tight_layout() #avoid overlaps
+
     #plt.show()
     plt.savefig(output_dir + '/' + prefix + '.resolved_J3_vs' + label  + '.png')
 def plot_total(data_file,output_dir,label):
+    """
+    The second plotter, creates the figures with JTotal,t2g-t2g, t2g-eg and eg-eg
+    """
     x_axis = np.loadtxt(data_file, skiprows=1)[:, 0]
     J1iso= np.loadtxt(data_file, skiprows=1)[:, 1]
     J2iso= np.loadtxt(data_file, skiprows=1)[:, 2]
@@ -536,7 +628,6 @@ def plot_total(data_file,output_dir,label):
     J3ee = np.loadtxt(data_file, skiprows=1)[:, 12]
     figsimple,ax = plt.subplots(1,3,figsize=[12,5]) 
     x_axis = x_axis - 100
-    plt.tight_layout() #avoid overlaps
     ax[0].plot(x_axis,J1iso,'-ok', color='black' )
     ax[0].plot(x_axis,J1tt,'-ok' , color='blue'  )
     ax[0].plot(x_axis,J1te,'-ok' , color='darkorange')
@@ -558,19 +649,21 @@ def plot_total(data_file,output_dir,label):
     ax[0].axhline(y=0.0, color='black', linestyle='--')
     ax[1].axhline(y=0.0, color='black', linestyle='--')
     ax[2].axhline(y=0.0, color='black', linestyle='--')
-
+    figsimple.tight_layout() #avoid overlaps
    #plt.show()
     plt.savefig(output_dir + '/' + prefix + '.Total_J_vs' + label  + '.png')
-#def plot_tables(matrix_to_plot_tablesJ1,matrix_to_plot_tablesJ2,matrix_to_plot_tablesJ3):
 
-prefix = 'cri3'
-Uscf = 4.0; Umin =4.0; Umax =4.0; Unstep =1.0
-strmin =95; strmax =105; strnstep =1
-input_dir,output_dir = parser()
 
-plt.rcParams['figure.max_open_warning'] = 0
-create_J_vs_strain_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir)
-#create_J_vs_U_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir)
+if __name__ == '__main__':
+
+    prefix = 'crcl3'
+    Umin =4.0; Umax =4.0; Unstep =1.0
+    strmin =95; strmax =105; strnstep =1
+    
+    input_dir,output_dir = parser()
+    plt.rcParams['figure.max_open_warning'] = 0
+    create_J_vs_strain_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir)
+    #create_J_vs_U_file(prefix,Umax,Umin,Unstep,strmax,strmin,strnstep,output_dir)
 
 
 

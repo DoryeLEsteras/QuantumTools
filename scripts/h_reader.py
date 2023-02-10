@@ -4,29 +4,45 @@ from argparse import ArgumentParser
 
 # TO DO LIST
 """
+- Using an input more standard than the grep 0 0 0
+- Thus, extending in a better way to other cell hoppings
+- add possibility of output directory
+- fix the name of the output, now is weird, instead of parsering a label,
+  you can parse an outdir and having an internal prefix. Also the extension
+  of the output files is missing
+- parser nwan and d orbitals
 - more submatrices to understand the hoppings (for example take the d-ligand)
   and do just dij -px, just dij-py ...; just particular Fe atom...
 """
 
+# DESCRIPTION
+"""
+Reformats and filters the Hamiltonian extracting hoppings, that can be rounded
+for better analysis. The input and the possibility of more cells than the 0 0 0
+is still rudimentary
+"""
+
 def parser():
-    parser = ArgumentParser(description="Script to fix the matrices of Gaussian")
+    parser = ArgumentParser(description="""Script to transform Wannier Hamiltonian 
+                                         and extract hopping parameters""")
     parser.add_argument("-out", "--out",
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the output file
+                        Prefix for the output files
                         """)   
     parser.add_argument("-input", "--input",
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the input file
+                        file name including directory to the input file, produced
+                        by the grep command
                         """)  
     parser.add_argument("-cut", "--cut",
                         type=float,
                         required=False,
                         help="""
-                        Relative or absolute path for the input file
+                        Cutoff to round the hopping parameters
                         """)     
     args = parser.parse_args()
     return args.input,args.out,args.cut

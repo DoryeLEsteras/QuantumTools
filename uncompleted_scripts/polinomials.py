@@ -1,26 +1,61 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
-from matplotlib import cm
 from subprocess import run
+
 # To Do List
 """
-generalize number of J
-generalize function
-add directories for the different outputs (parser?)
+- format_input function can be merged with the one present in the resolved
+  exchange plotter, doing something more general that can be a library.
+  In particular this function is focused in the SOC terms, the one in the 
+  resolved plotter is focused in the orbital resolved terms.
+- generalize number of J
+- generalize order of the polinomials function -> func(), poly_magic()
+- add directories for the different outputs (parser?)
+- plotter_vs_U and plotter_vs_strain can be merged and refactorized
+- in plotters the role of label and Jlabel should be improved probably
+- poly calculator has a loop with a dangerous /10000 that if one day the mesh
+  becomes very small it will give problems
+- in poly calculator, manage the labels of J in the photos, so a command to save
+  them directly can be included instead of the show + screenshot
+- finally calculate Curie still has problems and should be tested for each case.
+  In general it looks like if kmesh gets small there are massive divergences in
+  CrBr3, avoiding thin mesh and interpolate the photo doesn't presents this 
+  problem. An old problem that was solved was the existence of 'stains' in the
+  maps, this was originated by the rounding of the exchange parameters before 
+  they enter to the calculate Curie
+  is not very thin 
+- in plot_3D_map it would be nice to introduce T0,vmin,vmax in a better way
+  that commenting and uncommenting lines
+- the last 3 functions are oriented to mix the previous functions to produce 
+  different results, I think these should be reorganized,
+  1. A function that formats + tests, 2. A function that formats and produces
+  polys, 3. A function that formats + calculates polys + calculates Curie + plot
+  (Full) and 4. Just plotting Curie. The mode can be selected via parser
+
 """
+
+# DESCRIPTION
+
+"""
+This script fits to polinomials, calculates Curie and plots several 3D and 
+3D projected maps. Also the banana curves of MX3 can be produced in thin mesh.
+IN: filtered exchange
+OUT: 3D poly maps of all the interaction parameters (even DMI), dense poly files
+     ,Curie maps and poly fits
+"""
+
 def parser():
-    parser = ArgumentParser(description="Script for creating SpinW input files")
+    parser = ArgumentParser(description="Script for polinomials and Curie")
     parser.add_argument("-inputdir", "--inputdir",
                         type=str,
                         required=True,
                         help="""
-                        Relative or absolute path for the bands input file
+                        Directory where the filtered exchange files are
                         """)
 
     args = parser.parse_args()
     return args.inputdir
-
 def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     """"
     Takes the filtered exchange file and produces files in the format: str U J
@@ -29,6 +64,7 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     J1iso_vector = np.array([]);J2iso_vector = np.array([]);J3iso_vector = np.array([]);U_vector = np.array([]);strain_vector = np.array([])
     J1x_vector  = np.array([]);J1y_vector  = np.array([]);J1z_vector  = np.array([]);J2x_vector  = np.array([]);J2y_vector  = np.array([]);J2z_vector  = np.array([]);J3x_vector  = np.array([]);J3y_vector  = np.array([]);J3z_vector  = np.array([])
     DM1x_vector  = np.array([]);DM1y_vector  = np.array([]);DM1z_vector  = np.array([]);DM2x_vector  = np.array([]);DM2y_vector  = np.array([]);DM2z_vector  = np.array([]);DM3x_vector  = np.array([]);DM3y_vector  = np.array([]);DM3z_vector  = np.array([])
+    
     for strain in np.arange(strmin,strmax+strnstep,strnstep):
         for U in np.arange(Umin,Umax+ Unstep,Unstep):
             output_file_strain = open('exchange.' + str(prefix) + '.' + str(strain) + '.' + str(U), 'r')
@@ -36,7 +72,6 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
             U_vector = np.append(U_vector,U)
             strain_vector = np.append(strain_vector,strain)
             counter = 0
-            #print(read_vector)
             for line in read_vector:
                 readed_line = line.replace(';', '')
                 readed_line = readed_line.split()
@@ -129,7 +164,6 @@ def format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep):
     np.savetxt(prefix + '.' + 'DM3x' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3x_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'DM3y' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3y_vector], delimiter=' ')
     np.savetxt(prefix + '.' + 'DM3z' + '.' + 'poly_data.txt', np.c_[strain_vector,U_vector,DM3z_vector], delimiter=' ')
-
 def func(I,x0,a,b,c,d,e):
     """
     Defines the polinomials that are going to be used, this function is used inside of poly_magic
@@ -138,16 +172,19 @@ def func(I,x0,a,b,c,d,e):
     return x0 + a*x + b*y + c*x*y +d*x*x + e*y*y
 def poly_magic(prefix,J_label):
     """
-    Read the data for an exchange file in the format  produced by the format_input function and obtains the coefficients.
+    Reads the data for an exchange file in the format produced by the 
+    format_input function and obtains the coefficients.
     Now two different things can be done:
-    - The two plotter functions allow to see the polinomials vs U and strain with the DFT mesh (to test)
-    - The poly calculator performs an expensive calculation of using the polinomials to create a high mesh of points (to produce results)
+    - The two plotter functions allow to see the polinomials vs U and strain
+      with the DFT mesh (for testing)
+    - The poly calculator performs an expensive calculation using the polinomials
+      to create a high mesh of points (to produce results)
     """
+    
     file_to_read = prefix  + '.' + J_label +  '.poly_data.txt'
     xdata = np.loadtxt(file_to_read)[:, 0]
     ydata = np.loadtxt(file_to_read)[:, 1]
     zdata = np.loadtxt(file_to_read)[:, 2]
-    coef = np.array([0,0,0,0,0,0]);trash = np.array([0,0,0,0,0,0]);trash_matrix = np.zeros((6,3))
     res = curve_fit(func, (xdata,ydata), zdata)
     x0 = res[0][0]; a = res[0][1]; b = res[0][2]; c = res[0][3]; d = res[0][4]; e = res[0][5]
     #print(x0,a,b,c,d,e)
@@ -211,17 +248,12 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
     x = np.array([]);y = np.array([]);z = np.array([])
     for j in np.arange(Umin,Umax + poly_U_mesh/10000,poly_U_mesh):     
         for i in np.arange(strmin,strmax + poly_str_mesh/10000,poly_str_mesh):
-            #i = round(i,5)
-            #j = round(j,5)
             x = np.append(x,i)
             y = np.append(y,j)
-            #print(x)
             z = np.append(z,x0 + a*i + b*j + c*i*j +d*i*i + e*j*j)    
-            #print(z)
     np.savetxt(prefix + '.' + J_label + '.' + 'full_poly_file.txt', np.c_[x,y,z], delimiter=' ')
     poly_output_file.close()
     x_axis = np.arange(strmin,strmax,poly_str_mesh)
-
     y_axis = np.arange(Umin,Umax+ poly_U_mesh/10000,poly_U_mesh)
     X, Y = np.meshgrid(x_axis, y_axis)
     Z = x0 + a*X + b*Y + c*X*Y +d*X*X + e*Y*Y
@@ -229,18 +261,13 @@ def poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_me
     ax.set_xticks([95,97.5,100,102.5,105])
     ax.set_yticks([2,3,4,5,6])
     surf = ax.plot_surface(X, Y, Z, cmap='viridis',linewidth=2, antialiased=False)
-    #y_label_list = ['2','3','4','5','6']
     x_label_list = ['-5', '-2.5', '0', '2.5', '5']
     ax.set_xticklabels(x_label_list)
     ax.tick_params(axis='both', which='major', labelsize=16)
-    #ax.set_yticklabels(y_label_list) 
-    #ax.set_zticks([])
-    
     plt.ylabel('U, eV', fontsize=25, labelpad=15)
     plt.xlabel('ε, %', fontsize=25, labelpad=15)
     #clb.ax.set_title('Tc (K)',fontsize=15)
     #plt.colorbar(fig, orientation="vertical", pad=0.2)
-
     #cb.set_label(label='Tc (K)', size='x-large', weight='bold')
     #cb.ax.tick_params(labelsize='x-large')
     plt.show()
@@ -269,7 +296,6 @@ def calculate_curie(prefix,spin):
     J1plane = (J1x+J1y)/2
     J2plane = (J2x+J2y)/2
     J3plane = (J3x+J3y)/2
-    #print(J1iso)
     
     Belgic_J1_vector = np.array([]);Belgic_J2_vector = np.array([]);Belgic_J3_vector = np.array([])
     Belgic_Delta1_vector = np.array([]);Belgic_Delta2_vector = np.array([]);Belgic_Delta3_vector = np.array([])
@@ -279,9 +305,6 @@ def calculate_curie(prefix,spin):
        Belgic_J1 = (2*J1iso[i]+ J1plane[i] + J1z[i])/2
        Belgic_J2 = (2*J2iso[i]+ J2plane[i] + J2z[i])/2
        Belgic_J3 = (2*J3iso[i]+ J3plane[i] + J3z[i])/2
-       #print(Belgic_J1,J1iso[i],J1plane[i],J1z[i])
-
-
        # lets avoid small numbers 
        J1num1 = (J1iso[i] + J1z[i])*1000;J2num1 = (J2iso[i] + J2z[i])*1000;J3num1 = (J3iso[i] + J3z[i])*1000
        J1num2 = (J1iso[i] + J1plane[i])*1000;J2num2 = (J2iso[i] + J2plane[i])*1000;J3num2 = (J3iso[i] + J3plane[i])*1000
@@ -398,13 +421,6 @@ def Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
     new_U_len = int((Umax-Umin)/poly_U_mesh)
     map_file = open(prefix + '.Curie_map.txt', 'r')
     arr = np.loadtxt(map_file , usecols=np.arange(0,new_str_len + 1))
-   # for index1 in np.arange(0,new_str_len,1):
-     #  for index2 in np.arange(0,new_U_len,1):
-      #      arr[index1,index2] = arr[index1,index2] + 0.001
-
-              #arr[index1][index2] = arr[index1][index2-1] +0.001
-   # print(arr)
-
 
     arr2 = arr - T0
     print(arr2)
@@ -434,7 +450,7 @@ def perform_full_poly_calculation(strmax,strmin,Umax,Umin,prefix,poly_str_mesh,p
     x0,a,b,c,d,e = poly_magic(prefix,J_label)
     poly_calculator(x0,a,b,c,d,e,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,prefix,J_label) 
 def perfom_full_Curie_calculation(prefix,spin,strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0):
-    #calculate_curie(prefix,spin)
+    calculate_curie(prefix,spin)
     Plot_3D_map(strmax,strmin,poly_str_mesh,Umax,Umin,poly_U_mesh,T0)
 def banana_based_poli(prefix,strmax,strmin,strnstep):
     U_vector = np.array([])
@@ -448,12 +464,13 @@ def banana_based_poli(prefix,strmax,strmin,strnstep):
         U_vector = np.append(U_vector,U)
     
 if __name__ == '__main__':
+
     prefix = 'cri3'
     spin =1.5
     T0 = 23 # crcl3
     #T0 = 55.3 #crbr3
     #T0 = 94.22 # cri3
-    plt.rcParams['figure.max_open_warning'] = 0
+
     #definitive 16k
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.05 ; poly_U_mesh = 0.05
         #test 4k
@@ -461,6 +478,8 @@ if __name__ == '__main__':
         #test lessk
     #strmax = 105; strmin = 95; strnstep = 1; Umax = 6.0; Umin = 2.0; Unstep =  1.0; poly_str_mesh = 0.03 ; poly_U_mesh = 0.03
     #inputdir = parser()
+    plt.rcParams['figure.max_open_warning'] = 0
+    
     #format_input(prefix,strmax,strmin,strnstep,Umax,Umin,Unstep)
     #poli_plot_tester(strmax,strmin,strnstep,Umax,Umin,Unstep,prefix,'DM2z')
     
