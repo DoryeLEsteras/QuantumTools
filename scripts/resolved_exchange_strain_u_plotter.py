@@ -558,7 +558,7 @@ def plot_total(data_file,output_dir,label):
     ax[0].axhline(y=0.0, color='black', linestyle='--')
     ax[1].axhline(y=0.0, color='black', linestyle='--')
     ax[2].axhline(y=0.0, color='black', linestyle='--')
-
+    plt.tight_layout() #avoid overlaps
    #plt.show()
     plt.savefig(output_dir + '/' + prefix + '.Total_J_vs' + label  + '.png')
 #def plot_tables(matrix_to_plot_tablesJ1,matrix_to_plot_tablesJ2,matrix_to_plot_tablesJ3):
