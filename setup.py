@@ -8,7 +8,7 @@ setup(
     description='',
     author='Dorye L. Esteras',
     author_email='dorye.esteras@uv.es',
-    packages=find_packages(),
+    packages=['QuantumTools'],
     # scripts=[
     #     'scripts/tb2j_plotter.py'
     # ],

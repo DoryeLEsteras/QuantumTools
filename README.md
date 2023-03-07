@@ -32,7 +32,7 @@ cutoff tester
 OUTPUT MANAGMENT
 
 bands_repair	                      IN PROCESS
-polinomials                           IN PROCESS
+polinomials                           DONE
 energy_method                         bash
 tb2j_filter 	                      IN PROCESS
 scf_output_analyser                   EMPTY 
