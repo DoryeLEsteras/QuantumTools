@@ -93,7 +93,7 @@ def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir,k):
     nscf_output = str(nscf_output_dir) + str(nscf_output_name)
     nscf_file = open(nscf_output , 'w')
     read_vector = scf_input_file.readlines()
-    nspin = security_check = '0'
+    nspin = '0'; security_check = '0'
 
     for component in range(0, len(read_vector), 1):
         line_to_check = read_vector[component].replace("=", ' ') 
@@ -103,7 +103,7 @@ def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir,k):
         line_to_check_vector = line_to_check.split()
         line_to_check_vector.append('end')
         counter = 0
-        for word in line_to_check_vector:
+        for word in line_to_check_vector: #esto tiene una consecuencia terrible, los ! se ignoran!!
             if word == 'nat':
                nat = int(line_to_check_vector[counter + 1])
             if word == 'calculation':
@@ -302,12 +302,15 @@ def create_win_input(win_output_dir,nspin,outdir,prefix,seed,k,cell_matrix,atomi
     win_file.write('end kpoints                            \n')    
     win_file.write('                            !\n')
     win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-    win_file.close()   
+    win_file.close()  
+    print(nspin) 
+    if nspin == '2':
+        win_up_output = str(win_output_dir) + str(seed + '.up' + '.win')
+        win_down_output = str(win_output_dir) + str(seed + '.down' + '.win')
+        run(['mv',win_output ,win_up_output])
+        run(['cp',win_output ,win_down_output])
+        print(win_output)
 
-        # task 5 usar subprocees con cp para crear el segundo archivo
-            #if nspin == '2':
-    #    kmesh = run(['cp', win_output, str(k[1])]) 
-       #win_down_file.close()
     # task 6 se returna dependiendo del nspin, el nombre del win para que despues
     # el symetry manager meta el camino
 #task 6 meter fatbands 
