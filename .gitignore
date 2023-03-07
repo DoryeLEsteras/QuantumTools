@@ -7,4 +7,5 @@
 .DS_Store
 exchange*
 *.win
-
+*__pycache__*
+*egg*

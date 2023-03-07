@@ -11,7 +11,7 @@ just valid for homogeneous kpoints (ex: 20 20 20)
 """
 This script repairs the broken bands of QuantumEspresso
 IN: bands.out,broken band.dat.gnu file and number of high symmetry points 
-    in bands in calculation (parser)
+    in bands.in calculation (parser)
 OUT: repaired band.dat.gnu file and file with new hygh symmetry points
 """
 
