@@ -58,7 +58,8 @@ graphtitle=""
 min_x,max_x=-10,3
 min_y,max_y="",""
 output_file_name="sum_dos.out"
-prt="no"
+#prt="no"
+prt="yes"
 orbital = 'total'
 print(" #### sum_states.py version {} #### ".format(version))
 
@@ -81,8 +82,8 @@ if len(sys.argv)>1:
      pwout= sys.argv[sys.argv.index('-o')+1]
    if option=="s":
     selat= sys.argv[sys.argv.index('-s')+1]
-   if option=="p":
-    prt="yes"
+   #if option=="p":
+   # prt="yes"
     if len(sys.argv) > sys.argv.index('-p')+1: # if there is a name after "-p" take it as an output name
      if sys.argv[sys.argv.index('-p')+1] != "-": # otherwise default name sum_dos.out
         dos_out_name=sys.argv[sys.argv.index('-p')+1]

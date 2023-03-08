@@ -62,7 +62,7 @@ def create_strain_files(strmax,strmin,strnstep,prefix,scfout_dir,U,provided_outp
   
 
 
-prefix = 'cri3'
+prefix = 'crcl3'
 strmax,strmin,strnstep = 105,95,1 
 Umax,Umin,Unstep = 6.0,2.0,1.0 
 
