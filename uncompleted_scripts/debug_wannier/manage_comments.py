@@ -187,8 +187,8 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write('num_print_cycles  = 50      !\n')
          win_file.write('                            !\n')
          win_file.write('Begin Projections           !\n')
-
-         win_file.write('                            !\n')
+         for i in range(0,len(projectors),1):
+             win_file.write(projectors[i] + '\n')
          win_file.write('End Projections             !\n')
          win_file.write('                            !\n')
          win_file.write('!KPATH                      !\n')
