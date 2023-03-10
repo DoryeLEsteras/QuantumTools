@@ -104,7 +104,7 @@ class QECalculation:
                   if word == 'nat':
                     self.nat = int(splitted_line[word_number + 1])
                   if word == 'calculation':
-                    self.calculation_type = splitted_line[word_number + 1]
+                    self.calculation_type = splitted_line[word_number + 1].replace("\'","")
                   if word == 'prefix':
                     self.prefix = splitted_line[word_number + 1]
                   if word == 'outdir':
@@ -113,9 +113,9 @@ class QECalculation:
                      self.ibrav = splitted_line[word_number + 1]
                   if word == 'nspin': 
                       if splitted_line[word_number + 1] == '2':
-                         self.nspin = '2'                             
+                         self.nspin = 2                             
                   if word == 'noncolin':    
-                         self.nspin = '4'  
+                         self.nspin = 4  
                   if word == 'a' or word == 'A': 
                          self.a = float(splitted_line[word_number + 1])
                   if word == 'b' or word == 'B': 
