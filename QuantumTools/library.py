@@ -1,5 +1,10 @@
+from typing import List, Any
+from dataclasses import dataclass
 import numpy as np
 
+# Where to put ransform_lattice_parameters?
+# Is used inside of the QEcalculation class
+# maybe i should remove the cell_matrix propertie
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
     with open(bands_file_name,'r') as f:
@@ -9,7 +14,6 @@ def count_nbands(bands_file_name:str) -> int:
             if read_line[0] == 'end':
                nbands = nbands + 1
     return nbands
-
 def count_nk(bands_file_name:str) -> int:
     nk = 0; counter = 0
     with open(bands_file_name,'r') as f:
@@ -21,7 +25,6 @@ def count_nk(bands_file_name:str) -> int:
                 nk = counter
             counter = counter + 1
     return nk
-
 def count_occ_bands(bands_file_name:str, fermi:float, file_column:int) -> int:
     nocc_bands = 0
     nk = count_nk(bands_file_name)
@@ -35,13 +38,11 @@ def count_occ_bands(bands_file_name:str, fermi:float, file_column:int) -> int:
         bands_file.readline() # to remove \n at the end of each band 
     return nocc_bands
 
-#------------------------
-
-def manage_input_dir(input_dir_and_name:str): 
+def manage_input_dir(input_dir_and_name:str) -> str: 
     file_name = input_dir_and_name.split('/')[-1]
     file_dir = input_dir_and_name.replace(file_name, '')
     return file_name, file_dir
-def handle_comments(file_name:str):
+def handle_comments(file_name:str) -> List[str]:
     with open(file_name, 'r') as file:
         lines = file.readlines()
         new_line = ''; uncommented_file = []
@@ -55,7 +56,7 @@ def handle_comments(file_name:str):
             uncommented_file.append(new_line)
             new_line = ''
     return uncommented_file
-def clean_uncommented_file(file_list):
+def clean_uncommented_file(file_list:List[str]) -> List[str]:
     clean_file = []
     symbol_colection = '=()[],'
     for line in file_list:
@@ -63,83 +64,94 @@ def clean_uncommented_file(file_list):
             line= line.replace(symbol,' ')
         clean_file.append(line)   
     return clean_file
-def extract_input_information(clean_uncommented_file):
-    nspin = 1
-    cell_matrix = np.array([]); a = 0.0; b = 0.0; c = 0.0
-    cosab = 0.0; cosac = 0.0; cosbc = 0.0; cell_parameters_units = ''
-    for line_number, line in enumerate(clean_uncommented_file):   
-        splitted_line = line.split(); splitted_line.append('end')  
-        for word_number, word in enumerate(splitted_line):
-            if word == 'nat':
-              nat = int(splitted_line[word_number + 1])
-            if word == 'calculation':
-              calculation_type = splitted_line[word_number + 1]
-            if word == 'prefix':
-              prefix = splitted_line[word_number + 1]
-            if word == 'outdir':
-              outdir = splitted_line[word_number + 1]
-            if word == 'ibrav':
-               ibrav = splitted_line[word_number + 1]
-            if word == 'nspin': 
-                if splitted_line[word_number + 1] == '2':
-                   nspin = '2'                             
-                else:
-                    print('Unknown nspin flag')
-            if word == 'noncolin':    
-                   nspin = '4'  
-            if word == 'a' or word == 'A': 
-                   a = float(splitted_line[word_number + 1])
-            if word == 'b' or word == 'B': 
-                   b = float(splitted_line[word_number + 1])
-            if word == 'c' or word == 'C': 
-                   c = float(splitted_line[word_number + 1])
-            if word == 'cosac' or word == 'COSAC': 
-                   cosac = float(splitted_line[word_number + 1])
-            if word == 'cosab' or word == 'COSAB': 
-                   cosab = float(splitted_line[word_number + 1])
-            if word == 'cosbc' or word == 'COSBC': 
-                   cosbc = float(splitted_line[word_number + 1])
-            if word == 'CELL_PARAMETERS':
-                    cell_parameters_units = splitted_line[word_number + 1]
-                    v1 = clean_uncommented_file[line_number + 1].split()
-                    v2 = clean_uncommented_file[line_number + 2].split()
-                    v3 = clean_uncommented_file[line_number + 3].split()
-                    cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
-                                ,[float(v2[0]),float(v2[1]),float(v2[2])],
-                                [float(v3[0]),float(v3[1]),float(v3[2])]])
-            if word == 'ATOMIC_POSITIONS':  
-                    atomic_positions_units = splitted_line[word_number + 1]
-                    atomic_matrix = np.chararray((nat, 4),itemsize=9)
-                    for i in range(0,nat,1):
-                        atomic_coord  = clean_uncommented_file[line_number + 1 + i].split()             
-                        atomic_matrix[i][0] = atomic_coord[0]
-                        atomic_matrix[i][1] = atomic_coord[1]
-                        atomic_matrix[i][2] = atomic_coord[2]
-                        atomic_matrix[i][3] = atomic_coord[3]
-                    atomic_matrix = atomic_matrix.decode("utf-8")
-            if word == 'K_POINTS' or word == 'k_points':
-                    kpoints = np.array(clean_uncommented_file[line_number + 1].split())
-    return nat, calculation_type, prefix, outdir, ibrav, nspin, \
-           cell_parameters_units, a, b, c, cosac, cosab, cosbc, \
-           cell_matrix,atomic_positions_units, atomic_matrix, kpoints
-def transform_lattice_parameters(cell_matrix,ibrav,cell_parameters_units,
-                                 a,b,c,cosac,cosab,cosbc):
+def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
+        cell_parameters_units:np.ndarray,a:float,b:float,c:float, \
+        cosac:float,cosab:float,cosbc:float) -> Any:   # ibrav != 0 will be repaired in the future and this will be np.ndarray
     if ibrav == '0' and cell_parameters_units == 'angstrom':
         return cell_matrix
     if ibrav == '0' and cell_parameters_units == 'crystal':
         return np.dot(cell_matrix,a)
     if ibrav != '0':
-        print('CRASH ibrav is not 0')   
+        print('CRASH ibrav is not 0') 
 
-
-def grep(read_vector,key_word,position): 
-    """
-    read_vector is the a vector of strings that contains the input file obtained as:
-    text = file1.read(); text_list = text.split() position is the number of sites 
-    where the desired word is present respect to the key_word 
-    """
-    position_of_word = int(read_vector.index(key_word)) + int(position)
-    return read_vector[position_of_word] 
+@dataclass
+class QECalculation:
+      nat: int = 0
+      calculation_type: str = ''
+      prefix: str = ''
+      outdir: str = ''
+      ibrav: int = 0
+      nspin: int = 0
+      cell_parameters_units: str = ''
+      a: float = 0.0
+      b: float = 0.0
+      c: float = 0.0
+      cosac: float = 0.0
+      cosab: float = 0.0
+      cosbc: float = 0.0
+      cell_matrix: np.ndarray = np.array([[]])
+      cell_matrix_angstrom: np.ndarray = np.array([[]])
+      atomic_positions_units: str = ''
+      atomic_matrix: np.ndarray = np.array([[]])
+      kpoints: np.ndarray = np.array([])
+      def extract_input_information(self,file_name: str) -> None:
+          self.nspin = 1
+          uncommented_file = handle_comments(file_name)
+          clean_file = clean_uncommented_file(uncommented_file)
+          for line_number, line in enumerate(clean_file):   
+              splitted_line = line.split(); splitted_line.append('end')  
+              for word_number, word in enumerate(splitted_line):
+                  if word == 'nat':
+                    self.nat = int(splitted_line[word_number + 1])
+                  if word == 'calculation':
+                    self.calculation_type = splitted_line[word_number + 1]
+                  if word == 'prefix':
+                    self.prefix = splitted_line[word_number + 1]
+                  if word == 'outdir':
+                    self.outdir = splitted_line[word_number + 1]
+                  if word == 'ibrav':
+                     self.ibrav = splitted_line[word_number + 1]
+                  if word == 'nspin': 
+                      if splitted_line[word_number + 1] == '2':
+                         self.nspin = '2'                             
+                  if word == 'noncolin':    
+                         self.nspin = '4'  
+                  if word == 'a' or word == 'A': 
+                         self.a = float(splitted_line[word_number + 1])
+                  if word == 'b' or word == 'B': 
+                         self.b = float(splitted_line[word_number + 1])
+                  if word == 'c' or word == 'C': 
+                         self.c = float(splitted_line[word_number + 1])
+                  if word == 'cosac' or word == 'COSAC': 
+                         self.cosac = float(splitted_line[word_number + 1])
+                  if word == 'cosab' or word == 'COSAB': 
+                         self.cosab = float(splitted_line[word_number + 1])
+                  if word == 'cosbc' or word == 'COSBC': 
+                         self.cosbc = float(splitted_line[word_number + 1])
+                  if word == 'CELL_PARAMETERS':
+                          self.cell_parameters_units = splitted_line[word_number + 1]
+                          v1 = clean_file[line_number + 1].split()
+                          v2 = clean_file[line_number + 2].split()
+                          v3 = clean_file[line_number + 3].split()
+                          self.cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
+                                      ,[float(v2[0]),float(v2[1]),float(v2[2])],
+                                      [float(v3[0]),float(v3[1]),float(v3[2])]])
+                          self.cell_matrix_angstrom = transform_lattice_parameters(self.cell_matrix, \
+                                self.ibrav,self.cell_parameters_units,self.a,self.b, \
+                                self.c,self.cosac,self.cosab,self.cosbc)
+                  if word == 'ATOMIC_POSITIONS':  
+                          self.atomic_positions_units = splitted_line[word_number + 1]
+                          self.atomic_matrix = np.chararray((self.nat, 4),itemsize=9)
+                          for i in range(0,self.nat,1):
+                              atomic_coord  = clean_file[line_number + 1 + i].split()             
+                              self.atomic_matrix[i][0] = atomic_coord[0]
+                              self.atomic_matrix[i][1] = atomic_coord[1]
+                              self.atomic_matrix[i][2] = atomic_coord[2]
+                              self.atomic_matrix[i][3] = atomic_coord[3]
+                          self.atomic_matrix = self.atomic_matrix.decode("utf-8")
+                  if word == 'K_POINTS' or word == 'k_points':
+                          self.kpoints = np.array(clean_file[line_number + 1].split())
+                          
 
 if __name__ == '__main__':
     file1 = open('/Users/Dorye/Downloads/crcl3.100.z.5.0.scf.in', "r")

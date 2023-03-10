@@ -31,19 +31,19 @@ cutoff tester
 
 OUTPUT MANAGMENT
 
-bands_repair	                      IN PROCESS
+bands_repair	                    DONE
 polinomials                           DONE
 energy_method                         bash
 tb2j_filter 	                      IN PROCESS
 scf_output_analyser                   EMPTY 
 gaussian_filter                       DONE 
-wannier90_hamiltonian_reader          COMPLETE
+wannier90_hamiltonian_reader          DONE
 convergence_checker                   bash
-fatbands_filter                       COMPLETE
+fatbands_filter                       DONE
 
 PLOTTERS
-resolved_exchange_strain_u_plotter   COMPLETE
+resolved_exchange_strain_u_plotter    DONE
 
 BASH launchers
-tb2j_launcher                        DONE
+tb2j_launcher                         DONE
 
