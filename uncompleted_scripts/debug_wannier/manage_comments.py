@@ -3,17 +3,14 @@ from argparse import ArgumentParser
 from typing import List
 from subprocess import run
 from QuantumTools.library import manage_input_dir, \
-     clean_uncommented_file, QECalculation
-
+     clean_uncommented_file, QECalculation, Wan_Kpath_dict
 
 
 # TO DO LIST
 """
-Fstrings
-finish path class
-extend the path library and correct
+Fstrings in kmesh,cellmatrix and atomic matrix
+extend and correct the path library 
 import suggested runs
-projectors adding projectors
 """
 
 
@@ -172,85 +169,103 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
     projectors = projectors.split(',')
     print(projectors)
     with open(file_dir + win_output_name, 'w') as win_file:
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-         win_file.write('!!!!!VARIABLES TO SELECT!!!!!\n')
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-         win_file.write('						    !	\n')
-         win_file.write('num_bands         =   ' + str(nbands) + ' !\n')
-         win_file.write('num_wann          =  ' + str(nwan) + '   !\n')
-         win_file.write('dis_win_max       = ' + str(Mo) +        '!\n')
-         win_file.write('dis_win_min       = ' + str(mo) +        '!\n')
-         win_file.write('dis_froz_max      = ' + str(Mi) +        '!\n')
-         win_file.write('dis_froz_min      = ' + str(mi) +        '!\n')
-         win_file.write('dis_num_iter      = 4000    !\n')
-         win_file.write('num_iter          = 500     !\n')
-         win_file.write('num_print_cycles  = 50      !\n')
-         win_file.write('                            !\n')
-         win_file.write('Begin Projections           !\n')
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!'*30}VARIABLES TO SELECT{'!'*31}\n")
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!':>80}\n")
+         win_file.write(f"num_bands = {str(nbands):<8}{'!':>60}\n")  
+         win_file.write(f"num_wann = {str(nwan):<9}{'!':>60}\n")     
+         win_file.write(f"dis_win_max = {str(Mo):<6}{'!':>60}\n")               
+         win_file.write(f"dis_win_min = {str(mo):<6}{'!':>60}\n")        
+         win_file.write(f"dis_froz_max = {str(Mi):<5}{'!':>60}\n")      
+         win_file.write(f"dis_froz_min = {str(mi):<5}{'!':>60}\n")   
+         win_file.write(f"dis_num_iter = 4000 {'!':>60}\n")    
+         win_file.write(f"num_iter = 500 {'!':>65}\n")        
+         win_file.write(f"num_print_cycles = 50 {'!':>58}\n")    
+         win_file.write(f"{'!':>80}\n")
+
+         win_file.write(f"Begin Projections {'!':>62}\n")  
          for i in range(0,len(projectors),1):
-             win_file.write(projectors[i] + '\n')
-         win_file.write('End Projections             !\n')
-         win_file.write('                            !\n')
-         win_file.write('!KPATH                      !\n')
-         win_file.write('                            !\n')
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-         win_file.write('\n')
-         win_file.write('\n')
-         win_file.write('!!!FLAGS TO PLOT AND DEBUG!!!\n')
-         win_file.write('                            !\n')
-         win_file.write('write_xyz= true             !\n')
-         win_file.write('write_hr=true               !\n')
-         win_file.write('bands_plot = true           !\n')
-         win_file.write('iprint=3                    !\n')
-         win_file.write('!restart=plot               !\n')
-         win_file.write('!restart=wannierise         !\n')
-         win_file.write('                            !\n')
-         win_file.write('! for fatbands              !\n')
-         win_file.write('bands_plot_project = i-j                           !\n')
-         win_file.write('! for WF plot               !\n')
-         win_file.write('!REMEMBER TO ACTIVATE write_unk = .true. in pw2wan file!\n')
-         win_file.write('!wannier_plot_format= xcrysden                            !\n')
-         win_file.write('!wannier_plot_supercell= 3 3 1                            !\n')
-         win_file.write('!wannier_plot           =  true                            !\n')
-         win_file.write('!wannier_plot_list = i-j                            !\n')
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-         win_file.write('! for DOS plot               !\n')
-         win_file.write('!dos = true                            !\n')
-         win_file.write('!dos_kmesh = 25                           !\n')
-         win_file.write('!dos_project = i,j,k                           !\n')
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
-         win_file.write('\n')
-         win_file.write('\n')
-         win_file.write('!!!!!!!!!FIXED FLAGS!!!!!!!!!\n')
-         win_file.write('                            !\n')
+            win_file.write(f"{projectors[i]:<79}!\n")  
+         win_file.write(f"End Projections {'!':>64}\n")  
+
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"{'!!! KPATH !!!':<79}!\n")    
+         win_file.write(f"begin kpoint_path {'!':>62}\n")    
+         win_file.write(f"{Wan_Kpath_dict[kpath]:79}")    
+         win_file.write(f"end kpoint_path {'!':>64}\n")  
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!'*25}!!!FLAGS TO PLOT AND DEBUG!!!{'!'*26}\n")
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!':>80}\n") 
+
+         win_file.write(f"write_xyz = true {'!':>63}\n")   
+         win_file.write(f"write_hr = true {'!':>64}\n")   
+         win_file.write(f"bands_plot = true {'!':>62}\n")   
+         win_file.write(f"iprint = 3{'!':>70}\n")   
+         win_file.write(f"!restart = plot{'!':>65}\n")   
+         win_file.write(f"!restart = wannierise{'!':>59}\n")   
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"!!! for fatbands !!!{'!':>60}\n")
+         win_file.write(f"bands_plot_project = i-j {'!':>55}\n") 
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"!!! for WF plot !!! {'!':>60}\n")   
+         win_file.write(f"!REMEMBER TO ACTIVATE write_unk = .true. in pw2wan file{'!':>25}\n")   
+         win_file.write(f"!wannier_plot_format = xcrysden {'!':>48}\n")   
+         win_file.write(f"!wannier_plot_supercell = 3 3 1 {'!':>48}\n")   
+         win_file.write(f"!wannier_plot =  true {'!':>58}\n")   
+         win_file.write(f"!wannier_plot_list = i-j{'!':>56}\n")   
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"!!! for DOS plot !!!{'!':>60}\n")   
+         win_file.write(f"!dos = true  {'!':>67}\n")   
+         win_file.write(f"!dos_kmesh = 25{'!':>65}\n")   
+         win_file.write(f"!dos_project = i,j,k{'!':>60}\n")   
+         win_file.write(f"{'!':>80}\n") 
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!'*34}FIXED FLAGS{'!'*35}\n")
+         win_file.write(f"{'!'*80}\n")
+         win_file.write(f"{'!':>80}\n") 
+
          if SCF.nspin == 4:
-            win_file.write('spinors = true                !\n')
-         win_file.write('guiding_centres = T         !\n')
-         win_file.write('\n')
-         win_file.write('Begin Unit_Cell_Cart        !\n')
-         cell_matrix_angstrom = str(SCF.cell_matrix_angstrom).replace('[','').replace(']','') 
-         win_file.write(cell_matrix_angstrom + '\n')
-         win_file.write('End Unit_Cell_Cart          !\n')
-         atomic_matrix = str(SCF.atomic_matrix).replace('[','').replace(']','')
-         atomic_matrix = atomic_matrix.replace("\'", "")
-         win_file.write('\n')
+            win_file.write(f"spinors = true{'!':>66}\n")  
+
+         win_file.write(f"guiding_centres = T {'!':>60}\n")    
+         win_file.write(f"{'!':>80}\n") 
+
+         win_file.write(f"Begin Unit_Cell_Cart{'!':>60}\n")   
+         for i in range(0,3,1):
+            cell_matrix_angstrom = str(SCF.cell_matrix_angstrom[i]).replace('[','').replace(']','') 
+            win_file.write(f"{cell_matrix_angstrom:79}!\n")
+         win_file.write(f"End Unit_Cell_Cart{'!':>62}\n")  
+
+         win_file.write(f"{'!':>80}\n") 
          if SCF.atomic_positions_units == 'crystal':
-             win_file.write('Begin Atoms_Frac                            \n')
-             win_file.write(atomic_matrix + '\n')
-             win_file.write('End Atoms_Frac                            \n') 
+             win_file.write(f"Begin Atoms_Frac{'!':>64}\n") 
+             for i in range(0,SCF.nat,1):
+                 atomic_matrix = str(SCF.atomic_matrix[i]).replace('[','').replace(']','')
+                 atomic_matrix = atomic_matrix.replace("\'", "")
+                 win_file.write(f"{atomic_matrix:79}!\n")
+             win_file.write(f"End Atoms_Frac{'!':>66}\n")                  
          if SCF.atomic_positions_units == 'angstrom':
-             win_file.write('Begin Atoms_Cart                            \n')
-             win_file.write(atomic_matrix + '\n')
-             win_file.write('End Atoms_Cart                            \n')     
-         win_file.write('\n')   
-         win_file.write('mp_grid   = ' + str(k[0]) + ' ' + str(k[1]) + ' ' + str(k[2]) + '        !\n')     
-         win_file.write('begin kpoints                            \n')
-         kmesh = run(['../../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True) 
+             win_file.write(f"Begin Atoms_Cart{'!':>64}\n")     
+             for i in range(0,SCF.nat,1):
+                 atomic_matrix = str(SCF.atomic_matrix[i]).replace('[','').replace(']','')
+                 atomic_matrix = atomic_matrix.replace("\'", "")
+                 win_file.write(f"{atomic_matrix:79}!\n")
+             win_file.write(f"End Atoms_Cart{'!':>66}\n")   
+
+         win_file.write(f"{'!':>80}\n")   
+         win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}{'!':>61}\n")     
+         win_file.write(f"{'!':>80}\n")   
+
+         win_file.write(f"begin kpoints {'!':>66}\n")    
+         kmesh = run(['../../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
          output = kmesh.stdout; kmesh = output.decode("utf-8")
-         win_file.write(kmesh)
-         win_file.write('end kpoints                            \n')    
-         win_file.write('                            !\n')
-         win_file.write('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n')
+         win_file.write(f"{kmesh}")   
+         win_file.write(f"end kpoints {'!':>68}\n")    
+         win_file.write(f"{'!'*34}END OF FILE{'!'*35}\n")
+
     if SCF.nspin == 2:
         win_up_name = seed + '.up' + '.win'
         win_down_name = seed + '.down' + '.win'  
@@ -261,9 +276,8 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
         run(['mv',win_template_output ,win_down_output])
 
 
-
 if __name__ == "__main__":
-   #python3 manage_comments.py -scf ./feps3.a.a.scf.in -outdir ./ -kpath hex -k 1 1 1 -nbands 12 -nwan 1 -Mo 1 -mo -1 -Mi 0.1 -mi -0.1
+   #python3.8 manage_comments.py -scf ./feps3.a.a.scf.in -outdir ./ -kpath hex -k 1 1 1 -nbands 12 -nwan 1 -Mo 1 -mo -1 -Mi 0.1 -mi -0.1 -orb Fe:d,I:pz
    file_dir_and_name,outdir,kpath,k,nbands,nwan,Mo,mo,Mi,mi,projectors = parser()
    file_name, file_dir = manage_input_dir(file_dir_and_name)
    SCF = QECalculation()   
@@ -275,4 +289,4 @@ if __name__ == "__main__":
          create_nscf(file_name, file_dir, nbands, k)
          create_pw2wan_input(file_dir,seed)
          create_win_input(file_dir,seed,nbands,nwan,Mo,mo,Mi,mi,projectors,k)
-
+         print(SCF.cell_matrix_angstrom[0][0])

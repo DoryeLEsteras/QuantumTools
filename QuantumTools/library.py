@@ -1,7 +1,7 @@
 from typing import List, Any
 from dataclasses import dataclass
 import numpy as np
-
+#solve ibrav != 0
 # Where to put ransform_lattice_parameters?
 # Is used inside of the QEcalculation class
 # maybe i should remove the cell_matrix propertie
@@ -73,6 +73,30 @@ def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         return np.dot(cell_matrix,a)
     if ibrav != '0':
         print('CRASH ibrav is not 0') 
+
+
+Wan_Kpath_dict = {
+"hex": "\
+Γ 0.000 0.000 0.000 M 0.500 0.000 0.000\n\
+M 0.500 0.000 0.000 K 0.333 0.333 0.000\n\
+K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n",
+
+"ex1": "\
+Γ 0.000 0.000 0.000 M 0.500 0.000 0.000\n\
+M 0.500 0.000 0.000 K 0.333 0.333 0.000\n \
+K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n",
+
+"ex2": "\
+Γ 0.000 0.000 0.000 M 0.500 0.000 0.000\n\
+M 0.500 0.000 0.000 K 0.333 0.333 0.000\n\
+K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n",
+
+}
+
+DFT_Kpath_dict = {
+
+
+}
 
 @dataclass
 class QECalculation:
