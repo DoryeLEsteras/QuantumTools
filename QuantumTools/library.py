@@ -64,15 +64,58 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
             line= line.replace(symbol,' ')
         clean_file.append(line)   
     return clean_file
+def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
+                    cosab:float,cosbc:float,cosac:float) -> np.ndarray:
+    if ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 2:
+       cell_matrix = np.array([[-0.5*a, 0, 0.5*a ],[0, 0.5*a, 0.5*a ],[-0.5*a, 0.5*a, 0 ]])
+    elif ibrav == 3:
+       cell_matrix = np.array([[0.5*a, 0.5*a, 0.5*a ],[-0.5*a, 0.5*a, 0.5*a ],[-0.5*a, -0.5*a, 0.5*a ]])
+    elif ibrav == -3:
+       cell_matrix = np.array([[-0.5*a, 0.5*a, 0.5*a ],[0.5*a, -0.5*a, 0.5*a ],[0.5*a, 0.5*a, -0.5*a ]])
+    elif ibrav == 4:
+       cell_matrix = np.array([[a, 0, 0 ],[-0.5*a, 0.5*a*np.sqrt(3), 0 ],[0, 0, c ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 6:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, c ]])
+    elif ibrav == 7:
+       cell_matrix = np.array([[0.5*a, -0.5*a, c/2 ],[0.5*a, 0.5*a, c/2 ],[-0.5*a, -0.5*a, c/2 ]])
+    elif ibrav == 8:
+       cell_matrix = np.array([[a, 0, 0 ],[0, b, 0 ],[0, 0, c ]])
+    elif ibrav == 9:
+       cell_matrix = np.array([[0.5*a, 0.5*b, 0 ],[-0.5*a, 0.5*b, 0 ],[0, 0, c ]])
+    elif ibrav == -9:
+       cell_matrix = np.array([[0.5*a, -0.5*b, 0 ],[0.5*a, 0.5*b, 0 ],[0, 0, c ]])
+    elif ibrav == 91:
+       cell_matrix = np.array([[a, 0, 0 ],[0, 0.5*b, -0.5*c ],[0, 0.5*b, 0.5*c ]])
+    elif ibrav == 10:
+       cell_matrix = np.array([[0.5*a, 0, 0.5*c ],[0.5*a, 0.5*b, 0 ],[0, 0.5*b, 0.5*c ]])
+    elif ibrav == 11: 
+       cell_matrix = np.array([[0.5*a, 0.5*b,0.5*c],[-0.5*a, 0.5*b, 0.5*c ],[-0.5*a, -0.5*b, 0.5*c ]])
+    elif ibrav == 1: 
+       cell_matrix = np.array([[a, 0, 0 ],[b*cosab,a , 0 ],[0, 0, a ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    elif ibrav == 1:
+       cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
+    return cell_matrix
 def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         cell_parameters_units:np.ndarray,a:float,b:float,c:float, \
         cosac:float,cosab:float,cosbc:float) -> Any:   # ibrav != 0 will be repaired in the future and this will be np.ndarray
-    if ibrav == '0' and cell_parameters_units == 'angstrom':
+    if ibrav == 0 and cell_parameters_units == 'angstrom':
         return cell_matrix
-    if ibrav == '0' and cell_parameters_units == 'crystal':
+    if ibrav == 0 and cell_parameters_units == 'crystal':
         return np.dot(cell_matrix,a)
-    if ibrav != '0':
-        print('CRASH ibrav is not 0') 
+    if ibrav != 0:
+        return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)
 
 
 Wan_Kpath_dict = {
@@ -97,6 +140,11 @@ DFT_Kpath_dict = {
 
 
 }
+
+
+
+
+
 
 @dataclass
 class QECalculation:
@@ -178,8 +226,4 @@ class QECalculation:
                           
 
 if __name__ == '__main__':
-    file1 = open('/Users/Dorye/Downloads/crcl3.100.z.5.0.scf.in', "r")
-    text = file1.read()
-    text_list = text.split()
-    file1.close()
-    print(grep(text_list,'-0.0250908',3))
+   print('hi !')

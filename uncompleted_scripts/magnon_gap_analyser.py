@@ -42,7 +42,6 @@ def poli(mesh):
         for x in np.arange(95,105+mesh,mesh):
             strain_label = x - 100
             gap = -0.000266806527*strain_label*strain_label*strain_label*strain_label- 0.000996775447*strain_label*strain_label*strain_label + 0.010554079254*strain_label*strain_label + 0.049538966589*strain_label + 0.625361678322
-            #gap = -0.001598212898*x*x*x + 0.485152097902*x*x - 49.028479292930*x + 1650.175759533830
             f.write(str(strain_label) + " " + str(gap) +'\n') # esto ha reventado al poner el nuevo poli que incluia 95 y 105
 mesh = 0.001
 optic_file,acoustic_file = parser()

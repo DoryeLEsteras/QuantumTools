@@ -7,7 +7,6 @@ import math
  to do list
  loop it
  extract atm pos dangerous
-ask andrey optimization
 """
 
 def parser():
