@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.6
 import numpy as np
 from argparse import ArgumentParser
 from QuantumTools.library import count_nbands,count_nk
