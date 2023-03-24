@@ -1,4 +1,5 @@
-from typing import List, Any
+
+from typing import List
 from dataclasses import dataclass
 import numpy as np
 #solve ibrav != 0
@@ -37,7 +38,6 @@ def count_occ_bands(bands_file_name:str, fermi:float, file_column:int) -> int:
                nocc_bands = i + 1
         bands_file.readline() # to remove \n at the end of each band 
     return nocc_bands
-
 def manage_input_dir(input_dir_and_name:str) -> str: 
     file_name = input_dir_and_name.split('/')[-1]
     file_dir = input_dir_and_name.replace(file_name, '')
@@ -109,10 +109,12 @@ def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
     return cell_matrix
 def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         cell_parameters_units:np.ndarray,a:float,b:float,c:float, \
-        cosac:float,cosab:float,cosbc:float) -> Any:   # ibrav != 0 will be repaired in the future and this will be np.ndarray
+        cosac:float,cosab:float,cosbc:float) -> np.ndarray:  
     if ibrav == 0 and cell_parameters_units == 'angstrom':
         return cell_matrix
     if ibrav == 0 and cell_parameters_units == 'crystal':
+        return np.dot(cell_matrix,a)
+    if ibrav == 0 and cell_parameters_units == 'alat':
         return np.dot(cell_matrix,a)
     if ibrav != 0:
         return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)
@@ -132,19 +134,29 @@ K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n",
 "ex2": "\
 Γ 0.000 0.000 0.000 M 0.500 0.000 0.000\n\
 M 0.500 0.000 0.000 K 0.333 0.333 0.000\n\
-K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n",
+K 0.333 0.333 0.000 Γ 0.000 0.000 0.000\n"
 
 }
-
 DFT_Kpath_dict = {
+"hex": "\
+0.000 0.000 0.000 20 !Γ\n\
+0.333 0.333 0.000 20 !K\n\
+0.500 0.000 0.000 20 !M\n\
+0.000 0.000 0.000  0 !Γ\n",
 
+"ex1": "\
+0.000 0.000 0.000 20 !Γ\n\
+0.333 0.333 0.000 20 !K\n\
+0.500 0.000 0.000 20 !M\n\
+0.000 0.000 0.000  0 !Γ\n",
+
+"ex2": "\
+0.000 0.000 0.000 20 !Γ\n\
+0.333 0.333 0.000 20 !K\n\
+0.500 0.000 0.000 20 !M\n\
+0.000 0.000 0.000  0 !Γ\n"
 
 }
-
-
-
-
-
 
 @dataclass
 class QECalculation:
@@ -213,7 +225,7 @@ class QECalculation:
                                 self.c,self.cosac,self.cosab,self.cosbc)
                   if word == 'ATOMIC_POSITIONS':  
                           self.atomic_positions_units = splitted_line[word_number + 1]
-                          self.atomic_matrix = np.chararray((self.nat, 4),itemsize=9)
+                          self.atomic_matrix = np.chararray((self.nat, 4),itemsize=12)
                           for i in range(0,self.nat,1):
                               atomic_coord  = clean_file[line_number + 1 + i].split()             
                               self.atomic_matrix[i][0] = atomic_coord[0]
@@ -223,7 +235,49 @@ class QECalculation:
                           self.atomic_matrix = self.atomic_matrix.decode("utf-8")
                   if word == 'K_POINTS' or word == 'k_points':
                           self.kpoints = np.array(clean_file[line_number + 1].split())
-                          
+@dataclass
+class QEoutput:
+  calculation_finished: bool = 0
+  nat: int = 0
+  a: float = 0.0
+  cell_parameters_units: str = ''
+  cell_matrix: np.ndarray = np.array([[]])
+  cell_matrix_angstrom: np.ndarray = np.array([[]])
+  atomic_positions_units: str = ''
+  atomic_matrix: np.ndarray = np.array([[]])
+  def extract_output_information(self,file_name: str) -> None:
+      with open(file_name, 'r') as file:
+        file_vector = file.readlines()
+        clean_file = clean_uncommented_file(file_vector)
+      for line_number, line in enumerate(clean_file):   
+          splitted_line = line.split(); splitted_line.append('end') 
+          if splitted_line[0] == 'number' and splitted_line[1] == 'of': 
+             if splitted_line[2] == 'atoms/cell' or splitted_line[2] == 'atoms':
+                self.nat = int(splitted_line[-2]) 
+          if splitted_line[0] == 'lattice' and splitted_line[1] == 'parameter':
+              self.a =  float(splitted_line[-3]) * 0.529177
+          if splitted_line[0] == 'End' and splitted_line[1] == 'final':
+             calculation_finished = 1
+          for word_number, word in enumerate(splitted_line):
+              if word == 'CELL_PARAMETERS':
+                      self.cell_parameters_units = splitted_line[word_number + 1]                       
+                      v1 = clean_file[line_number + 1].split()
+                      v2 = clean_file[line_number + 2].split()
+                      v3 = clean_file[line_number + 3].split()
+                      self.cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
+                                  ,[float(v2[0]),float(v2[1]),float(v2[2])],
+                                  [float(v3[0]),float(v3[1]),float(v3[2])]])
+                      self.cell_matrix_angstrom = self.cell_matrix * self.a                
+              if word == 'ATOMIC_POSITIONS':  
+                      self.atomic_positions_units = splitted_line[word_number + 1]
+                      self.atomic_matrix = np.chararray((self.nat, 4),itemsize=12)
+                      for i in range(0,self.nat,1):
+                          atomic_coord  = clean_file[line_number + 1 + i].split()             
+                          self.atomic_matrix[i][0] = atomic_coord[0]
+                          self.atomic_matrix[i][1] = atomic_coord[1]
+                          self.atomic_matrix[i][2] = atomic_coord[2]
+                          self.atomic_matrix[i][3] = atomic_coord[3]
+                      self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
 
 if __name__ == '__main__':
    print('hi !')
