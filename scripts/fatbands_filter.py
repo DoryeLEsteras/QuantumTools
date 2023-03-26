@@ -1,3 +1,4 @@
+#!/usr/bin/python3.6
 import numpy as np
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
