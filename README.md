@@ -8,8 +8,8 @@ INPUT GENERATION
 
 create_bands                          DONE 
 create_projected                      DONE 
-create_wannier                        IN PROCESS
-optimization_manager                  IN PROCESS     (restarts optimizations and create scfs from optimization) 
+create_wannier                        DONE
+update_optimization                   IN PROCESS     
 create_force_theorem                  IN PROCESS
 create_spin_density                   DONE 
 create_charge_density                 DONE 
@@ -20,8 +20,6 @@ create_qe_template                    EMPTY
 create_sw 	                      IN PROCESS
 create_band_alignment                 EMPTY
 create_bader_analysis                 EMPTY
-create_wannier_fatbands               EMPTY  (this should be just an addition to the create_wannier)
-create_wannier_functions              EMPTY  (this should be just an addition to the create_wannier)
 create_strain                         bash
 create_wannier_tools                 EMPTY
 

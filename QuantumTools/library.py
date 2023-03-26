@@ -178,6 +178,7 @@ class QECalculation:
       atomic_positions_units: str = ''
       atomic_matrix: np.ndarray = np.array([[]])
       kpoints: np.ndarray = np.array([])
+      cell_dofree: str = ''
       def extract_input_information(self,file_name: str) -> None:
           self.nspin = 1
           uncommented_file = handle_comments(file_name)
@@ -197,7 +198,9 @@ class QECalculation:
                      self.ibrav = splitted_line[word_number + 1]
                   if word == 'nspin': 
                       if splitted_line[word_number + 1] == '2':
-                         self.nspin = 2                             
+                         self.nspin = 2       
+                  if word == 'cell_dofree': 
+                         self.cell_dofree = splitted_line[word_number + 1].replace("'","")                           
                   if word == 'noncolin':    
                          self.nspin = 4  
                   if word == 'a' or word == 'A': 
@@ -249,15 +252,15 @@ class QEoutput:
       with open(file_name, 'r') as file:
         file_vector = file.readlines()
         clean_file = clean_uncommented_file(file_vector)
-      for line_number, line in enumerate(clean_file):   
+      for line_number, line in enumerate(clean_file): 
+          if line == 'End final coordinates\n':
+             self.calculation_finished = 1   
           splitted_line = line.split(); splitted_line.append('end') 
           if splitted_line[0] == 'number' and splitted_line[1] == 'of': 
              if splitted_line[2] == 'atoms/cell' or splitted_line[2] == 'atoms':
                 self.nat = int(splitted_line[-2]) 
           if splitted_line[0] == 'lattice' and splitted_line[1] == 'parameter':
               self.a =  float(splitted_line[-3]) * 0.529177
-          if splitted_line[0] == 'End' and splitted_line[1] == 'final':
-             calculation_finished = 1
           for word_number, word in enumerate(splitted_line):
               if word == 'CELL_PARAMETERS':
                       self.cell_parameters_units = splitted_line[word_number + 1]                       
