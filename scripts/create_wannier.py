@@ -9,9 +9,7 @@ from QuantumTools.library import manage_input_dir, \
 
 # TO DO LIST
 """
-extend and correct the path library 
 import suggested runs
-path of kmesh tool
 """
 
 
@@ -118,7 +116,7 @@ def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
               original_file[line_number] = ''   
             if word == 'cosab'or word == 'COSAB':
               original_file[line_number] = '' 
-            kmesh = run(['../QuantumTools/kmesh.pl', \
+            kmesh = run(['kmesh.pl', \
                     str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
             output = kmesh.stdout; kmesh = output.decode("utf-8")
     with open(nscf_output, 'w') as nscf_file:   
@@ -293,7 +291,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
 
          win_file.write(f"begin kpoints \n")    
-         kmesh = run(['../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
+         kmesh = run(['kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
          output = kmesh.stdout; kmesh = output.decode("utf-8")
          win_file.write(f"{kmesh}")   
          win_file.write(f"end kpoints \n")    
