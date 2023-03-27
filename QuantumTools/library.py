@@ -6,6 +6,7 @@ import numpy as np
 # Where to put ransform_lattice_parameters?
 # Is used inside of the QEcalculation class
 # maybe i should remove the cell_matrix propertie
+
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
     with open(bands_file_name,'r') as f:
@@ -58,7 +59,7 @@ def handle_comments(file_name:str) -> List[str]:
     return uncommented_file
 def clean_uncommented_file(file_list:List[str]) -> List[str]:
     clean_file = []
-    symbol_colection = '=()[],'
+    symbol_colection = '=()[],"'
     for line in file_list:
         for symbol in symbol_colection:
             line= line.replace(symbol,' ')
@@ -186,7 +187,7 @@ class QECalculation:
           self.nspin = 1
           uncommented_file = handle_comments(file_name)
           clean_file = clean_uncommented_file(uncommented_file)
-          for line_number, line in enumerate(clean_file):   
+          for line_number, line in enumerate(clean_file): 
               splitted_line = line.split(); splitted_line.append('end')  
               for word_number, word in enumerate(splitted_line):
                   if word == 'nat':
@@ -194,9 +195,9 @@ class QECalculation:
                   if word == 'calculation':
                     self.calculation_type = splitted_line[word_number + 1].replace("\'","")
                   if word == 'prefix':
-                    self.prefix = splitted_line[word_number + 1]
+                    self.prefix = splitted_line[word_number + 1].replace("\'","")
                   if word == 'outdir':
-                    self.outdir = splitted_line[word_number + 1]
+                    self.outdir = splitted_line[word_number + 1].replace("\'","")
                   if word == 'ibrav':
                      self.ibrav = int(splitted_line[word_number + 1])
                   if word == 'nspin': 
@@ -289,5 +290,7 @@ class QEoutput:
 if __name__ == '__main__':
    print('hi !')
    SCF = QECalculation() 
-   SCF.extract_input_information('../uncompleted_scripts/debug_wannier/dyos.z.scf.in')
-   #print(SCF.cell_matrix_angstrom)
+   SCF.extract_input_information('../uncompleted_scripts/debug_update_opt/first.stacking.vcrelax.in')
+   print(SCF.prefix)
+   a = remove_char_from_string('aa\'aa"')
+   print(a)
