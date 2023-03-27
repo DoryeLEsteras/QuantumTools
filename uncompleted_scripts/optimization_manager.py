@@ -1,6 +1,7 @@
 import numpy as np
 from argparse import ArgumentParser
-
+from typing import List
+from QuantumTools.library import QECalculation,manage_input_dir
 # TO DO LIST
 """
 Finish vc-relax part
@@ -8,7 +9,7 @@ Find a way of improving ibrav != 0 and cell_dofree = ibrav
 
 """
 
-def parser():
+def parser_old():
     parser = ArgumentParser(description="")
     parser.add_argument("-input", "--input",
                         type=str,
@@ -63,6 +64,7 @@ def analyze_input(opt_input):
             for i in range(0, nat, 1):
                 opt_input.readline()
     return calculation_type, ibrav, nat, read_vector
+
 def extract_coordinates(opt_output, nat, calculation_type):
     coordinates = []; filter = []
     readed_line = '' 
@@ -138,17 +140,52 @@ def input_generator(calculation_type,mode,ibrav,output_file,coordinates,new_inpu
     -ibrav != 0 and cell_dofree = ibrav -> we are fucked, warning to user
     """
     #if mode == 'scf' and calculation_type.replace("'", "") == 'vc-relax':
+def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
+    nscf_file_name = file_name.replace('scf','nscf')
+    nscf_output = str(file_dir) + str(nscf_file_name)
+    with open(file_name, 'r') as file:
+        lines = file.readlines() 
+    original_file = lines   
+    clean_file = clean_uncommented_file(lines)
+    for line_number, line in enumerate(clean_file):   
+        splitted_line = line.split(); splitted_line.append('end')  
+        for word_number, word in enumerate(splitted_line):
+            if word == 'calculation':
+               original_file[line_number] = 'calculation = \'nscf\'\n'
+            if word == 'verbosity':
+              original_file[line_number] = 'verbosity = \'high\'\n'
+            if word == '&system' or word == '&SYSTEM':
+              original_file[line_number] = '&SYSTEM\n' + 'nosym=.true.\n' + \
+               'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
+            if word == '&electrons' or word == '&ELECTRONS':
+              original_file[line_number] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
+            if word == 'k_points' or word == 'K_POINTS':
+              original_file[line_number] = ''    
+              original_file[line_number + 1] = ''            
 
-provided_input_file, provided_output_file, name, mode = parser()
-inrelax_file = open(str(provided_input_file), 'r')
-outrelax_file = open(str(provided_output_file), 'r')
-output_file = open(str(name), 'w')
+#inrelax_file = open(str(provided_input_file), 'r')
+#outrelax_file = open(str(provided_output_file), 'r')
+#¢output_file = open(str(name), 'w')
 
 
-if mode == 'scf' or  mode == 'restart':
-    calculation_type, ibrav, nat , new_input_vector= analyze_input(inrelax_file)
-    coordinates = extract_coordinates(outrelax_file,nat,calculation_type)
-    input_generator(calculation_type,mode,ibrav,output_file,coordinates,new_input_vector)
 
-else:   
-    print('ERROR: invalid mode, please choose between mode scf or restart')
+
+if __name__ == "__main__":
+   mode = 'restart'
+   #provided_input_file, provided_output_file, name, mode = parser()
+   file_dir_and_name = './debug_opt_manager/ErSeI.in'
+   if mode == 'scf' or  mode == 'restart':
+      file_name, file_dir = manage_input_dir(file_dir_and_name)
+      OPT = QECalculation()   
+      OPT.extract_input_information(file_dir_and_name)
+      print(OPT) 
+      if OPT.calculation_type == 'relax':
+        print('this is relax')
+      elif OPT.calculation_type == 'vc-relax':
+        print('this is vc-relax')    
+   else:   
+        print('ERROR: invalid mode, please choose between mode scf or restart')
+    
+
+
+#create_nscf(file_name, file_dir, nbands, k)
