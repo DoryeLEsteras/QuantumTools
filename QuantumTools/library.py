@@ -66,6 +66,7 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
     return clean_file
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
                     cosab:float,cosbc:float,cosac:float) -> np.ndarray:
+    cell_matrix = np.array([])
     if ibrav == 1:
        cell_matrix = np.array([[a, 0, 0 ],[0, a, 0 ],[0, 0, a ]])
     elif ibrav == 2:
@@ -195,7 +196,7 @@ class QECalculation:
                   if word == 'outdir':
                     self.outdir = splitted_line[word_number + 1]
                   if word == 'ibrav':
-                     self.ibrav = splitted_line[word_number + 1]
+                     self.ibrav = int(splitted_line[word_number + 1])
                   if word == 'nspin': 
                       if splitted_line[word_number + 1] == '2':
                          self.nspin = 2       
@@ -204,6 +205,7 @@ class QECalculation:
                   if word == 'noncolin':    
                          self.nspin = 4  
                   if word == 'a' or word == 'A': 
+                         self.cell_parameters_units = 'angstrom'
                          self.a = float(splitted_line[word_number + 1])
                   if word == 'b' or word == 'B': 
                          self.b = float(splitted_line[word_number + 1])
@@ -223,9 +225,6 @@ class QECalculation:
                           self.cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
                                       ,[float(v2[0]),float(v2[1]),float(v2[2])],
                                       [float(v3[0]),float(v3[1]),float(v3[2])]])
-                          self.cell_matrix_angstrom = transform_lattice_parameters(self.cell_matrix, \
-                                self.ibrav,self.cell_parameters_units,self.a,self.b, \
-                                self.c,self.cosac,self.cosab,self.cosbc)
                   if word == 'ATOMIC_POSITIONS':  
                           self.atomic_positions_units = splitted_line[word_number + 1]
                           self.atomic_matrix = np.chararray((self.nat, 4),itemsize=12)
@@ -238,6 +237,9 @@ class QECalculation:
                           self.atomic_matrix = self.atomic_matrix.decode("utf-8")
                   if word == 'K_POINTS' or word == 'k_points':
                           self.kpoints = np.array(clean_file[line_number + 1].split())
+          self.cell_matrix_angstrom = transform_lattice_parameters(self.cell_matrix, \
+                        self.ibrav,self.cell_parameters_units,self.a,self.b, \
+                        self.c,self.cosac,self.cosab,self.cosbc)
 @dataclass
 class QEoutput:
   calculation_finished: bool = 0
@@ -284,3 +286,6 @@ class QEoutput:
 
 if __name__ == '__main__':
    print('hi !')
+   SCF = QECalculation() 
+   SCF.extract_input_information('../uncompleted_scripts/debug_wannier/dyos.z.scf.in')
+   print(SCF.cell_matrix_angstrom)

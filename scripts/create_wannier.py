@@ -84,7 +84,7 @@ def parser():
 def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
     nscf_output = str(file_dir) + str(nscf_file_name)
-    with open(file_name, 'r') as file:
+    with open(file_dir + file_name, 'r') as file:
         lines = file.readlines() 
     original_file = lines   
     clean_file = clean_uncommented_file(lines)
@@ -102,13 +102,33 @@ def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
               original_file[line_number] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
             if word == 'k_points' or word == 'K_POINTS':
               original_file[line_number] = ''    
-              original_file[line_number + 1] = ''            
-            kmesh = run(['../../QuantumTools/kmesh.pl', \
+              original_file[line_number + 1] = ''     
+            if word == 'ibrav':
+              original_file[line_number] = ''           
+            if word == 'a':
+              original_file[line_number] = ''
+            if word == 'b':
+              original_file[line_number] = ''
+            if word == 'c':
+              original_file[line_number] = ''
+            if word == 'cosac' or word == 'COSAC':
+              original_file[line_number] = ''
+            if word == 'cosbc'or word == 'COSBC':
+              original_file[line_number] = ''   
+            if word == 'cosab'or word == 'COSAB':
+              original_file[line_number] = '' 
+            kmesh = run(['../QuantumTools/kmesh.pl', \
                     str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
             output = kmesh.stdout; kmesh = output.decode("utf-8")
     with open(nscf_output, 'w') as nscf_file:   
         for line in original_file: 
             nscf_file.write(str(line))  
+        nscf_file.write('CELL_PARAMETERS ( ' + SCF.cell_parameters_units + ' )\n')  
+        for i in range(0,3,1):
+            for j in range(0,3,1):
+                cell_matrix_angstrom = str(SCF.cell_matrix_angstrom[i][j]).replace('[','').replace(']','') 
+                nscf_file.write(f"{float(cell_matrix_angstrom):.9f} ")
+            nscf_file.write(f"\n")
         nscf_file.write(kmesh)  
 def create_pw2wan_input(file_dir:str,seed:str) -> None: 
     if SCF.nspin == 1:
@@ -190,8 +210,11 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"\n")
 
          win_file.write(f"'!!! KPATH !!!'\n")    
-         win_file.write(f"begin kpoint_path \n")    
-         win_file.write(f"{Wan_Kpath_dict[kpath]}")    
+         win_file.write(f"begin kpoint_path \n")  
+         if kpath != 'none':  
+            win_file.write(f"{Wan_Kpath_dict[kpath]}")
+         elif kpath == 'none': 
+            win_file.write(f"\n")               
          win_file.write(f"end kpoint_path \n")  
          win_file.write(f"\n")
 
@@ -269,7 +292,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
 
          win_file.write(f"begin kpoints \n")    
-         kmesh = run(['../../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
+         kmesh = run(['../QuantumTools/kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
          output = kmesh.stdout; kmesh = output.decode("utf-8")
          win_file.write(f"{kmesh}")   
          win_file.write(f"end kpoints \n")    
@@ -290,6 +313,7 @@ if __name__ == "__main__":
    file_dir_and_name,outdir,kpath,k,nbands,nwan,Mo,mo,Mi,mi,projectors = parser()
    file_name, file_dir = manage_input_dir(file_dir_and_name)
    SCF = QECalculation()   
+
    SCF.extract_input_information(file_dir_and_name) 
    if SCF.calculation_type != 'scf':
         print('ERROR: provided scf input does not correspond to scf calculation')
