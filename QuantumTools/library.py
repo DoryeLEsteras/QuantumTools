@@ -290,4 +290,4 @@ if __name__ == '__main__':
    print('hi !')
    SCF = QECalculation() 
    SCF.extract_input_information('../uncompleted_scripts/debug_wannier/dyos.z.scf.in')
-   print(SCF.cell_matrix_angstrom)
+   #print(SCF.cell_matrix_angstrom)

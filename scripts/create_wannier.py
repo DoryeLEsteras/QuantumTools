@@ -11,6 +11,7 @@ from QuantumTools.library import manage_input_dir, \
 """
 extend and correct the path library 
 import suggested runs
+path of kmesh tool
 """
 
 
@@ -97,7 +98,7 @@ def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
               original_file[line_number] = 'verbosity = \'high\'\n'
             if word == '&system' or word == '&SYSTEM':
               original_file[line_number] = '&SYSTEM\n' + 'nosym=.true.\n' + \
-               'noinv=.true.\n' + 'nbnd = ' + str(nbands) + ' \n'
+               'noinv=.true.\n' + 'nbnd = ' + str(nbands) + '\nibrav = 0\n'
             if word == '&electrons' or word == '&ELECTRONS':
               original_file[line_number] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
             if word == 'k_points' or word == 'K_POINTS':
