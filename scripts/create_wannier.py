@@ -1,4 +1,4 @@
-#!/usr/bin/python3.9
+#!/usr/bin/python3.6
 import numpy as np
 from argparse import ArgumentParser
 from typing import List
