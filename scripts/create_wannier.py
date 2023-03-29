@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3.9
 import numpy as np
 from argparse import ArgumentParser
 from typing import List
@@ -208,7 +208,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"End Projections \n")  
          win_file.write(f"\n")
 
-         win_file.write(f"'!!! KPATH !!!'\n")    
+         win_file.write(f"!!! KPATH !!!\n")    
          win_file.write(f"begin kpoint_path \n")  
          if kpath != 'none':  
             win_file.write(f"{Wan_Kpath_dict[kpath]}")
@@ -231,7 +231,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"\n")
 
          win_file.write(f"!!! for fatbands !!!\n")
-         win_file.write(f"bands_plot_project = i-j \n") 
+         win_file.write(f"!bands_plot_project = i-j \n") 
          win_file.write(f"\n")
 
          win_file.write(f"!!! for WF plot !!!\n")   
