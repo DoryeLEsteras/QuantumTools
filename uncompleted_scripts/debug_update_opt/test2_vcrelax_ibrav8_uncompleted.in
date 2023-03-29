@@ -1,0 +1,54 @@
+&control
+  calculation = 'vc-relax',
+  outdir = './tmp/'
+  prefix = 'ErSeI_vc-relax_monolayer_155'
+  pseudo_dir = '/u/jojaibal/QuantumEspresso/pseudopotentials'
+  verbosity = 'low'
+  nstep = 500
+/
+&SYSTEM
+  ecutrho = 1550
+  ecutwfc = 155
+  ibrav = 8, a =4.1826, b =5.5840, c = 26.0
+  nat = 6
+  ntyp = 3
+  occupations = 'smearing'
+  smearing = 'cold'
+  degauss = 1.d-03
+  starting_magnetization(1) =   0.1
+  starting_magnetization(2) =   1.0000000000d-01
+  starting_magnetization(3) =   1.0000000000d-01
+  nspin = 2
+
+/
+
+&ELECTRONS
+  conv_thr =   1.0000000000d-06
+  electron_maxstep = 800
+  mixing_beta =   1.0000000000d-01
+  !mixing_mode = 'local-TF'
+/
+
+&IONS
+/
+
+&cell
+cell_dofree = '2Dxy'
+/
+
+ATOMIC_SPECIES
+ Er 167.259 Er.pbe-spdfn-rrkjus_psl.1.0.0.UPF
+ Se 78.96   Se.pbe-dn-rrkjus_psl.1.0.0.UPF
+ I  126.904 I.pbe-n-rrkjus_psl.1.0.0.UPF
+
+ATOMIC_POSITIONS (angstrom)
+ Er      2.0913  2.792 4.4002
+ Er      0       0     2.152
+ I       2.0913  0     0
+ I       0       2.792 6.5522
+ Se      0       2.792 2.4794
+ Se      2.0913  0     4.0728
+K_POINTS automatic
+8 6 1 0 0 0
+
+

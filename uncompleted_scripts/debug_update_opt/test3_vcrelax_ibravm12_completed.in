@@ -1,0 +1,53 @@
+&CONTROL
+  calculation = 'vc-relax'
+  outdir = './tmp/'
+  prefix = 'monoclinic'
+  pseudo_dir = '/ptmp/jojaibal/andrey/nii2-magnons/pseudo'
+  verbosity = 'low'
+/
+&SYSTEM
+  degauss =   1.4699723600d-03   
+  ecutrho =   500                
+  ecutwfc =   120                
+  ibrav = -12, a =6.58549416838,b=3.87379232196,c=8.0597, COSAC=0.02082   ! NiI2
+  nat = 6                 
+  ntyp = 2
+  occupations = 'smearing'       
+  smearing = 'cold'              
+  starting_magnetization(1) =   2.7777777778d-01
+  starting_magnetization(2) =   1.0000000000d-01
+  !lda_plus_u = .true., lda_plus_u_kind = 1, U_projection_type = 'ortho-atomic',Hubbard_U(1) =3.0 
+  nspin = 2
+  vdw_corr = 'grimme-d3'
+  !angle1(1)=0
+  !angle2(1)=0
+  !lspinorb = .true.
+  !noncolin = .true.
+/
+&ELECTRONS
+  conv_thr =   1.0000000000d-6        
+  electron_maxstep = 800            
+  mixing_beta =   4.0000000000d-01
+/
+
+ &IONS                                                           
+ /                                                               
+                                                                 
+ &CELL   
+ cell_dofree = 'ibrav'                                           
+ / 
+
+ATOMIC_SPECIES
+Ni     58.6934 Ni.upf    
+I      126.90447 I.upf
+
+ATOMIC_POSITIONS crystal
+Ni            0.4999919423        0.0000000000        0.2419972280
+Ni            0.0000050478        0.5000000000        0.2419978817
+I             0.2360940594        0.0000000000        0.4494545913
+I             0.7360948521        0.5000000000        0.4494580907
+I             0.7639069577        0.0000000000        0.0345454761
+I             0.2639071406        0.5000000000        0.0345467322
+
+K_POINTS automatic
+6 6 6 0 0 0
