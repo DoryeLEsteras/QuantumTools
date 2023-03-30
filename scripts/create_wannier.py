@@ -135,8 +135,8 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
        with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
             pw2wan_file.write('&inputpp\n')  
             pw2wan_file.write('seedname = \'' + seed + '\'\n')  
-            pw2wan_file.write('outdir = ' + SCF.outdir + '\n')  
-            pw2wan_file.write('prefix = ' + SCF.prefix + '\n')  
+            pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')  
+            pw2wan_file.write('prefix = \'' + SCF.prefix + '\'\n')  
             pw2wan_file.write('spin_component = \'none\'\n')  
             pw2wan_file.write('write_mmn = .true.\n')  
             pw2wan_file.write('write_amn = .true.\n')  
@@ -148,8 +148,8 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
        with open(file_dir + pw2wan_up_output_name, 'w') as pw2wan_up_file:
             pw2wan_up_file.write('&inputpp\n') 
             pw2wan_up_file.write('seedname = \'' + seed + '.up\'\n')  
-            pw2wan_up_file.write('outdir = ' + SCF.outdir + '\n')  
-            pw2wan_up_file.write('prefix = ' + SCF.prefix + '\n')  
+            pw2wan_up_file.write('outdir = \'' + SCF.outdir + '\'\n')  
+            pw2wan_up_file.write('prefix = \'' + SCF.prefix + '\'\n')  
             pw2wan_up_file.write('spin_component = \'up\'\n')  
             pw2wan_up_file.write('write_mmn = .true.\n')  
             pw2wan_up_file.write('write_amn = .true.\n')  
@@ -160,8 +160,8 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
        with open(file_dir + pw2wan_down_output_name, 'w') as pw2wan_down_file:
         pw2wan_down_file.write('&inputpp\n') 
         pw2wan_down_file.write('seedname = \'' + seed + '.down\'\n')  
-        pw2wan_down_file.write('outdir = ' + SCF.outdir + '\n')  
-        pw2wan_down_file.write('prefix = ' + SCF.prefix + '\n')  
+        pw2wan_down_file.write('outdir = \'' + SCF.outdir + '\'\n')  
+        pw2wan_down_file.write('prefix = \'' + SCF.prefix + '\'\n')  
         pw2wan_down_file.write('spin_component = \'down\'\n')  
         pw2wan_down_file.write('write_mmn = .true.\n')  
         pw2wan_down_file.write('write_amn = .true.\n')  
@@ -173,8 +173,8 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
         with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
              pw2wan_file.write('&inputpp\n')  
              pw2wan_file.write('seedname = \'' + seed + '\'\n')  
-             pw2wan_file.write('outdir = ' + SCF.outdir + '\n')   
-             pw2wan_file.write('prefix = ' + SCF.prefix + '\n') 
+             pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')   
+             pw2wan_file.write('prefix = \'' + SCF.prefix + '\'\n') 
              pw2wan_file.write('spin_component = \'none\'\n')  
              pw2wan_file.write('write_mmn = .true.\n')  
              pw2wan_file.write('write_amn = .true.\n')  
