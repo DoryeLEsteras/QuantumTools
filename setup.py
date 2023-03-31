@@ -18,7 +18,8 @@ setup(
          'scripts/repair_bands.py',     
          'scripts/fatbands_filter.py',
          'scripts/resolved_exchange_strain_u_plotter.py',
-         'scripts/h_reader.py'
+         'scripts/h_reader.py',
+         'scripts/update_optimization.py'
      ],
     install_requires=[
         'numpy',

@@ -9,3 +9,4 @@ exchange*
 *.win
 *__pycache__*
 *egg*
+build
