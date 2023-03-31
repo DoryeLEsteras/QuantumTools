@@ -1,4 +1,4 @@
-#!/usr/bin/python3.6
+#!/usr/bin/python3
 import numpy as np
 from argparse import ArgumentParser
 
@@ -15,7 +15,7 @@ def parser():
                         help="""
                         Relative or absolute path for the scf input file
                         """)
-    parser.add_argument("-out", "--out",
+    parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
                         default='./',
@@ -38,6 +38,7 @@ def create_charge_density_input(scf_input_name,scf_input_file,charge_density_out
           prefix = line.replace(" ","")
         if line_to_check_vector[0] == 'outdir':
           outdir = line.replace(" ","")
+
     filband = prefix.split("=")
     filband = filband[1]
     filband = filband.replace("'", "") 
@@ -54,6 +55,7 @@ def create_charge_density_input(scf_input_name,scf_input_file,charge_density_out
     charge_density_file.write('output_format=5,\n')
     charge_density_file.write('/')
     charge_density_file.close()
+    
 provided_scf_input_file, provided_output_dir = parser()
 scf_file = open(str(provided_scf_input_file), 'r')
 create_charge_density_input(provided_scf_input_file,scf_file,provided_output_dir)
