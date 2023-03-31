@@ -62,7 +62,7 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
     symbol_colection = '=()[],"'
     for line in file_list:
         for symbol in symbol_colection:
-            line= line.replace(symbol,' ')
+            line= line.replace(symbol,' ').replace('d0','')
         clean_file.append(line)   
     return clean_file
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
@@ -230,14 +230,21 @@ class QECalculation:
                                       [float(v3[0]),float(v3[1]),float(v3[2])]])
                   if word == 'ATOMIC_POSITIONS':  
                           self.atomic_positions_units = splitted_line[word_number + 1]
-                          self.atomic_matrix = np.chararray((self.nat, 4),itemsize=12)
+                          self.atomic_matrix = np.chararray((self.nat, 7),itemsize=12)         
                           for i in range(0,self.nat,1):
                               atomic_coord  = clean_file[line_number + 1 + i].split()             
                               self.atomic_matrix[i][0] = atomic_coord[0]
                               self.atomic_matrix[i][1] = atomic_coord[1]
                               self.atomic_matrix[i][2] = atomic_coord[2]
                               self.atomic_matrix[i][3] = atomic_coord[3]
-                          self.atomic_matrix = self.atomic_matrix.decode("utf-8")
+                              self.atomic_matrix[i][4] = ''
+                              self.atomic_matrix[i][5] = ''
+                              self.atomic_matrix[i][6] = ''
+                              if len(atomic_coord) == 7:
+                                 self.atomic_matrix[i][4] = atomic_coord[4]
+                                 self.atomic_matrix[i][5] = atomic_coord[5]
+                                 self.atomic_matrix[i][6] = atomic_coord[6]                          
+                          self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
                   if word == 'K_POINTS' or word == 'k_points':
                           self.kpoints = np.array(clean_file[line_number + 1].split())
           self.cell_matrix_angstrom = transform_lattice_parameters(self.cell_matrix, \
@@ -278,13 +285,20 @@ class QEoutput:
                       self.cell_matrix_angstrom = self.cell_matrix * self.a                
               if word == 'ATOMIC_POSITIONS':  
                       self.atomic_positions_units = splitted_line[word_number + 1]
-                      self.atomic_matrix = np.chararray((self.nat, 4),itemsize=12)
+                      self.atomic_matrix = np.chararray((self.nat, 7),itemsize=12)         
                       for i in range(0,self.nat,1):
-                          atomic_coord  = clean_file[line_number + 1 + i].split()             
+                          atomic_coord  = clean_file[line_number + 1 + i].split()           
                           self.atomic_matrix[i][0] = atomic_coord[0]
                           self.atomic_matrix[i][1] = atomic_coord[1]
                           self.atomic_matrix[i][2] = atomic_coord[2]
                           self.atomic_matrix[i][3] = atomic_coord[3]
+                          self.atomic_matrix[i][4] = ''
+                          self.atomic_matrix[i][5] = ''
+                          self.atomic_matrix[i][6] = ''
+                          if len(atomic_coord) == 7:
+                             self.atomic_matrix[i][4] = atomic_coord[4]
+                             self.atomic_matrix[i][5] = atomic_coord[5]
+                             self.atomic_matrix[i][6] = atomic_coord[6]                          
                       self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
 
 if __name__ == '__main__':
