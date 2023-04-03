@@ -1,0 +1,24 @@
+######### Raven directories #########
+QE_dir:  
+Wan_dir:  
+
+######### Raven run header #########
+#!/bin/bash -l
+#SBATCH --output=task.out.%j
+#SBATCH --error=task.err.%j
+#SBATCH -D ./
+
+# Job Name
+#SBATCH --job-name= job_name
+#SBATCH --nodes=1
+#SBATCH --mem=200gb
+#SBATCH --partition=interactive
+#SBATCH --ntasks-per-node=72
+#SBATCH --time=0-01:59:00
+
+#Libraries and modules
+module load intel/21.5.0
+module load  impi/2021.5
+module load mkl/2022.2
+module load qe/6.8
+module load wannier90/3.1.0

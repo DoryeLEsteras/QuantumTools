@@ -40,7 +40,7 @@ def parser():
                        """)                            
     args = parser.parse_args()
     return args.input, args.bands ,args.nk
-def extract_healthy_kp(bands_out_file:str,nk:int):
+def extract_healthy_kp(bands_out_file:str,nk:int)-> np.ndarray:
     kpoints_x = np.array([]);kpoints_y = np.array([]);kpoints_z = np.array([])
     bands_out = open(bands_out_file, "r")
     line = bands_out.readline()
@@ -52,8 +52,9 @@ def extract_healthy_kp(bands_out_file:str,nk:int):
         kpoints_x = np.append(kpoints_x,float(filtered_line[4]))
         kpoints_y = np.append(kpoints_y,float(filtered_line[5]))
         kpoints_z = np.append(kpoints_z,float(filtered_line[6]))
+    bands_out.close()
     return kpoints_x, kpoints_y, kpoints_z
-def repair_bands(kpoints_x,kpoints_y,kpoints_z,nbands,nk):
+def repair_bands(kpoints_x:np.ndarray,kpoints_y:np.ndarray,kpoints_z:np.ndarray,nbands:int,nk:int)-> None:
     squared_kpoints_x = np.array([0]); squared_kpoints_y = np.array([0]); squared_kpoints_z = np.array([0])
     kvector_sums = np.array([]); kvector = np.array([0]) # important, first element empty
     band_points = []
@@ -80,13 +81,11 @@ def repair_bands(kpoints_x,kpoints_y,kpoints_z,nbands,nk):
     new_band_path_file.write(f'{band_points}\n')
     new_band_path_file.close
 
-
-bands_out_file,bands_file,nkpoints = parser()
-nbands = count_nbands(bands_file)
-nk = count_nk(bands_file)
-
-# Extract data
-energies = np.loadtxt(bands_file)[:, 1]
-kpoints_x, kpoints_y, kpoints_z = extract_healthy_kp(bands_out_file,nk)
-
-repair_bands(kpoints_x,kpoints_y,kpoints_z,nbands,nk)
+if __name__ == '__main__':
+   bands_out_file,bands_file,nkpoints = parser()
+   nbands = count_nbands(bands_file)
+   nk = count_nk(bands_file)
+   # Extract data
+   energies = np.loadtxt(bands_file)[:, 1]
+   kpoints_x, kpoints_y, kpoints_z = extract_healthy_kp(bands_out_file,nk)
+   repair_bands(kpoints_x,kpoints_y,kpoints_z,nbands,nk)

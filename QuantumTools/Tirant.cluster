@@ -1,0 +1,27 @@
+######### Tirant directories #########
+QE_dir:  /storage/home/vlc92/vlc92721/qe-6.8/bin/
+Wan_dir:  
+
+######### Tirant run header #########
+#!/bin/bash -l
+#SBATCH --job-name= job_name
+##SBATCH --nodes= 2
+#SBATCH --workdir=./
+#SBATCH --output=task.out.%j
+#SBATCH --error=task.err.%j
+##SBATCH --mem-per-cpu=2GB
+#SBATCH --ntasks=32 
+#SBATCH --cpus-per-task=1
+##SBATCH --tasks-per-node=8
+#SBATCH --time=0-03:10:00
+
+export LD_LIBRARY_PATH=/storage/apps/Intel_Comp/xe_2019u4/compilers_and_libraries_2019.4.243/linux/mpi/intel64/lib/:$LD_LIBRARY_PATH
+
+module load intel/2018.3.222   
+module load mkl/2018.3.222 
+module load impi/2018.3.222   
+module load hdf5/1.10.1
+module load wannier90/3.1 
+
+ulimit -s unlimited
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}

@@ -8,7 +8,9 @@ setup(
     description='',
     author='Dorye L. Esteras',
     author_email='dorye.esteras@uv.es',
-    packages=['QuantumTools'],
+    packages=find_packages(),
+    package_data={'QuantumTools':['*.cluster','kmesh.pl']},
+    include_package_data=True,
     scripts=[
          'scripts/create_wannier.py',
          'scripts/create_bands.py',
@@ -19,7 +21,8 @@ setup(
          'scripts/fatbands_filter.py',
          'scripts/resolved_exchange_strain_u_plotter.py',
          'scripts/h_reader.py',
-         'scripts/update_optimization.py'
+         'scripts/update_optimization.py',
+         'scripts/create_run.py'
      ],
     install_requires=[
         'numpy',

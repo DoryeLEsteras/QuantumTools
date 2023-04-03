@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import numpy as np
 #from subprocess import run
 from QuantumTools.library import QECalculation, QEoutput, manage_input_dir,\
-clean_uncommented_file
+clean_uncommented_file, initialize_clusters
 
 # TO DO LIST
 """

@@ -4,19 +4,14 @@ from argparse import ArgumentParser
 from typing import List
 from subprocess import run
 from QuantumTools.library import manage_input_dir, \
-     clean_uncommented_file, QECalculation, Wan_Kpath_dict
-
-
-# TO DO LIST
-"""
-import suggested runs
-"""
-
+     clean_uncommented_file, QECalculation, Wan_Kpath_dict, \
+     initialize_clusters,Cluster
+import QuantumTools #to find kmesh path
 
 
 def parser():
-    parser = ArgumentParser(description="Script to create wannier90 calculation inputs")
-    parser.add_argument("-scf", "--scf",
+    parser = ArgumentParser(description="Script to create Wannier90 calculation inputs")
+    parser.add_argument("-input", "--input",
                         type=str,
                         required=True,
                         help="""
@@ -40,32 +35,32 @@ def parser():
     parser.add_argument("-nbands", "--nbands",
                         type=int,
                         required=False,
-                        default='',
+                        default=0,
                         help=" number of bands for Wannier90 calculation")
     parser.add_argument("-nwan", "--nwan",
                         type=int,
                         required=False,
-                        default='',
+                        default=0,
                         help=" number of Wannier functions for Wannier90 calculation")
     parser.add_argument("-Mo", "--Mo",
                         type=float,
                         required=False,
-                        default='',
+                        default=0,
                         help="Maximum for outer window")
     parser.add_argument("-mo", "--mo",
                         type=float,
                         required=False,
-                        default='',
+                        default=0,
                         help="Minimum for outer window")
     parser.add_argument("-Mi", "--Mi",
                         type=float,
                         required=False,
-                        default='',
+                        default=0,
                         help="Maximum for inner window")
     parser.add_argument("-mi", "--mi",
                         type=float,
                         required=False,
-                        default='',
+                        default=0,
                         help="Minimum for inner window")
     parser.add_argument("-orb", "--orb",
                         type=str,
@@ -78,11 +73,11 @@ def parser():
                                 ex : ex: Fe:d,I:pz
                              """)
     args = parser.parse_args()
-    return args.scf,args.outdir,args.kpath,args.k,args.nbands,args.nwan, \
+    return args.input,args.outdir,args.kpath,args.k,args.nbands,args.nwan, \
            args.Mo,args.mo,args.Mi,args.mi,args.orb
-def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
+def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
-    nscf_output = str(file_dir) + str(nscf_file_name)
+    nscf_output = str(outdir) + str(nscf_file_name)
     with open(file_dir + file_name, 'r') as file:
         lines = file.readlines() 
     original_file = lines   
@@ -116,7 +111,8 @@ def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
               original_file[line_number] = ''   
             if word == 'cosab'or word == 'COSAB':
               original_file[line_number] = '' 
-            kmesh = run(['kmesh.pl', \
+            QT_directory = QuantumTools.__file__.replace('__init__.py','')
+            kmesh = run([QT_directory +'kmesh.pl', \
                     str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
             output = kmesh.stdout; kmesh = output.decode("utf-8")
     with open(nscf_output, 'w') as nscf_file:   
@@ -131,6 +127,7 @@ def create_nscf(file_name:str, file_dir:str, nbands:int, k:List[int]) -> None:
         nscf_file.write(kmesh)  
 def create_pw2wan_input(file_dir:str,seed:str) -> None: 
     if SCF.nspin == 1:
+       initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')    
        pw2wan_output_name = str(seed + '.pw2wan.in')
        with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
             pw2wan_file.write('&inputpp\n')  
@@ -142,8 +139,9 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
             pw2wan_file.write('write_amn = .true.\n')  
             pw2wan_file.write('write_unk = .false.\n')  
             pw2wan_file.write('wan_mode = \'standalone\'\n') 
-            pw2wan_file.write('/')        
+            pw2wan_file.write('/')    
     if SCF.nspin == 2:
+       initialize_clusters('spin_wannier',file_dir,seed + '.scf.in')
        pw2wan_up_output_name = str(seed + '.up.pw2wan.in')
        with open(file_dir + pw2wan_up_output_name, 'w') as pw2wan_up_file:
             pw2wan_up_file.write('&inputpp\n') 
@@ -169,6 +167,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
         pw2wan_down_file.write('wan_mode = \'standalone\'\n') 
         pw2wan_down_file.write('/')  
     if SCF.nspin == 4:
+        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')
         pw2wan_output_name = str(seed + '.pw2wan.in')
         with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
              pw2wan_file.write('&inputpp\n')  
@@ -290,8 +289,9 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
 
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
 
-         win_file.write(f"begin kpoints \n")    
-         kmesh = run(['kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
+         win_file.write(f"begin kpoints \n")   
+         QT_directory = QuantumTools.__file__.replace('__init__.py','')
+         kmesh = run([QT_directory +'kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
          output = kmesh.stdout; kmesh = output.decode("utf-8")
          win_file.write(f"{kmesh}")   
          win_file.write(f"end kpoints \n")    
@@ -308,16 +308,14 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
 
 
 if __name__ == "__main__":
-   #python3.8 manage_comments.py -scf ./feps3.a.a.scf.in -outdir ./ -kpath hex -k 1 1 1 -nbands 12 -nwan 1 -Mo 1 -mo -1 -Mi 0.1 -mi -0.1 -orb Fe:d,I:pz
    file_dir_and_name,outdir,kpath,k,nbands,nwan,Mo,mo,Mi,mi,projectors = parser()
    file_name, file_dir = manage_input_dir(file_dir_and_name)
    SCF = QECalculation()   
-
    SCF.extract_input_information(file_dir_and_name) 
    if SCF.calculation_type != 'scf':
         print('ERROR: provided scf input does not correspond to scf calculation')
    elif SCF.calculation_type == 'scf':
          seed = file_name.replace('.scf.in', '') 
-         create_nscf(file_name, file_dir, nbands, k)
-         create_pw2wan_input(file_dir,seed)
-         create_win_input(file_dir,seed,nbands,nwan,Mo,mo,Mi,mi,projectors,k)
+         create_nscf(file_name, file_dir,outdir, nbands, k)
+         create_pw2wan_input(outdir,seed)
+         create_win_input(outdir,seed,nbands,nwan,Mo,mo,Mi,mi,projectors,k)

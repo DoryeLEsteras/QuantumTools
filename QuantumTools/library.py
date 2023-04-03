@@ -2,10 +2,147 @@
 from typing import List
 from dataclasses import dataclass
 import numpy as np
+import os
+import QuantumTools
 #solve ibrav != 0
 # Where to put ransform_lattice_parameters?
 # Is used inside of the QEcalculation class
 # maybe i should remove the cell_matrix propertie
+
+
+#Instructions Clusters and runs
+"""
+ To use this in another script, import initialize_clusters and Cluster call directly
+ initialize_clusters(calculation_method,run_directory,file_name)
+ To use it as an script, the script create_run has been made, shich uses parser.
+ To add a new cluster, just add one element to the cluster_name_list in 
+ initialize_clusters function, the details of the cluster should be written in the
+ library folder in a file called Name_of_cluster.cluster.
+ To modify program versions just change qepath in the cluster object definition
+ To add a new type of calculation just add a new function to the cluster class 
+"""
+def initialize_clusters(calculation_method:str,run_directory:str,file_name:str)-> None:
+    cluster_name_list = ['Tirant','Cobra','Raven']
+    number_of_clusters = len(cluster_name_list)
+    cluster_dict = dict.fromkeys(cluster_name_list)
+    for i in cluster_name_list:
+        cluster_dict[i] = Cluster(i)
+        cluster_dict[i].extract_input_information()
+        cluster_dict[i].write_run(calculation_method,run_directory,file_name)
+
+
+class Cluster:
+      def __init__(self,cluster_name:str):
+         self.cluster_name: str = cluster_name
+         self.qepath: str = ''
+         self.wanpath: str = ''
+         self.header: str = ''
+      def extract_input_information(self)-> None:
+         QT_directory = QuantumTools.__file__.replace('__init__.py','')
+         cluster_file = open(QT_directory + self.cluster_name + '.cluster','r')
+         cluster_file_vector = cluster_file.readlines(); cluster_file.close() 
+         cluster_header = '######### ' + self.cluster_name + ' run header #########\n'
+         for line_number, line in enumerate(cluster_file_vector): 
+             splitted_line = line.split(); splitted_line.append('')
+             if splitted_line[0] == 'QE_dir:':
+               self.qepath = splitted_line[1]
+             if splitted_line[0] == 'Wan_dir:':
+               self.wanpath = splitted_line[1]
+             if line == cluster_header:
+                header_starting_line = line_number
+         for i in range(header_starting_line +1,len(cluster_file_vector),1):
+             self.header =  self.header + cluster_file_vector[i]   
+
+      def write_run(self,calculation_method:str,run_directory:str,file_name:str) -> None:
+          run_file = open(run_directory + self.cluster_name.lower() + '.run_for_' + \
+                          calculation_method.lower() + '.sh', 'w' )
+          run_file.write(self.header)
+          run_file.write('\n')
+
+          if calculation_method == 'spin_bands':
+             self.write_spin_bands(file_name,run_file)
+          if calculation_method == 'nospin_bands':
+             self.write_nospin_bands(file_name,run_file)
+          if calculation_method == 'projected':
+             self.write_projected(file_name,run_file)
+          if calculation_method == 'pp':
+             self.write_pp(file_name,run_file)
+          if calculation_method == 'spin_wannier':
+             self.write_spin_wannier(file_name,run_file)
+          if calculation_method == 'nospin_wannier':
+             self.write_nospin_wannier(file_name,run_file)
+      def write_spin_bands(self,scf_input_name:str,run_file) -> None:  
+          bands_input_name = scf_input_name.replace('scf','bands')
+          bs1_input_name = scf_input_name.replace('scf','bs1')
+          bs2_input_name = scf_input_name.replace('scf','bs2')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          bands_output_name = bands_input_name.replace('.in','.out')
+          bs1_output_name = bs1_input_name.replace('.in','.out')
+          bs2_output_name = bs2_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
+          'srun ' + self.qepath + 'bands.x -i ' + bs1_input_name + ' > ' + bs1_output_name + '\n' + \
+          'srun ' + self.qepath + 'bands.x -i ' + bs2_input_name + ' > ' + bs2_output_name + '\n') 
+      def write_nospin_bands(self,scf_input_name:str,run_file) -> None:  
+          bands_input_name = scf_input_name.replace('scf','bands')
+          bs_input_name = scf_input_name.replace('scf','bs')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          bands_output_name = bands_input_name.replace('.in','.out')
+          bs_output_name = bs_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
+          'srun ' + self.qepath + 'bands.x -i ' + bs_input_name + ' > ' + bs_output_name + '\n') 
+      def write_projected(self,scf_input_name:str,run_file) -> None:  
+          nscf_input_name = scf_input_name.replace('scf','nscf')
+          proj_input_name = scf_input_name.replace('scf','proj')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          nscf_output_name = nscf_input_name.replace('.in','.out')
+          proj_output_name = proj_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          'srun ' + self.qepath + 'projwfc.x -i ' + proj_input_name + ' > ' + proj_output_name + '\n') 
+      def write_pp(self,scf_input_name:str,run_file) -> None:  
+          pp_input_name = scf_input_name.replace('scf','pp')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          pp_output_name = pp_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
+      def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
+          nscf_input_name = scf_input_name.replace('scf','nscf')
+          pw2wan_up_input_name = scf_input_name.replace('scf','up.pw2wan')
+          pw2wan_down_input_name = scf_input_name.replace('scf','down.pw2wan')
+          win_up_input_name = scf_input_name.replace('scf.in','up.win')
+          win_down_input_name = scf_input_name.replace('scf.in','down.win')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          nscf_output_name = nscf_input_name.replace('.in','.out')
+          pw2wan_up_output_name = pw2wan_up_input_name.replace('.in','.out')
+          pw2wan_down_output_name = pw2wan_down_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_up_input_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_up_input_name + ' > ' + pw2wan_up_output_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x ' + win_up_input_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_down_input_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_down_input_name + ' > ' + pw2wan_down_output_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x ' + win_down_input_name + '\n') 
+      def write_nospin_wannier(self,scf_input_name:str,run_file) -> None:
+          nscf_input_name = scf_input_name.replace('scf','nscf')
+          pw2wan_input_name = scf_input_name.replace('scf','pw2wan')
+          win_input_name = scf_input_name.replace('scf.in','win')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          nscf_output_name = nscf_input_name.replace('.in','.out')
+          pw2wan_output_name = pw2wan_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_input_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
+          'srun ' + self.wanpath + 'wannier90.x ' + win_input_name + '\n') 
 
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
@@ -303,8 +440,3 @@ class QEoutput:
 
 if __name__ == '__main__':
    print('hi !')
-   SCF = QECalculation() 
-   SCF.extract_input_information('../uncompleted_scripts/debug_update_opt/first.stacking.vcrelax.in')
-   print(SCF.prefix)
-   a = remove_char_from_string('aa\'aa"')
-   print(a)

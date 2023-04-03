@@ -1,11 +1,8 @@
 #!/usr/bin/python3
-import numpy as np
 from argparse import ArgumentParser
+from QuantumTools.library import initialize_clusters, \
+     QECalculation, manage_input_dir
 
-# TO DO LIST
-"""
--import run
-"""
 
 
 def parser():
@@ -16,7 +13,7 @@ def parser():
                         help="""
                         Relative or absolute path for the scf input file
                         """)
-    parser.add_argument("-out", "--out",
+    parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
                         default='./',
@@ -27,15 +24,12 @@ def parser():
                         nargs='+',
                         help="kx ky kz for nscf calculation ")
     args = parser.parse_args()
-    return args.input,args.out,args.k
+    return args.input,args.outdir,args.k
 
-def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir): 
-    nscf_output_long_name = scf_input_name.replace('scf','nscf')
-    nscf_output_long_name =nscf_output_long_name.split('/')
-    nscf_output_name =nscf_output_long_name[-1]
-    nscf_output = str(nscf_output_dir) + str(nscf_output_name)
-    nscf_file = open(nscf_output , 'w')
-    noncolin = security_check = '0'
+def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str)-> None: 
+    nscf_name = scf_input_name.replace('scf','nscf')
+    nscf_file = open(nscf_output_dir + '/' + nscf_name , 'w')
+    scf_input_file = open(scf_dir + '/' + scf_input_name , 'r')
     for line in scf_input_file:
         line_to_check = line.replace("=", ' ') 
         line_to_check = line_to_check.replace(",", ' ') 
@@ -55,45 +49,35 @@ def create_nscf_input(scf_input_name,scf_input_file,nscf_output_dir):
         if line_to_check_vector[0] == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
           line = 'K_POINTS automatic\n' + str(k[0]) + " " + str(k[1]) + " " + str(k[2]) + ' 0 0 0\n'
           scf_input_file.readline()
-        if line_to_check_vector[0] == 'prefix':
-          prefix = line.replace(' ','')
-        if line_to_check_vector[0] == 'outdir':
-          outdir = line.replace(' ','')
-        if line_to_check_vector[0] == 'noncolin': 
-            noncolin = '1' 
         nscf_file.write(str(line))
+    scf_input_file.close()
     nscf_file.close()
-    return prefix,outdir,noncolin,security_check,nscf_file
-
-def create_projwfc_input(scf_input_name,projwfc_output_dir,prefix,outdir):
-    filband = prefix.split("=")
-    filband = filband[1]
-    filband = filband.replace("'", "") 
-    filband = filband.replace(",", "") 
-    filband = filband.replace("\n", "")
-    filband = filband.replace(" ", "") 
-    projwfc_output_long_name = scf_input_name.replace('scf','proj')
-    projwfc_output_long_name = projwfc_output_long_name.split('/')
-    projwfc_output_name = projwfc_output_long_name[-1]
-    projwfc_file = open(str(projwfc_output_dir) + str(projwfc_output_name) , 'w')
+def create_projwfc_input(scf_input_name:str,projwfc_output_dir:str)-> None:
+    projwfc_name = scf_input_name.replace('scf','proj')
+    projwfc_file = open(projwfc_output_dir + '/' + projwfc_name , 'w')
     projwfc_file.write('&PROJWFC\n')
-    projwfc_file.write(prefix)
-    projwfc_file.write(outdir)
-    projwfc_file.write('degauss=0.001\n')
-    projwfc_file.write('filpdos = \'' + str(filband) + '.pdos_tot\'\n')
-    projwfc_file.write('filproj = \'' + str(filband) + '.proj.dos\'\n')
-    projwfc_file.write('DeltaE=0.01\n')
+    projwfc_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
+    projwfc_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
+    projwfc_file.write('degauss = 0.001\n')
+    projwfc_file.write("filpdos = '" + str(Scf.prefix) + ".pdos_tot'\n")
+    projwfc_file.write("filproj = '" + str(Scf.prefix) + ".proj.dos'\n")
+    projwfc_file.write('DeltaE = 0.01\n')
     projwfc_file.write('/')
     projwfc_file.close()
+    initialize_clusters('projected',projwfc_output_dir,scf_input_name)
 
-provided_scf_input_file, provided_output_dir,k = parser()
-scf_file = open(str(provided_scf_input_file), 'r')
 
-prefix,outdir,noncolin,security_check,nscf_file = create_nscf_input(provided_scf_input_file,scf_file,provided_output_dir)
-create_projwfc_input(provided_scf_input_file,provided_output_dir,prefix,outdir)
-scf_file.close()
+if __name__ == '__main__':   
+  provided_scf_input_file, provided_output_dir,k = parser()
+  Scf = QECalculation()
+  Scf.extract_input_information(provided_scf_input_file)
+  if Scf.calculation_type != 'scf':
+     print('ERROR: provided scf input does not correspond to scf calculation')
+  else:  
+     file_name,file_dir = manage_input_dir(provided_scf_input_file)
+     create_nscf_input(file_name,file_dir,provided_output_dir)
+     create_projwfc_input(file_name,provided_output_dir)
+     # Security check doesnt stop input creation because someone can want to do SOC PDOS
+     if Scf.nspin == 4:
+        print('ERROR: noncolinear calculation for PDOS')
 
-if security_check != '\'scf\'':
-   print('ERROR: provided scf input does not correspond to scf calculation')
-if noncolin == '1':
-   print('ERROR: noncolinear calculation for PDOS')
