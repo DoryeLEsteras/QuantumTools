@@ -29,8 +29,6 @@ def initialize_clusters(calculation_method:str,run_directory:str,file_name:str)-
         cluster_dict[i] = Cluster(i)
         cluster_dict[i].extract_input_information()
         cluster_dict[i].write_run(calculation_method,run_directory,file_name)
-
-
 class Cluster:
       def __init__(self,cluster_name:str):
          self.cluster_name: str = cluster_name
@@ -176,9 +174,10 @@ def count_occ_bands(bands_file_name:str, fermi:float, file_column:int) -> int:
                nocc_bands = i + 1
         bands_file.readline() # to remove \n at the end of each band 
     return nocc_bands
+
 def manage_input_dir(input_dir_and_name:str) -> str: 
     file_name = input_dir_and_name.split('/')[-1]
-    file_dir = input_dir_and_name.replace(file_name, '')
+    file_dir = os.path.abspath(input_dir_and_name.replace(file_name, ''))
     return file_name, file_dir
 def handle_comments(file_name:str) -> List[str]:
     with open(file_name, 'r') as file:
