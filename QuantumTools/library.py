@@ -52,7 +52,7 @@ class Cluster:
              self.header =  self.header + cluster_file_vector[i]   
 
       def write_run(self,calculation_method:str,run_directory:str,file_name:str) -> None:
-          run_file = open(run_directory + self.cluster_name.lower() + '.run_for_' + \
+          run_file = open(run_directory + '/' self.cluster_name.lower() + '.run_for_' + \
                           calculation_method.lower() + '.sh', 'w' )
           run_file.write(self.header)
           run_file.write('\n')
