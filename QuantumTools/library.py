@@ -123,10 +123,10 @@ class Cluster:
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x -pp ' + win_up_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_up_input_name + ' > ' + pw2wan_up_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_up_input_name + ' > ' + pw2wan_up_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x ' + win_up_input_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x -pp ' + win_down_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_down_input_name + ' > ' + pw2wan_down_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_down_input_name + ' > ' + pw2wan_down_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x ' + win_down_input_name + '\n') 
       def write_nospin_wannier(self,scf_input_name:str,run_file) -> None:
           nscf_input_name = scf_input_name.replace('scf','nscf')
@@ -139,7 +139,7 @@ class Cluster:
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x -pp ' + win_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wan.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x ' + win_input_name + '\n') 
 
 def count_nbands(bands_file_name:str) -> int:
