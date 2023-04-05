@@ -77,8 +77,8 @@ def parser():
            args.Mo,args.mo,args.Mi,args.mi,args.orb
 def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
-    nscf_output = str(outdir) + str(nscf_file_name)
-    with open(file_dir + file_name, 'r') as file:
+    nscf_output = str(outdir) + '/' + str(nscf_file_name)
+    with open(file_dir  + '/' +  file_name, 'r') as file:
         lines = file.readlines() 
     original_file = lines   
     clean_file = clean_uncommented_file(lines)
@@ -129,7 +129,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 1:
        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')    
        pw2wan_output_name = str(seed + '.pw2wan.in')
-       with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
+       with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
             pw2wan_file.write('&inputpp\n')  
             pw2wan_file.write('seedname = \'' + seed + '\'\n')  
             pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -143,7 +143,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 2:
        initialize_clusters('spin_wannier',file_dir,seed + '.scf.in')
        pw2wan_up_output_name = str(seed + '.up.pw2wan.in')
-       with open(file_dir + pw2wan_up_output_name, 'w') as pw2wan_up_file:
+       with open(file_dir + '/' + pw2wan_up_output_name, 'w') as pw2wan_up_file:
             pw2wan_up_file.write('&inputpp\n') 
             pw2wan_up_file.write('seedname = \'' + seed + '.up\'\n')  
             pw2wan_up_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -155,7 +155,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
             pw2wan_up_file.write('wan_mode = \'standalone\'\n') 
             pw2wan_up_file.write('/')  
        pw2wan_down_output_name = str(seed + '.down.pw2wan.in')
-       with open(file_dir + pw2wan_down_output_name, 'w') as pw2wan_down_file:
+       with open(file_dir  + '/' +  pw2wan_down_output_name, 'w') as pw2wan_down_file:
         pw2wan_down_file.write('&inputpp\n') 
         pw2wan_down_file.write('seedname = \'' + seed + '.down\'\n')  
         pw2wan_down_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -169,7 +169,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 4:
         initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')
         pw2wan_output_name = str(seed + '.pw2wan.in')
-        with open(file_dir + pw2wan_output_name, 'w') as pw2wan_file:
+        with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
              pw2wan_file.write('&inputpp\n')  
              pw2wan_file.write('seedname = \'' + seed + '\'\n')  
              pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')   
@@ -185,7 +185,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                      mo:float, Mi:float, mi:float, projectors:str,k:List[int]) -> None: 
     win_output_name = seed + '.win'
     projectors = projectors.split(',')
-    with open(file_dir + win_output_name, 'w') as win_file:
+    with open(file_dir  + '/' +  win_output_name, 'w') as win_file:
          win_file.write(f"{'!'*80}\n")
          win_file.write(f"{'!'*30}VARIABLES TO SELECT{'!'*31}\n")
          win_file.write(f"{'!'*80}\n")
