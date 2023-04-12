@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from typing import List
 from argparse import ArgumentParser
 import numpy as np
@@ -103,11 +104,10 @@ def generate_input(opt_input_dir_and_name:str,new_file_name:str):
       if Optimization.cell_dofree == 'ibrav': 
            print('WARNING: vc-relax with cell_dofree = ibrav, move the new input' + 
            ' from ibrav 0 to ibrav != 0') 
-
-   if Output.calculation_finished != 1:
-      generated_file = open(opt_out_dir + new_file_name,'w') 
-   elif Output.calculation_finished == 1:
-      generated_file_name_and_dir = opt_out_dir + opt_input_name.replace('vcrelax','scf')
+   if Output.calculation_finished != True:
+      generated_file = open(opt_out_dir + '/' + new_file_name,'w') 
+   elif Output.calculation_finished == True:
+      generated_file_name_and_dir = opt_out_dir + '/' + opt_input_name.replace('vcrelax','scf')
       generated_file_name_and_dir = generated_file_name_and_dir.replace('relax','scf')
       generated_file = open(generated_file_name_and_dir,'w')     
       file_clean_copy = clean_uncommented_file(updated_file_vector)
