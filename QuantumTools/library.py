@@ -69,6 +69,8 @@ class Cluster:
              self.write_spin_wannier(file_name,run_file)
           if calculation_method == 'nospin_wannier':
              self.write_nospin_wannier(file_name,run_file)
+          if calculation_method == 'force_theorem':
+             self.write_force_theorem(file_name,run_file)
       def write_spin_bands(self,scf_input_name:str,run_file) -> None:  
           bands_input_name = scf_input_name.replace('scf','bands')
           bs1_input_name = scf_input_name.replace('scf','bs1')
@@ -141,6 +143,19 @@ class Cluster:
           'srun ' + self.wanpath + 'wannier90.x -pp ' + win_input_name + '\n' + \
           'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
           'srun ' + self.wanpath + 'wannier90.x ' + win_input_name + '\n') 
+      def write_force_theorem(self,scf_input_name:str,run_file) -> None:  
+          x_nscf_input_name = scf_input_name.replace('scf','x.nscf')
+          y_nscf_input_name = scf_input_name.replace('scf','y.nscf')
+          z_nscf_input_name = scf_input_name.replace('scf','z.nscf')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          x_nscf_output_name = x_nscf_input_name.replace('.in','.out')
+          y_nscf_output_name = y_nscf_input_name.replace('.in','.out')
+          z_nscf_output_name = z_nscf_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
 
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
@@ -304,6 +319,7 @@ DFT_Kpath_dict = {
 @dataclass
 class QECalculation:
       nat: int = 0
+      ntyp: int = 0
       calculation_type: str = ''
       prefix: str = ''
       outdir: str = ''
@@ -331,6 +347,8 @@ class QECalculation:
               for word_number, word in enumerate(splitted_line):
                   if word == 'nat':
                     self.nat = int(splitted_line[word_number + 1])
+                  if word == 'ntyp':
+                    self.ntyp = int(splitted_line[word_number + 1])
                   if word == 'calculation':
                     self.calculation_type = splitted_line[word_number + 1].replace("\'","")
                   if word == 'prefix':
