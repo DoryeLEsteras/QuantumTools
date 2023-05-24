@@ -83,6 +83,8 @@ def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_di
            line = 'calculation = \'nscf\'\n'
         if line_to_check_vector[0] == 'verbosity':
            line = 'verbosity = \'high\'\n'
+        if line_to_check_vector[0] == 'outdir':
+           line = "outdir = '" +  Scf.outdir.replace('tmp','tmp' + '_' + spin_direction) + "'\n"
         if line_to_check_vector[0] == 'conv_thr':
            line = 'conv_thr =   1.0d-0' + str(conv) + '\n'
         if line_to_check_vector[0] == 'nspin':

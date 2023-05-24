@@ -3,6 +3,7 @@ from typing import List
 from dataclasses import dataclass
 import numpy as np
 import os
+from subprocess import run
 import QuantumTools
 #solve ibrav != 0
 # Where to put ransform_lattice_parameters?
@@ -153,6 +154,7 @@ class Cluster:
           z_nscf_output_name = z_nscf_input_name.replace('.in','.out')
           run_file.write(\
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'cp -r tmp tmp.x\n' + 'cp -r tmp tmp.y\n' +  'cp -r tmp tmp.z\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
