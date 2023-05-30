@@ -39,20 +39,21 @@ def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
     scf_input_file_name = scf_dir + '/' + scf_input_name
     with open(scf_input_file_name, 'r') as scf_file:
         text = scf_file.readlines()
-    pos = 1; at_type_list = [];magnetic_atom_index_list = []
+    pos = 1; at_type_list = [];magnetic_atom_index_list = [];pp_list = []
 
     # exportar a fuera
     for line_number, line in enumerate(text): 
         if line == 'ATOMIC_SPECIES\n':
            for i in range (0, Scf.ntyp ,1):
                at_type_list.append(text[line_number + pos].split()[0])
+               pp_list.append(text[line_number + pos].split()[2])
                pos = pos + 1
 
     for atom_species_number, atom_species in enumerate(at_type_list):
         for magnetic_atom_number, magnetic_atom in enumerate(mat):
             if atom_species == magnetic_atom :
                magnetic_atom_index_list.append(int(atom_species_number)+1)
-    return magnetic_atom_index_list
+    return magnetic_atom_index_list,pp_list
 def manage_angles(magnetic_atom_index_list:List,spin_direction:str)-> str:
     angle_line = ''
     if spin_direction == 'x':

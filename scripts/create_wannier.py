@@ -111,6 +111,11 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
               original_file[line_number] = ''   
             if word == 'cosab'or word == 'COSAB':
               original_file[line_number] = '' 
+            if word == 'CELL_PARAMETERS'or word == 'cell_parameters':
+               original_file[line_number] = '' 
+               original_file[line_number+1] = '' 
+               original_file[line_number+2] = '' 
+               original_file[line_number+3] = '' 
             QT_directory = QuantumTools.__file__.replace('__init__.py','')
             kmesh = run([QT_directory +'kmesh.pl', \
                     str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
@@ -238,7 +243,10 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"!wannier_plot_format = xcrysden \n")   
          win_file.write(f"!wannier_plot_supercell = 3 3 1 \n")   
          win_file.write(f"!wannier_plot =  true \n")   
-         win_file.write(f"!wannier_plot_list = i-j\n")   
+         win_file.write(f"!wannier_plot_list = i-j\n")  
+         win_file.write(f"!spin = up\n")
+         win_file.write(f"!spin = down\n")
+         win_file.write(f"!wannier_plot_spinor_mode = up\n") 
          win_file.write(f"\n")
 
          win_file.write(f"!!! for DOS plot !!!\n")   
