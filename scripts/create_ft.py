@@ -46,13 +46,16 @@ def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
         if line == 'ATOMIC_SPECIES\n':
            for i in range (0, Scf.ntyp ,1):
                at_type_list.append(text[line_number + pos].split()[0])
-               pp_list.append(text[line_number + pos].split()[2])
+               pp_list.append(text[line_number + pos])
                pos = pos + 1
 
     for atom_species_number, atom_species in enumerate(at_type_list):
         for magnetic_atom_number, magnetic_atom in enumerate(mat):
             if atom_species == magnetic_atom :
                magnetic_atom_index_list.append(int(atom_species_number)+1)
+
+    for h in range(0,len(pp_list),1):
+        pp_list[h] = pp_list[h].replace(at_type_list[h] + '.',str(at_type_list[h]) + '.rel-')
     return magnetic_atom_index_list,pp_list
 def manage_angles(magnetic_atom_index_list:List,spin_direction:str)-> str:
     angle_line = ''
@@ -69,7 +72,7 @@ def manage_angles(magnetic_atom_index_list:List,spin_direction:str)-> str:
       angle_line = angle_line + 'angle1(' + str(element_position) + ') = ' + str(angle1) + '\n'
       angle_line = angle_line + 'angle2(' + str(element_position) + ') = ' + str(angle2) + '\n'
     return angle_line   
-def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_direction:str,magnetic_atom_index_list:List)-> None: 
+def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_direction:str,magnetic_atom_index_list:List,pp_list:List)-> None: 
     nscf_name = scf_input_name.replace('scf',spin_direction + '.nscf')
     nscf_file = open(nscf_output_dir + '/' + nscf_name , 'w')
     scf_input_file = open(scf_dir + '/' + scf_input_name , 'r')
@@ -93,6 +96,12 @@ def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_di
         if line_to_check_vector[0] == '&system' or line_to_check_vector[0] == '&SYSTEM':
            line = '&SYSTEM\n' + 'nosym=.true.\n' + \
             'lforcet = .true.\n' + 'lspinorb = .true.\n' + 'noncolin= .true.\n' + angle_line         
+        if line_to_check_vector[0] == 'ATOMIC_SPECIES':
+         line = 'ATOMIC_SPECIES\n'
+         for i in range(0,len(pp_list),1):
+             line = line + str(pp_list[i])
+             scf_input_file.readline()
+         
         if line_to_check_vector[0] == '&electrons' or line_to_check_vector[0] == '&ELECTRONS':
            line = '&ELECTRONS\n' + "startingpot = 'file' \n"
         if line_to_check_vector[0] == 'k_points' or line_to_check_vector[0] == 'K_POINTS':
@@ -115,10 +124,10 @@ if __name__ == '__main__':
      print('ERROR: noncolinear calculation for PDOS')
   else:  
      file_name,file_dir = manage_input_dir(provided_scf_input_file)
-     magnetic_atom_index_list = manage_magnetic_species(file_name,file_dir)
-     create_nscf_input(file_name,file_dir,provided_output_dir,'x',magnetic_atom_index_list)
-     create_nscf_input(file_name,file_dir,provided_output_dir,'y',magnetic_atom_index_list)
-     create_nscf_input(file_name,file_dir,provided_output_dir,'z',magnetic_atom_index_list)
+     magnetic_atom_index_list,pp_list = manage_magnetic_species(file_name,file_dir)
+     create_nscf_input(file_name,file_dir,provided_output_dir,'x',magnetic_atom_index_list,pp_list)
+     create_nscf_input(file_name,file_dir,provided_output_dir,'y',magnetic_atom_index_list,pp_list)
+     create_nscf_input(file_name,file_dir,provided_output_dir,'z',magnetic_atom_index_list,pp_list)
      initialize_clusters('force_theorem',file_dir,file_name)
      
 
