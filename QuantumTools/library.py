@@ -2,11 +2,12 @@
 from typing import List
 from dataclasses import dataclass
 import numpy as np
+import re
 import os
 from subprocess import run
 import QuantumTools
 #solve ibrav != 0
-# Where to put ransform_lattice_parameters?
+# Where to put transform_lattice_parameters?
 # Is used inside of the QEcalculation class
 # maybe i should remove the cell_matrix propertie
 
@@ -22,6 +23,7 @@ import QuantumTools
  To modify program versions just change qepath in the cluster object definition
  To add a new type of calculation just add a new function to the cluster class 
 """
+
 def initialize_clusters(calculation_method:str,run_directory:str,file_name:str)-> None:
     cluster_name_list = ['Tirant','Cobra','Raven']
     number_of_clusters = len(cluster_name_list)
@@ -158,7 +160,6 @@ class Cluster:
           'srun ' + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
-
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
     with open(bands_file_name,'r') as f:
@@ -218,6 +219,21 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
             line= line.replace(symbol,' ').replace('d0','')
         clean_file.append(line)   
     return clean_file
+
+def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
+    pattern_ecutwfc = re.compile(r'(ecutwfc(\s*)?=(\s*)?)\d*')
+    pattern_ecutrho = re.compile(r'(ecutrho(\s*)?=(\s*)?)\d*') 
+    pattern_hubbard = re.compile(r'(Hubbard_U\(\d\)(\s*)?=(\s*)?)\d*)\.?(\d*)?') 
+    
+    patterns_and_keywords = {
+    'ecutwfc':pattern_ecutwfc,
+    'ecutrho':pattern_ecutrho,
+    'hubbard':pattern_hubbard,
+    }
+
+    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1\b{}\b'.format(replacement),string)
+    return new_string
+
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
                     cosab:float,cosbc:float,cosac:float) -> np.ndarray:
     cell_matrix = np.array([])
