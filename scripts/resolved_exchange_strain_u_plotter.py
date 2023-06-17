@@ -2,12 +2,13 @@
 import numpy as np
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
+
 # TO DO LIST
 """
 - Add more plots according to necessities 
 """
 def parser():
-    parser = ArgumentParser(description="Script to fix the matrices of Gaussian")
+    parser = ArgumentParser(description="Script to extract and plot exchange parameters")
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=True,
