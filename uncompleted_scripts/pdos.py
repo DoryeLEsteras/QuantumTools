@@ -1,9 +1,9 @@
 import os
 import re
 from typing import List
+from argparse import ArgumentParser
 import matplotlib.pyplot as plt
 import numpy as np
-from argparse import ArgumentParser
 
 def parser():
     parser = ArgumentParser(description="Script to plot pdos")
