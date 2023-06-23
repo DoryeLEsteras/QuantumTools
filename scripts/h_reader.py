@@ -11,42 +11,12 @@ import numpy as np
   Esto se propaga y tiene 3 consecuencias: 1. Hacer que el codigo admita casos donde los orbitales seleccionados
   no estan al principio del H, 2. generalizar el codigo para cualquier grupo de orbitales que no sean d o f
   y 3. refactorizar la parte de bucles que genera las matrices en una funcion sencilla
-  Hints:
-       - parser norb es str
-       - en create_hamiltonians: norb = norb.split('-') ; norb_dim = max-min +1; min = norb[0]; max = norb[1]
+
 """     
 # DESCRIPTION
 """
 Reformats and filters the Hamiltonian extracting hoppings, that can be rounded
 for better analysis. 
-"""
-
-"""
-def fragment_hamiltonian(fragment:str,file_to_write:TextIO,hamiltonian_fragment:np.ndarray,norb_dim:int,min:int,hamiltonian:np.ndarray): 
-    for index1 in range(1, nwan-norb_dim+1, 1):
-        for index2 in range(1, nwan-norb_dim+1, 1):
-            if fragment == 'selection':
-               old_index1 = index1 + min - 1
-               old_index2 = index2 + min - 1
-            elif fragment == 'no_selection':
-               old_index1 = -index1 + min - 1
-               old_index2 = -index2 + min - 1
-            elif fragment == 'selected_unselected':    
-               old_index1 =  index1 + min 
-               old_index2 = -index2 + min
-            elif fragment == 'unselected_selected':
-               old_index1 = -index1 + min 
-               old_index2 =  index2 + min
-
-            hamiltonian_fragment[index1-1][index2-1] = hamiltonian[old_index1][old_index2] 
-            if hamiltonian_fragment[index1-1][index2-1] > 0 and hamiltonian_fragment[index1-1][index2-1] < cut: #filter data here
-               hamiltonian_fragment[index1-1][index2-1] = 0
-            if hamiltonian_fragment[index1-1][index2-1] < 0 and hamiltonian_fragment[index1-1][index2-1] > -cut: #filter data here
-               hamiltonian_fragment[index1-1][index2-1] = 0
-            file_to_write.write(str(hamiltonian_fragment[index1-1][index2-1]))
-            file_to_write.write(' ')
-        file_to_write.write('\n')
-    file_to_write.close()
 """
 
 def parser():
@@ -103,12 +73,28 @@ def define_hamiltonian(read_vector:List,nwan:int,cell:str) -> np.ndarray:
                 im = line[6]
                 hamiltonian [i-1][j-1] = round(float(real),4)
     return hamiltonian 
-
+"""
+def fragment_hamiltonian(start:int,fragment:str,hamiltonian_fragment:np.ndarray,hamiltonian:np.ndarray,file_to_write:TextIO):
+    for index1 in range(start-1, nwan, 1):
+       for index2 in range(start-1,nwan, 1):
+           old_index1 = index1 + start 
+           old_index2 = index2 + start  
+           hamiltonian_fragment[index1][index2] = hamiltonian[old_index1][old_index2] 
+           if hamiltonian_fragment[index1][index2] > 0 and hamiltonian_fragment[index1][index2] < cut: #filter data here
+              hamiltonian_fragment[index1][index2] = 0
+           if hamiltonian_fragment[index1][index2] < 0 and hamiltonian_fragment[index1][index2] > -cut: #filter data here
+              hamiltonian_fragment[index1][index2] = 0
+           file_to_write.write(str(hamiltonian_fragment[index1][index2]))
+           file_to_write.write(' ')
+       file_to_write.write('\n')
+    file_to_write.close()
+"""
 def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
     d_d_hamiltonian = np.zeros((norb,norb))
     ligand_ligand_hamiltonian = np.zeros((nwan - norb, nwan - norb))
     d_ligand_hamiltonian = np.zeros((norb, nwan - norb))
     ligand_d_hamiltonian = np.zeros((nwan - norb, norb))
+
     provided_output_name_d_d_hoppings = cell.replace(' ','_') + \
         '_d_d_hoppings.txt'
     provided_output_name_d_l_hoppings = cell.replace(' ','_') + \
@@ -125,7 +111,7 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
         open(os.path.join(outdir,provided_output_name_l_d_hoppings), 'w')
     l_l_output_file = \
         open(os.path.join(outdir,provided_output_name_l_l_hoppings), 'w')
-    
+       
     """
      given the Hamiltonian create sub hamiltonians dividing just 
      d-d ligand-ligand and diagonals
@@ -137,8 +123,16 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
 
     d could be f orbitals (or personalised groups of orbitals)
     """
+
+    """
+    start = int(norbalt.split('-')[0])
+    last_orbital = int(norbalt.split('-')[1])
+    fragment_hamiltonian(start,'d-d',d_d_hamiltonian,hamiltonian,d_d_output_file)
+    fragment_hamiltonian(,'d-l',d_ligand_hamiltonian,hamiltonian,d_l_output_file)
+    fragment_hamiltonian(start,'l-d',ligand_d_hamiltonian,hamiltonian,l_d_output_file)
+    fragment_hamiltonian(start,'l-l',ligand_ligand_hamiltonian,hamiltonian,l_l_output_file)
+    """
     
-#    fragment_hamiltonian('selection',d_d_hamiltonian,d_d_output_file,20,1,hamiltonian) 
     
     # d_d_hoppings
     for index1 in range(1, norb+1, 1):
@@ -208,7 +202,6 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
             l_d_output_file.write(' ')
         l_d_output_file.write('\n')
     l_d_output_file.close()
-    
 
 if __name__ == '__main__':
     provided_input_name_and_dir,cut,outdir,norb = parser()
