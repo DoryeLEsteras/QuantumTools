@@ -1,0 +1,23 @@
+######### Vives directories #########
+QE_dir:  /u/jojaibal/qe.68/bin/
+Wan_dir:  /u/jojaibal/wannier90/
+
+######### Vives run header #########
+#!/bin/bash -l\n 
+#SBATCH --job-name=job_name\n
+#SBATCH --nodes=6\n 
+#SBATCH --workdir=.\n 
+#SBATCH --output=task_%j.out\n 
+#SBATCH --error=task_%j.err\n
+#SBATCH --ntasks=16\n 
+#SBATCH --cpus-per-task=2\n 
+#SBATCH --tasks-per-node=8\n 
+#SBATCH --time=0-00:30:00\n 
+export LD_LIBRARY_PATH=/storage/apps/Intel_Comp/xe_2019u4/compilers_and 
+_libraries_2019.4.243/linux/mpi/intel64/lib/:$LD_LIBRARY_PATH\n 
+module load intel/2019.4.243\n 
+module load mkl/2019.4.243\n 
+module load impi/2019.4.243\n 
+module load qe/6.5.0\n 
+module load wannier90/3.1\n 
+ulimit -s unlimited\n

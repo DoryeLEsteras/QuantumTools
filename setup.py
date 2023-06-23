@@ -20,7 +20,7 @@ setup(
          'scripts/create_ft.py',
          'scripts/repair_bands.py',     
          'scripts/fatbands_filter.py',
-         'scripts/resolved_exchange_strain_u_plotter.py',
+#         'scripts/resolved_exchange_strain_u_plotter.py',
          'scripts/h_reader.py',
          'scripts/update_optimization.py',
          'scripts/create_run.py'

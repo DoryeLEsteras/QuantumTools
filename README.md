@@ -22,15 +22,14 @@ create_strain                         bash
 create_wannier_tools                 EMPTY
 smearing_tester
 kpoint tester
-cutoff tester
+cutoff tester                        
 
 OUTPUT MANAGMENT
 bands_repair	                    DONE
-polinomials                           DONE
+polinomials                           EMPTY
 energy_method                         bash
 tb2j_filter 	                      IN PROCESS
 scf_output_analyser                   EMPTY 
-gaussian_filter                       DONE 
 wannier90_hamiltonian_reader          DONE
 convergence_checker                   bash
 fatbands_filter                       DONE

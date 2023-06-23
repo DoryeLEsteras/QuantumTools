@@ -10,3 +10,7 @@ exchange*
 *__pycache__*
 *egg*
 build
+entorno_controlado
+debug*
+setupor.py
+*test*

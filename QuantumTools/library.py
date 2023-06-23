@@ -9,7 +9,7 @@ import QuantumTools
 #solve ibrav != 0
 # Where to put transform_lattice_parameters?
 # Is used inside of the QEcalculation class
-# maybe i should remove the cell_matrix propertie
+# maybe i should remove the cell_matrix properties
 
 
 #Instructions Clusters and runs
@@ -197,6 +197,11 @@ def manage_input_dir(input_dir_and_name:str) -> str:
     file_name = input_dir_and_name.split('/')[-1]
     file_dir = os.path.abspath(input_dir_and_name.replace(file_name, ''))
     return file_name, file_dir
+def manage_input_dir_improved(input_dir_and_name:str,output_directory:str) -> str:
+        file_name = os.path.basename(input_dir_and_name)
+        file_dir = os.path.abspath(os.path.dirname(input_dir_and_name))
+        outdir = os.path.abspath(output_directory)
+   return file_name, file_dir, outdir
 def handle_comments(file_name:str) -> List[str]:
     with open(file_name, 'r') as file:
         lines = file.readlines()
