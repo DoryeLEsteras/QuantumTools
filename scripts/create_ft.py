@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 from typing import List
-from QuantumTools.library import initialize_clusters, \
-     QECalculation, manage_input_dir
 
+from QuantumTools.library import (QECalculation, initialize_clusters,
+                                  manage_input_dir)
 
 
 def parser():
@@ -41,7 +41,7 @@ def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
         text = scf_file.readlines()
     pos = 1; at_type_list = [];magnetic_atom_index_list = [];pp_list = []
 
-    # exportar a fuera
+    # export outside
     for line_number, line in enumerate(text): 
         if line == 'ATOMIC_SPECIES\n':
            for i in range (0, Scf.ntyp ,1):
@@ -129,6 +129,7 @@ if __name__ == '__main__':
      create_nscf_input(file_name,file_dir,provided_output_dir,'y',magnetic_atom_index_list,pp_list)
      create_nscf_input(file_name,file_dir,provided_output_dir,'z',magnetic_atom_index_list,pp_list)
      initialize_clusters('force_theorem',file_dir,file_name)
+     print('check the names of relativistic PPs')
      
 
 

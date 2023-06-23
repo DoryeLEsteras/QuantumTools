@@ -1,14 +1,12 @@
 #!/usr/bin/python3
-import numpy as np
-from argparse import ArgumentParser
-from typing import List,Tuple,TextIO
 import os
+from argparse import ArgumentParser
+from typing import List, TextIO, Tuple
 
+import numpy as np
 
 # TO DO LIST
 """
-- pep8 lenght 
-- las funciones reciben mas parametros de los necesarios
 - norb no debe ser 20 debe ser un str 1-20 en el parser.
   Esto se propaga y tiene 3 consecuencias: 1. Hacer que el codigo admita casos donde los orbitales seleccionados
   no estan al principio del H, 2. generalizar el codigo para cualquier grupo de orbitales que no sean d o f
@@ -73,7 +71,7 @@ def parser():
                         required=False,
                         default= '.',
                         help="""
-                        outpur directory
+                        output directory
                         """)                              
     parser.add_argument("-norb", "--norb",
                         type=int,
@@ -106,22 +104,31 @@ def define_hamiltonian(read_vector:List,nwan:int,cell:str) -> np.ndarray:
                 hamiltonian [i-1][j-1] = round(float(real),4)
     return hamiltonian 
 
-def create_hamiltonians(outdir:str,hamiltonian:np.ndarray,nwan:int,norb:int,cell:str) -> None:
+def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
     d_d_hamiltonian = np.zeros((norb,norb))
     ligand_ligand_hamiltonian = np.zeros((nwan - norb, nwan - norb))
     d_ligand_hamiltonian = np.zeros((norb, nwan - norb))
     ligand_d_hamiltonian = np.zeros((nwan - norb, norb))
-    provided_output_name_d_d_hoppings = cell.replace(' ','_') + '_d_d_hoppings.txt'
-    provided_output_name_d_l_hoppings = cell.replace(' ','_') + '_d_l_hoppings.txt'
-    provided_output_name_l_d_hoppings = cell.replace(' ','_') + '_l_d_hoppings.txt'
-    provided_output_name_l_l_hoppings = cell.replace(' ','_') + '_l_l_hoppings.txt'
-    d_d_output_file = open(os.path.join(outdir,provided_output_name_d_d_hoppings), 'w')
-    d_l_output_file = open(os.path.join(outdir,provided_output_name_d_l_hoppings), 'w')
-    l_d_output_file = open(os.path.join(outdir,provided_output_name_l_d_hoppings), 'w')
-    l_l_output_file = open(os.path.join(outdir,provided_output_name_l_l_hoppings), 'w')
+    provided_output_name_d_d_hoppings = cell.replace(' ','_') + \
+        '_d_d_hoppings.txt'
+    provided_output_name_d_l_hoppings = cell.replace(' ','_') + \
+        '_d_l_hoppings.txt'
+    provided_output_name_l_d_hoppings = cell.replace(' ','_') + \
+        '_l_d_hoppings.txt'
+    provided_output_name_l_l_hoppings = cell.replace(' ','_') + \
+        '_l_l_hoppings.txt'
+    d_d_output_file = \
+        open(os.path.join(outdir,provided_output_name_d_d_hoppings), 'w')
+    d_l_output_file = \
+        open(os.path.join(outdir,provided_output_name_d_l_hoppings), 'w')
+    l_d_output_file = \
+        open(os.path.join(outdir,provided_output_name_l_d_hoppings), 'w')
+    l_l_output_file = \
+        open(os.path.join(outdir,provided_output_name_l_l_hoppings), 'w')
+    
     """
-     given the Hamiltonian create sub hamiltonians dividing just d-d ligand-ligand
-     and diagonals
+     given the Hamiltonian create sub hamiltonians dividing just 
+     d-d ligand-ligand and diagonals
      __________________
      |   d-d |   d-l  |
      |_______|________|
@@ -137,9 +144,11 @@ def create_hamiltonians(outdir:str,hamiltonian:np.ndarray,nwan:int,norb:int,cell
     for index1 in range(1, norb+1, 1):
         for index2 in range(1, norb+1, 1):
             d_d_hamiltonian[index1-1][index2-1] = hamiltonian[index1-1][index2-1]
-            if d_d_hamiltonian[index1-1][index2-1] > 0 and d_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
+            if d_d_hamiltonian[index1-1][index2-1] > 0 \
+               and d_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
                d_d_hamiltonian[index1-1][index2-1] = 0 
-            if d_d_hamiltonian[index1-1][index2-1] < 0 and d_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
+            if d_d_hamiltonian[index1-1][index2-1] < 0 \
+               and d_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
                d_d_hamiltonian[index1-1][index2-1] = 0         
             d_d_output_file.write(str(d_d_hamiltonian[index1-1][index2-1]))
             d_d_output_file.write(' ')
@@ -151,10 +160,13 @@ def create_hamiltonians(outdir:str,hamiltonian:np.ndarray,nwan:int,norb:int,cell
         for index2 in range(1, nwan-norb+1, 1):
             old_index1 = index1 + norb
             old_index2 = index2 + norb
-            ligand_ligand_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-            if ligand_ligand_hamiltonian[index1-1][index2-1] > 0 and ligand_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+            ligand_ligand_hamiltonian[index1-1][index2-1] = \
+                hamiltonian[old_index1-1][old_index2-1] 
+            if ligand_ligand_hamiltonian[index1-1][index2-1] > 0 \
+                and ligand_ligand_hamiltonian[index1-1][index2-1] < cut: 
                ligand_ligand_hamiltonian[index1-1][index2-1] = 0
-            if ligand_ligand_hamiltonian[index1-1][index2-1] < 0 and ligand_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
+            if ligand_ligand_hamiltonian[index1-1][index2-1] < 0 \
+                and ligand_ligand_hamiltonian[index1-1][index2-1] > -cut: 
                ligand_ligand_hamiltonian[index1-1][index2-1] = 0
             l_l_output_file.write(str(ligand_ligand_hamiltonian[index1-1][index2-1]))
             l_l_output_file.write(' ')
@@ -166,10 +178,13 @@ def create_hamiltonians(outdir:str,hamiltonian:np.ndarray,nwan:int,norb:int,cell
         for index2 in range(1, nwan-norb+1, 1):
             old_index1 = index1 
             old_index2 = index2 + norb
-            d_ligand_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-            if d_ligand_hamiltonian[index1-1][index2-1] > 0 and d_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
+            d_ligand_hamiltonian[index1-1][index2-1] = \
+                hamiltonian[old_index1-1][old_index2-1] 
+            if d_ligand_hamiltonian[index1-1][index2-1] > 0 \
+                and d_ligand_hamiltonian[index1-1][index2-1] < cut: #filter data here
                d_ligand_hamiltonian[index1-1][index2-1] = 0 
-            if d_ligand_hamiltonian[index1-1][index2-1] < 0 and d_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
+            if d_ligand_hamiltonian[index1-1][index2-1] < 0 \
+                and d_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
                d_ligand_hamiltonian[index1-1][index2-1] = 0 
             d_l_output_file.write(str(d_ligand_hamiltonian[index1-1][index2-1]))
             d_l_output_file.write('  ')
@@ -181,10 +196,13 @@ def create_hamiltonians(outdir:str,hamiltonian:np.ndarray,nwan:int,norb:int,cell
         for index2 in range(1, norb + 1, 1):
             old_index1 = index1 + norb 
             old_index2 = index2 
-            ligand_d_hamiltonian[index1-1][index2-1] = hamiltonian[old_index1-1][old_index2-1] 
-            if ligand_d_hamiltonian[index1-1][index2-1] > 0 and ligand_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
+            ligand_d_hamiltonian[index1-1][index2-1] = \
+                hamiltonian[old_index1-1][old_index2-1] 
+            if ligand_d_hamiltonian[index1-1][index2-1] > 0 \
+                and ligand_d_hamiltonian[index1-1][index2-1] < cut: #filter data here
                ligand_d_hamiltonian[index1-1][index2-1] = 0 
-            if ligand_d_hamiltonian[index1-1][index2-1] < 0 and ligand_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
+            if ligand_d_hamiltonian[index1-1][index2-1] < 0 \
+                and ligand_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
                ligand_d_hamiltonian[index1-1][index2-1] = 0 
             l_d_output_file.write(str(ligand_d_hamiltonian[index1-1][index2-1]))
             l_d_output_file.write(' ')
@@ -200,4 +218,4 @@ if __name__ == '__main__':
                         '0 1 0','-1 -1 0','1 1 0','-1 1 0','1 -1 0']
     for cell in cells_to_extract:
         hamiltonian = define_hamiltonian(readed_H,nwan,cell)
-        create_hamiltonians(outdir,hamiltonian,nwan,norb,cell)
+        create_hamiltonians(hamiltonian,cell)
