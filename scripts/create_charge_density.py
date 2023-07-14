@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
-from QuantumTools.library import initialize_clusters, \
-     QECalculation, manage_input_dir
+
+from QuantumTools.library import (QECalculation, initialize_clusters,
+                                  manage_input_dir)
+
 
 def parser():
     parser = ArgumentParser(description="Script to create inputs for charge density calculations")
@@ -21,11 +23,11 @@ def parser():
 def create_charge_density_input(scf_input_name:str,charge_density_output_dir:str)-> None: 
     charge_density_file_name = scf_input_name.replace('scf','cd.pp')
     charge_density_file = open(charge_density_output_dir + '/' + charge_density_file_name, 'w')
-    charge_density_file.write('&inputPP\n')
+    charge_density_file.write('&inputpp\n')
     charge_density_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     charge_density_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
-    charge_density_file.write("filband = '" + str(Scf.prefix) + ".pot'\n")
-    charge_density_file.write('plot_num=11,\n')
+    charge_density_file.write("filplot = '" + str(Scf.prefix) + ".pot'\n")
+    charge_density_file.write('plot_num=9,\n')
     charge_density_file.write('/\n')
     charge_density_file.write('&plot\n')
     charge_density_file.write('iflag=3,\n')

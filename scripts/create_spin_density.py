@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
-from QuantumTools.library import initialize_clusters, \
-     QECalculation, manage_input_dir
+
+from QuantumTools.library import (QECalculation, initialize_clusters,
+                                  manage_input_dir)
+
 
 def parser():
     parser = ArgumentParser(description="Script to create inputs for spin density calculations")
@@ -21,10 +23,10 @@ def parser():
 def create_spin_density_input(scf_input_name:str,spin_density_output_dir:str)-> None: 
     spin_density_name = scf_input_name.replace('scf','sd.pp')
     spin_density_file = open(spin_density_output_dir + '/' + spin_density_name , 'w')
-    spin_density_file.write('&inputPP\n')
+    spin_density_file.write('&inputpp\n')
     spin_density_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     spin_density_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
-    spin_density_file.write("filband = '" +str(Scf.prefix)+ ".chgxsf'\n")
+    spin_density_file.write("filplot = '" +str(Scf.prefix)+ ".chgxsf'\n")
     spin_density_file.write('plot_num=6,\n')
     spin_density_file.write('/\n')
     spin_density_file.write('&plot\n')

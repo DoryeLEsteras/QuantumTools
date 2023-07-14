@@ -197,11 +197,11 @@ def manage_input_dir(input_dir_and_name:str) -> str:
     file_name = input_dir_and_name.split('/')[-1]
     file_dir = os.path.abspath(input_dir_and_name.replace(file_name, ''))
     return file_name, file_dir
-def manage_input_dir_improved(input_dir_and_name:str,output_directory:str) -> str:
-        file_name = os.path.basename(input_dir_and_name)
-        file_dir = os.path.abspath(os.path.dirname(input_dir_and_name))
-        outdir = os.path.abspath(output_directory)
-   return file_name, file_dir, outdir
+#def manage_input_dir_improved(input_dir_and_name:str,output_directory:str) -> str:
+#        file_name = os.path.basename(input_dir_and_name)
+#        file_dir = os.path.abspath(os.path.dirname(input_dir_and_name))
+#        outdir = os.path.abspath(output_directory)
+#        return file_name, file_dir, outdir
 def handle_comments(file_name:str) -> List[str]:
     with open(file_name, 'r') as file:
         lines = file.readlines()
@@ -228,15 +228,19 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
 def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     pattern_ecutwfc = re.compile(r'(ecutwfc(\s*)?=(\s*)?)\d*')
     pattern_ecutrho = re.compile(r'(ecutrho(\s*)?=(\s*)?)\d*') 
-    pattern_hubbard = re.compile(r'(Hubbard_U\(\d\)(\s*)?=(\s*)?)\d*)\.?(\d*)?') 
+    pattern_hubbard_under_v7 = re.compile(r'(Hubbard_U\(\d\)\s*?\=\s*?)(\d*\.?\d*)?')
+    pattern_hubbard_over_v7 = re.compile(r'(U\s\s*?\w*\s\s*?)(\d*\.\d*)?')
     
     patterns_and_keywords = {
     'ecutwfc':pattern_ecutwfc,
     'ecutrho':pattern_ecutrho,
-    'hubbard':pattern_hubbard,
+    'hubbard_under_v7':pattern_hubbard_under_v7,
+    'hubbard_over_v7':pattern_hubbard_over_v7,
     }
-
-    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1\b{}\b'.format(replacement),string)
+    if pattern_keyword == 'hubbard_under_v7':
+        new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)
+    elif pattern_keyword == 'hubbard_over_v7':
+        new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
     return new_string
 
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \

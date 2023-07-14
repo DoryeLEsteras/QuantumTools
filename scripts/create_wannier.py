@@ -1,12 +1,13 @@
 #!/usr/bin/python3
-import numpy as np
 from argparse import ArgumentParser
-from typing import List
 from subprocess import run
-from QuantumTools.library import manage_input_dir, \
-     clean_uncommented_file, QECalculation, Wan_Kpath_dict, \
-     initialize_clusters,Cluster
-import QuantumTools #to find kmesh path
+from typing import List
+
+import numpy as np
+import QuantumTools  # to find kmesh path
+from QuantumTools.library import (Cluster, QECalculation, Wan_Kpath_dict,
+                                  clean_uncommented_file, initialize_clusters,
+                                  manage_input_dir)
 
 
 def parser():
@@ -94,6 +95,10 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
                'noinv=.true.\n' + 'nbnd = ' + str(nbands) + '\nibrav = 0\n'
             if word == '&electrons' or word == '&ELECTRONS':
               original_file[line_number] = '&ELECTRONS\n' + 'diago_full_acc=.true.\n'
+            if word == 'nbnd': 
+              original_file[line_number] = ''    
+            if word == 'k_points' or word == 'K_POINTS':
+              original_file[line_number] = ''    
             if word == 'k_points' or word == 'K_POINTS':
               original_file[line_number] = ''    
               original_file[line_number + 1] = ''     

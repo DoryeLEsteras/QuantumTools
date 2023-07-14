@@ -23,7 +23,9 @@ setup(
 #         'scripts/resolved_exchange_strain_u_plotter.py',
          'scripts/h_reader.py',
          'scripts/update_optimization.py',
-         'scripts/create_run.py'
+         'scripts/create_run.py',
+         'scripts/create_template.py',
+         'scripts/create_u_scan.py'
      ],
     install_requires=[
         'numpy',

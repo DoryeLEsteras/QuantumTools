@@ -2,7 +2,6 @@
 import os
 from argparse import ArgumentParser
 from typing import List, TextIO, Tuple
-
 import numpy as np
 
 # TO DO LIST

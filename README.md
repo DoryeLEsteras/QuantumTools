@@ -10,11 +10,11 @@ create_wannier                        DONE
 update_optimization                   DONE     
 create_spin_density                   DONE 
 create_charge_density                 DONE 
-create_force_theorem                  IN PROCESS
-create_hubbard_scanning               EMPTY
+create_force_theorem                  DONE
+create_u_scan                         DONE
 create_Hubbard_convergence            bash
 create_Hubbard_scf_calculation        EMPTY
-create_qe_template                    EMPTY
+create_qe_template                    DONE
 create_sw 	                      IN PROCESS
 create_band_alignment                 EMPTY
 create_bader_analysis                 EMPTY
