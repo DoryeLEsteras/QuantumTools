@@ -1,8 +1,9 @@
 import os
 from argparse import ArgumentParser
 
+from typing import List
 import numpy as np
-from QuantumTools.library import manage_input_dir, substitute_pattern,initialize_clusters
+from QuantumTools.library import manage_input_dir, substitute_pattern,initialize_clusters, QECalculation
 
 
 def parser():
@@ -51,7 +52,9 @@ def parser():
     args = parser.parse_args()
     return args.input,args.outdir,args.wfcmin,args.wfcmax,args.wfcstep,args.rhomin,args.rhomax,args.rhostep
 
-def create_total_scan():
+def create_total_scan(): 
+    Scf = QECalculation()
+    Scf.extract_input_information(file_dir_and_name)
     with open(file_dir_and_name,'r') as file:
         readed_file = file.read()
     for wfc in np.arange(wfcmin,wfcmax + wfcstep,wfcstep):
@@ -63,18 +66,29 @@ def create_total_scan():
             if rho != 0:
                 readed_file = substitute_pattern(readed_file,'ecutrho', rho)
                 new_file_name = new_file_name.replace('.scf','.rho.'+ str(rho) + '.scf')
+            readed_file = readed_file.replace(Scf.prefix,Scf.prefix + '_wfc_' + str(wfc) + '_rho_' + str(rho))
             with open(os.path.join(outdir,new_file_name),'w') as new_file:
                  new_file.write(readed_file)    
             if wfc != 0 and rho != 0:
-               initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc) + '.rho.' + str(rho))   
-               initialize_clusters('launcher',outdir,'','') 
+              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc) + '.rho.' + str(rho))   
             elif wfc != 0 and rho == 0:
-               initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc))
+              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc))
             elif wfc == 0 and rho != 0:
-               initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
+              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
+    return cluster_name_list
+def create_launcher(cluster_name_list:List):
+    for cluster_name in cluster_name_list:
+        with open(os.path.join(outdir,cluster_name.lower() +'.launcher_for_cutoff_convergence.sh') ,'w') as file:
+             file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+             file.write('do\n')
+             file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+             file.write('do\n')
+             file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.rho.$rho.sh\n')
+             file.write('done\n')
+             file.write('done\n')
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
    file_name,file_dir = manage_input_dir(file_dir_and_name)
-   create_total_scan()
-
+   cluster_name_list = create_total_scan()
+   create_launcher(cluster_name_list)

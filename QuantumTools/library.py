@@ -36,6 +36,7 @@ def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,r
         cluster_dict[i].run_prefix = run_prefix
         cluster_dict[i].extract_input_information()
         cluster_dict[i].write_run(calculation_method,run_directory,file_name)
+    return cluster_name_list
 class Cluster:
       def __init__(self,cluster_name:str):
          self.cluster_name: str = cluster_name
@@ -253,12 +254,13 @@ def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     pattern_ecutrho = re.compile(r'(ecutrho(\s*)?=(\s*)?)\d*') 
     pattern_hubbard_under_v7 = re.compile(r'(Hubbard_U\(\d\)\s*?\=\s*?)(\d*\.?\d*)?')
     pattern_hubbard_over_v7 = re.compile(r'(U\s\s*?\w*\s\s*?)(\d*\.\d*)?')
-    
+    #prefix = re.compile(r'(prefix\s*?=\s*?\'\w*)\'')
     patterns_and_keywords = {
     'ecutwfc':pattern_ecutwfc,
     'ecutrho':pattern_ecutrho,
     'hubbard_under_v7':pattern_hubbard_under_v7,
     'hubbard_over_v7':pattern_hubbard_over_v7,
+    #'prefix':prefix,
     }
     #if pattern_keyword == 'hubbard_under_v7':
     #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)
@@ -266,7 +268,6 @@ def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
     #elif pattern_keyword == 'ecutwfc':
     #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)  
-    
     new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
     return new_string
 
