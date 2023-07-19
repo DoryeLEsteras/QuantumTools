@@ -137,7 +137,7 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
         nscf_file.write(kmesh)  
 def create_pw2wan_input(file_dir:str,seed:str) -> None: 
     if SCF.nspin == 1:
-       initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')    
+       initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in','')    
        pw2wan_output_name = str(seed + '.pw2wan.in')
        with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
             pw2wan_file.write('&inputpp\n')  
@@ -151,7 +151,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
             pw2wan_file.write('wan_mode = \'standalone\'\n') 
             pw2wan_file.write('/')    
     if SCF.nspin == 2:
-       initialize_clusters('spin_wannier',file_dir,seed + '.scf.in')
+       initialize_clusters('spin_wannier',file_dir,seed + '.scf.in','')
        pw2wan_up_output_name = str(seed + '.up.pw2wan.in')
        with open(file_dir + '/' + pw2wan_up_output_name, 'w') as pw2wan_up_file:
             pw2wan_up_file.write('&inputpp\n') 
@@ -177,7 +177,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
         pw2wan_down_file.write('wan_mode = \'standalone\'\n') 
         pw2wan_down_file.write('/')  
     if SCF.nspin == 4:
-        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in')
+        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in','')
         pw2wan_output_name = str(seed + '.pw2wan.in')
         with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
              pw2wan_file.write('&inputpp\n')  

@@ -128,7 +128,7 @@ if __name__ == '__main__':
      create_nscf_input(file_name,file_dir,provided_output_dir,'x',magnetic_atom_index_list,pp_list)
      create_nscf_input(file_name,file_dir,provided_output_dir,'y',magnetic_atom_index_list,pp_list)
      create_nscf_input(file_name,file_dir,provided_output_dir,'z',magnetic_atom_index_list,pp_list)
-     initialize_clusters('force_theorem',file_dir,file_name)
+     initialize_clusters('force_theorem',file_dir,file_name,'')
      print('check the names of relativistic PPs')
      
 

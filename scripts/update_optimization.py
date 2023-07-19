@@ -1,10 +1,12 @@
 #!/usr/bin/python3
-from typing import List
 from argparse import ArgumentParser
+from typing import List
+import os
 import numpy as np
 #from subprocess import run
-from QuantumTools.library import QECalculation, QEoutput, manage_input_dir,\
-clean_uncommented_file, initialize_clusters
+from QuantumTools.library import (QECalculation, QEoutput,
+                                  clean_uncommented_file, initialize_clusters,
+                                  manage_input_dir)
 
 # TO DO LIST
 """
@@ -105,9 +107,9 @@ def generate_input(opt_input_dir_and_name:str,new_file_name:str):
            print('WARNING: vc-relax with cell_dofree = ibrav, move the new input' + 
            ' from ibrav 0 to ibrav != 0') 
    if Output.calculation_finished != True:
-      generated_file = open(opt_out_dir + '/' + new_file_name,'w') 
+      generated_file = open(os.path.join(opt_out_dir,new_file_name),'w') 
    elif Output.calculation_finished == True:
-      generated_file_name_and_dir = opt_out_dir + '/' + opt_input_name.replace('vcrelax','scf')
+      generated_file_name_and_dir = os.path.join(opt_out_dir,opt_input_name.replace('vcrelax','scf'))
       generated_file_name_and_dir = generated_file_name_and_dir.replace('relax','scf')
       generated_file = open(generated_file_name_and_dir,'w')     
       file_clean_copy = clean_uncommented_file(updated_file_vector)
@@ -166,3 +168,4 @@ if __name__ == '__main__':
   Output = QEoutput()
   Output.extract_output_information(opt_out_dir_and_name)
   generate_input(opt_input_dir_and_name,new_file_name)
+  initialize_clusters('basic_scf',opt_out_dir,new_file_name,'')    

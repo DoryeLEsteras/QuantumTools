@@ -61,7 +61,7 @@ def create_bs_input(scf_name:str,bs_output_dir:str)-> None:
         bs_file.write('spin_component=1\n')
         bs_file.write('/')
         bs_file.close()
-        initialize_clusters('nospin_bands',bs_output_dir,scf_name)
+        initialize_clusters('nospin_bands',bs_output_dir,scf_name,'')
     if Scf.nspin == 2:
         bs1_name = scf_name.replace('scf','bs1')
         bs2_name = scf_name.replace('scf','bs2')
@@ -83,7 +83,7 @@ def create_bs_input(scf_name:str,bs_output_dir:str)-> None:
         bs2_file.write('/')
         bs1_file.close()
         bs2_file.close()
-        initialize_clusters('spin_bands',bs_output_dir,scf_name)
+        initialize_clusters('spin_bands',bs_output_dir,scf_name,'')
 
 
 if __name__ == '__main__':

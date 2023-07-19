@@ -64,7 +64,7 @@ def create_projwfc_input(scf_input_name:str,projwfc_output_dir:str)-> None:
     projwfc_file.write('DeltaE = 0.01\n')
     projwfc_file.write('/')
     projwfc_file.close()
-    initialize_clusters('projected',projwfc_output_dir,scf_input_name)
+    initialize_clusters('projected',projwfc_output_dir,scf_input_name,'')
 
 
 if __name__ == '__main__':   
