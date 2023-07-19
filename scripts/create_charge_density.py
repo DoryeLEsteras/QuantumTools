@@ -34,7 +34,7 @@ def create_charge_density_input(scf_input_name:str,charge_density_output_dir:str
     charge_density_file.write('output_format=5,\n')
     charge_density_file.write('/')
     charge_density_file.close()
-    initialize_clusters('pp',charge_density_output_dir,scf_input_name,'')
+    initialize_clusters('cd',charge_density_output_dir,scf_input_name,'')
     
 if __name__ == '__main__':   
   provided_scf_input_file, provided_output_dir = parser() 

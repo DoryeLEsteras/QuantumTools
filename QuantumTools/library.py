@@ -76,8 +76,10 @@ class Cluster:
              self.write_nospin_bands(file_name,run_file)
           if calculation_method == 'projected':
              self.write_projected(file_name,run_file)
-          if calculation_method == 'pp':
-             self.write_pp(file_name,run_file)
+          if calculation_method == 'cd':
+             self.write_cd_pp(file_name,run_file)
+          if calculation_method == 'sd':
+             self.write_sd_pp(file_name,run_file)
           if calculation_method == 'spin_wannier':
              self.write_spin_wannier(file_name,run_file)
           if calculation_method == 'nospin_wannier':
@@ -125,8 +127,15 @@ class Cluster:
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'projwfc.x -i ' + proj_input_name + ' > ' + proj_output_name + '\n') 
-      def write_pp(self,scf_input_name:str,run_file) -> None:  
-          pp_input_name = scf_input_name.replace('scf','pp')
+      def write_cd_pp(self,scf_input_name:str,run_file) -> None:  
+          pp_input_name = scf_input_name.replace('scf','cd.pp')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          pp_output_name = pp_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
+      def write_sd_pp(self,scf_input_name:str,run_file) -> None:  
+          pp_input_name = scf_input_name.replace('scf','sd.pp')
           scf_output_name = scf_input_name.replace('.in','.out')
           pp_output_name = pp_input_name.replace('.in','.out')
           run_file.write(\

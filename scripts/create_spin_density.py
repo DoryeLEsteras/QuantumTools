@@ -36,7 +36,7 @@ def create_spin_density_input(scf_input_name:str,spin_density_output_dir:str)-> 
     spin_density_file.write("fileout = '" + str(Scf.prefix) + ".xsf'\n")
     spin_density_file.write('/')
     spin_density_file.close()
-    initialize_clusters('pp',spin_density_output_dir,scf_input_name,'')
+    initialize_clusters('sd',spin_density_output_dir,scf_input_name,'')
 
 if __name__ == '__main__':   
   provided_scf_input_file, provided_output_dir = parser()

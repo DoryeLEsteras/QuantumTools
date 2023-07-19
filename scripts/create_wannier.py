@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 from subprocess import run
+import os
 from typing import List
-
 import numpy as np
 import QuantumTools  # to find kmesh path
 from QuantumTools.library import (Cluster, QECalculation, Wan_Kpath_dict,
@@ -23,6 +23,7 @@ def parser():
                         required=False,
                         default='./',
                         help="output directory ")
+  
     parser.add_argument("-kpath", "--kpath",
                         type=str,
                         required=False,
@@ -78,8 +79,8 @@ def parser():
            args.Mo,args.mo,args.Mi,args.mi,args.orb
 def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
-    nscf_output = str(outdir) + '/' + str(nscf_file_name)
-    with open(file_dir  + '/' +  file_name, 'r') as file:
+    nscf_output = os.path.join(outdir,nscf_file_name)
+    with open(os.path.join(file_dir,file_name), 'r') as file:
         lines = file.readlines() 
     original_file = lines   
     clean_file = clean_uncommented_file(lines)
@@ -128,7 +129,7 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
     with open(nscf_output, 'w') as nscf_file:   
         for line in original_file: 
             nscf_file.write(str(line))  
-        nscf_file.write('CELL_PARAMETERS ( ' + SCF.cell_parameters_units + ' )\n')  
+        nscf_file.write('CELL_PARAMETERS (angstrom)\n') 
         for i in range(0,3,1):
             for j in range(0,3,1):
                 cell_matrix_angstrom = str(SCF.cell_matrix_angstrom[i][j]).replace('[','').replace(']','') 
@@ -139,7 +140,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 1:
        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in','')    
        pw2wan_output_name = str(seed + '.pw2wan.in')
-       with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
+       with open(os.path.join(file_dir,pw2wan_output_name), 'w') as pw2wan_file:
             pw2wan_file.write('&inputpp\n')  
             pw2wan_file.write('seedname = \'' + seed + '\'\n')  
             pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -153,7 +154,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 2:
        initialize_clusters('spin_wannier',file_dir,seed + '.scf.in','')
        pw2wan_up_output_name = str(seed + '.up.pw2wan.in')
-       with open(file_dir + '/' + pw2wan_up_output_name, 'w') as pw2wan_up_file:
+       with open(os.path.join(file_dir,pw2wan_up_output_name), 'w') as pw2wan_up_file:
             pw2wan_up_file.write('&inputpp\n') 
             pw2wan_up_file.write('seedname = \'' + seed + '.up\'\n')  
             pw2wan_up_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -165,7 +166,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
             pw2wan_up_file.write('wan_mode = \'standalone\'\n') 
             pw2wan_up_file.write('/')  
        pw2wan_down_output_name = str(seed + '.down.pw2wan.in')
-       with open(file_dir  + '/' +  pw2wan_down_output_name, 'w') as pw2wan_down_file:
+       with open(os.path.join(file_dir,pw2wan_down_output_name), 'w') as pw2wan_down_file:
         pw2wan_down_file.write('&inputpp\n') 
         pw2wan_down_file.write('seedname = \'' + seed + '.down\'\n')  
         pw2wan_down_file.write('outdir = \'' + SCF.outdir + '\'\n')  
@@ -179,7 +180,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
     if SCF.nspin == 4:
         initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in','')
         pw2wan_output_name = str(seed + '.pw2wan.in')
-        with open(file_dir  + '/' +  pw2wan_output_name, 'w') as pw2wan_file:
+        with open(os.path.join(file_dir,pw2wan_output_name), 'w') as pw2wan_file:
              pw2wan_file.write('&inputpp\n')  
              pw2wan_file.write('seedname = \'' + seed + '\'\n')  
              pw2wan_file.write('outdir = \'' + SCF.outdir + '\'\n')   
@@ -195,7 +196,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                      mo:float, Mi:float, mi:float, projectors:str,k:List[int]) -> None: 
     win_output_name = seed + '.win'
     projectors = projectors.split(',')
-    with open(file_dir  + '/' +  win_output_name, 'w') as win_file:
+    with open(os.path.join(file_dir,win_output_name), 'w') as win_file:
          win_file.write(f"{'!'*80}\n")
          win_file.write(f"{'!'*30}VARIABLES TO SELECT{'!'*31}\n")
          win_file.write(f"{'!'*80}\n")
@@ -280,25 +281,27 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"\n")
 
          if SCF.atomic_positions_units == 'crystal':
-             win_file.write(f"Begin Atoms_Frac\n") 
-             for i in range(0,SCF.nat,1):
-                 atomic_matrix = str(SCF.atomic_matrix[i][0]).replace('[','').replace(']','')
-                 atomic_matrix = atomic_matrix.replace("\'", "")
-                 win_file.write(f"{atomic_matrix} ")
-                 for j in range(1,4,1):
-                    atomic_matrix = str(SCF.atomic_matrix[i][j]).replace('[','').replace(']','')
-                    atomic_matrix = atomic_matrix.replace("\'", "")
-                    win_file.write(f"{float(atomic_matrix):.9f} ")
-                 win_file.write(f"\n")                
-             win_file.write(f"End Atoms_Frac\n")                  
+             win_file.write(f"Begin Atoms_Frac\n")     
          if SCF.atomic_positions_units == 'angstrom':
-             win_file.write(f"Begin Atoms_Cart\n")     
-             for i in range(0,SCF.nat,1):
-                 atomic_matrix = str(SCF.atomic_matrix[i]).replace('[','').replace(']','')
-                 atomic_matrix = atomic_matrix.replace("\'", "")
-                 win_file.write(f"{atomic_matrix}\n")
-             win_file.write(f"End Atoms_Cart\n")   
-         win_file.write(f"\n")
+             win_file.write(f"Begin Atoms_Cart\n") 
+
+         for i in range(0,SCF.nat,1):
+              atomic_matrix = str(SCF.atomic_matrix[i][0]).replace('[','').replace(']','')
+              atomic_matrix = atomic_matrix.replace("\'", "")
+              for component in atomic_matrix:
+                  if component.isdigit():
+                     atomic_matrix = atomic_matrix.replace(component,'')
+              win_file.write(f"{atomic_matrix} ")
+              for j in range(1,4,1):
+                  atomic_matrix = str(SCF.atomic_matrix[i][j]).replace('[','').replace(']','')
+                  atomic_matrix = atomic_matrix.replace("\'", "")
+                  win_file.write(f"{float(atomic_matrix):.9f} ")
+              win_file.write(f"\n")                
+             
+         if SCF.atomic_positions_units == 'crystal':
+             win_file.write(f"End Atoms_Frac\n")     
+         if SCF.atomic_positions_units == 'angstrom':
+             win_file.write(f"End Atoms_Cart\n")                  
 
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
 
