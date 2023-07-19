@@ -1,5 +1,9 @@
 from argparse import ArgumentParser
-from QuantumTools.library import manage_input_dir,initialize_clusters
+
+# parser
+# hacer v7
+#calculation_type = 'scf'
+#v7 = 'no'
 
 def parser():
     parser = ArgumentParser(description="Script to create a basic template for QE")
@@ -23,7 +27,7 @@ def parser():
     args = parser.parse_args()
     return args.input,args.calculation,args.version
  
-def create_template(input_name_and_dir:str,calculation_type:str,version:str) -> None:
+def create_template(input_name_and_dir:str,version:str) -> None:
     with open(input_name_and_dir,'w') as file:
         file.write('&CONTROL\n')
         file.write("calculation = '" + str(calculation_type)+ "'\n")
@@ -53,8 +57,7 @@ def create_template(input_name_and_dir:str,calculation_type:str,version:str) -> 
         file.write("smearing = 'cold'\n")
         file.write("nbnd = \n")
         file.write("degauss = 1.5d-02\n")
-        if version == 'old':
-           file.write("!lda_plus_u = .true.,lda_plus_u_kind = 1, U_projection_type = 'ortho-atomic'Hubbard_U(1) = \n")
+        file.write("!lda_plus_u = .true.,lda_plus_u_kind = 1, U_projection_type = 'ortho-atomic'Hubbard_U(1) = \n")
         file.write("!vdw_corr = 'grimme-d3'\n")
         file.write("nspin = 2\n")
         file.write("starting_magnetization(1) = \n")
@@ -98,12 +101,7 @@ def create_template(input_name_and_dir:str,calculation_type:str,version:str) -> 
         file.write("\n")
         file.write("K_POINTS automatic\n")
         file.write("k k k 0 0 0\n")
-        if version == 'new':   
-            file.write("\n")
-            file.write("HUBBARD ortho-atomic\n")
-            file.write("U atmanifold U_value\n")
+
 if __name__ == "__main__":
-    file_dir_and_name,calculation_type,version = parser()
-    create_template(file_dir_and_name,calculation_type,version)
-    file_name, file_dir = manage_input_dir(file_dir_and_name)
-    initialize_clusters('basic_scf',file_dir,file_name,'')
+    file_dir_and_name,calculation,version = parser()
+    create_template(file_dir_and_name,version)

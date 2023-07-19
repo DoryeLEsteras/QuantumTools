@@ -25,7 +25,8 @@ setup(
          'scripts/update_optimization.py',
          'scripts/create_run.py',
          'scripts/create_template.py',
-         'scripts/create_u_scan.py'
+         'scripts/create_u_scan.py',
+         'scripts/create_cutoff_convergence.py'
      ],
     install_requires=[
         'numpy',

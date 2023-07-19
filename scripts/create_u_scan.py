@@ -1,5 +1,5 @@
 import re
-from QuantumTools.library import substitute_pattern,manage_input_dir
+from QuantumTools.library import substitute_pattern,manage_input_dir, initialize_clusters
 import numpy as np
 import os
 from argparse import ArgumentParser
@@ -50,10 +50,11 @@ def create_scan():
         new_file_name = file_name.replace('.scf','.U.' + str(U) + '.scf')
         new_file_name = new_file_name.replace('.relax','.U.' + str(U) + '.relax')
         new_file_name = new_file_name.replace('.vcrelax','.U.' + str(U) + '.vcrelax')
-        with open(os.path.join(outdir,new_file_name),'w') as new_file_name:
-            new_file_name.write(new_text)
+        with open(os.path.join(outdir,new_file_name),'w') as new_file:
+            new_file.write(new_text)
+        initialize_clusters('basic_scf',outdir,new_file_name,'.U.' + str(U))  
 
 if __name__ == '__main__':
     file_dir_and_name,outdir,Umin,Umax,Ustep,version = parser()
-    file_name,input_dir = manage_input_dir(file_dir_and_name)
+    file_name,file_dir = manage_input_dir(file_dir_and_name)
     create_scan()

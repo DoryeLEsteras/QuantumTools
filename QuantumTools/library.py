@@ -1,11 +1,14 @@
 
-from typing import List
-from dataclasses import dataclass
-import numpy as np
-import re
 import os
+import re
+from dataclasses import dataclass
 from subprocess import run
+from typing import List
+
+import numpy as np
+
 import QuantumTools
+
 #solve ibrav != 0
 # Where to put transform_lattice_parameters?
 # Is used inside of the QEcalculation class
@@ -22,14 +25,15 @@ import QuantumTools
  library folder in a file called Name_of_cluster.cluster.
  To modify program versions just change qepath in the cluster object definition
  To add a new type of calculation just add a new function to the cluster class 
+ If a new mode is added, remember to update the parser or create_run.py
 """
-
-def initialize_clusters(calculation_method:str,run_directory:str,file_name:str)-> None:
+def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,run_prefix:str)-> None:
     cluster_name_list = ['Tirant','Cobra','Raven']
     number_of_clusters = len(cluster_name_list)
     cluster_dict = dict.fromkeys(cluster_name_list)
     for i in cluster_name_list:
         cluster_dict[i] = Cluster(i)
+        cluster_dict[i].run_prefix = run_prefix
         cluster_dict[i].extract_input_information()
         cluster_dict[i].write_run(calculation_method,run_directory,file_name)
 class Cluster:
@@ -38,6 +42,7 @@ class Cluster:
          self.qepath: str = ''
          self.wanpath: str = ''
          self.header: str = ''
+         self.run_prefix: str = ''
       def extract_input_information(self)-> None:
          QT_directory = QuantumTools.__file__.replace('__init__.py','')
          cluster_file = open(QT_directory + self.cluster_name + '.cluster','r')
@@ -55,11 +60,16 @@ class Cluster:
              self.header =  self.header + cluster_file_vector[i]   
 
       def write_run(self,calculation_method:str,run_directory:str,file_name:str) -> None:
-          run_file = open(run_directory + '/' + self.cluster_name.lower() + '.run_for_' + \
-                          calculation_method.lower() + '.sh', 'w' )
+          run_name = self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh'
+          run_file = open(os.path.join(run_directory,run_name), 'w' )
           run_file.write(self.header)
           run_file.write('\n')
-
+          if calculation_method == 'launcher':
+             launcher_name = self.cluster_name.lower() + 'launcher' + '.sh'
+             launcher_file = open(os.path.join(run_directory,launcher_name), 'w' )
+             self.write_launcher(run_name,launcher_file)
+          if calculation_method == 'basic_scf':
+             self.write_basic_scf(file_name,run_file)  
           if calculation_method == 'spin_bands':
              self.write_spin_bands(file_name,run_file)
           if calculation_method == 'nospin_bands':
@@ -74,6 +84,14 @@ class Cluster:
              self.write_nospin_wannier(file_name,run_file)
           if calculation_method == 'force_theorem':
              self.write_force_theorem(file_name,run_file)
+          run_file.close()
+      def write_launcher(self,run_name:str,launcher_file) -> None:  
+          launcher_file.write(\
+          'sbatch ' + run_name + '\n') 
+      def write_basic_scf(self,scf_input_name:str,run_file) -> None:  
+          scf_output_name = scf_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n') 
       def write_spin_bands(self,scf_input_name:str,run_file) -> None:  
           bands_input_name = scf_input_name.replace('scf','bands')
           bs1_input_name = scf_input_name.replace('scf','bs1')
@@ -194,14 +212,10 @@ def count_occ_bands(bands_file_name:str, fermi:float, file_column:int) -> int:
     return nocc_bands
 
 def manage_input_dir(input_dir_and_name:str) -> str: 
-    file_name = input_dir_and_name.split('/')[-1]
-    file_dir = os.path.abspath(input_dir_and_name.replace(file_name, ''))
-    return file_name, file_dir
-#def manage_input_dir_improved(input_dir_and_name:str,output_directory:str) -> str:
-#        file_name = os.path.basename(input_dir_and_name)
-#        file_dir = os.path.abspath(os.path.dirname(input_dir_and_name))
-#        outdir = os.path.abspath(output_directory)
-#        return file_name, file_dir, outdir
+    file_name = os.path.basename(input_dir_and_name)
+    file_dir = os.path.abspath(os.path.dirname(input_dir_and_name))
+    #outdir = os.path.abspath(output_directory)
+    return file_name, file_dir#, outdir
 def handle_comments(file_name:str) -> List[str]:
     with open(file_name, 'r') as file:
         lines = file.readlines()
@@ -237,10 +251,14 @@ def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     'hubbard_under_v7':pattern_hubbard_under_v7,
     'hubbard_over_v7':pattern_hubbard_over_v7,
     }
-    if pattern_keyword == 'hubbard_under_v7':
-        new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)
-    elif pattern_keyword == 'hubbard_over_v7':
-        new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
+    #if pattern_keyword == 'hubbard_under_v7':
+    #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)
+    #elif pattern_keyword == 'hubbard_over_v7':
+    #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
+    #elif pattern_keyword == 'ecutwfc':
+    #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)  
+    
+    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
     return new_string
 
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
