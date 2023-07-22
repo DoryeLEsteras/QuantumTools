@@ -317,7 +317,7 @@ def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
     return cell_matrix
 def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         cell_parameters_units:np.ndarray,a:float,b:float,c:float, \
-        cosac:float,cosab:float,cosbc:float) -> np.ndarray:  
+        cosac:float,cosab:float,cosbc:float) -> np.ndarray: 
     if ibrav == 0 and cell_parameters_units == 'angstrom':
         return cell_matrix
     if ibrav == 0 and cell_parameters_units == 'crystal':
@@ -394,6 +394,9 @@ class QECalculation:
       kpoints: np.ndarray = np.array([])
       cell_dofree: str = ''
       def extract_input_information(self,file_name: str) -> None:
+          # extract a,b,c will fail if someone uses A,B,C. However if I include
+          #A,B,C in the conditionals Carbon and Boron atomic coordinates will
+          # be interpreted as lattice parameters
           self.nspin = 1
           uncommented_file = handle_comments(file_name)
           clean_file = clean_uncommented_file(uncommented_file)
@@ -419,12 +422,12 @@ class QECalculation:
                          self.cell_dofree = splitted_line[word_number + 1].replace("'","")                           
                   if word == 'noncolin':    
                          self.nspin = 4  
-                  if word == 'a' or word == 'A': 
+                  if word == 'a': 
                          self.cell_parameters_units = 'angstrom'
                          self.a = float(splitted_line[word_number + 1])
-                  if word == 'b' or word == 'B': 
+                  if word == 'b': 
                          self.b = float(splitted_line[word_number + 1])
-                  if word == 'c' or word == 'C': 
+                  if word == 'c': 
                          self.c = float(splitted_line[word_number + 1])
                   if word == 'cosac' or word == 'COSAC': 
                          self.cosac = float(splitted_line[word_number + 1])

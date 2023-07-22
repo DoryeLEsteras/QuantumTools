@@ -100,8 +100,6 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
               original_file[line_number] = ''    
             if word == 'k_points' or word == 'K_POINTS':
               original_file[line_number] = ''    
-            if word == 'k_points' or word == 'K_POINTS':
-              original_file[line_number] = ''    
               original_file[line_number + 1] = ''     
             if word == 'ibrav':
               original_file[line_number] = ''           
