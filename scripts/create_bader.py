@@ -34,7 +34,7 @@ def create_bader_all_input(scf_input_name:str,bader_output_dir:str)-> None:
     bader_file.write('nfile = 1\n')
     bader_file.write('iflag=3,\n')
     bader_file.write('output_format=6,\n')
-    bader_file.write("fileout = '" + str(Scf.prefix) + "_alelec.cube',\n")
+    bader_file.write("fileout = '" + bader_file_name.replace('pp.in','cube') + ',\n')
     bader_file.write('/')
     bader_file.close()
 
@@ -51,7 +51,7 @@ def create_bader_valence_input(scf_input_name:str,bader_output_dir:str)-> None:
     bader_file.write('nfile = 1\n')
     bader_file.write('iflag=3,\n')
     bader_file.write('output_format=6,\n')
-    bader_file.write("fileout = '" + str(Scf.prefix) + "_valence.cube',\n")
+    bader_file.write("fileout = '" + bader_file_name.replace('pp.in','cube') + ',\n')
     bader_file.write('/')
     bader_file.close()
 

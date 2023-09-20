@@ -150,11 +150,13 @@ class Cluster:
           scf_output_name = scf_input_name.replace('.in','.out')
           all_output_name = all_input_name.replace('.in','.out')
           valence_output_name = valence_input_name.replace('.in','.out')
+          valence_cube = valence_input_name.replace('.pp.in','.cube')
+          all_cube = all_input_name.replace('.pp.in','.cube')
           run_file.write(\
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pp.x -i ' + all_input_name + ' > ' + all_output_name + '\n' + \
           'srun ' + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
-          'bader ' + valence_input_name + ' -ref ' + all_input_name ) 
+          'bader ' + valence_cube + ' -ref ' + all_cube ) 
 
       def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
