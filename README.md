@@ -17,7 +17,7 @@ create_Hubbard_scf_calculation
 create_qe_template                    DONE
 create_sw 	                      
 create_band_alignment                 
-create_bader_analysis                 
+create_bader_analysis                 DONE            
 create_strain                         
 create_wannier_tools                  
 smearing_tester

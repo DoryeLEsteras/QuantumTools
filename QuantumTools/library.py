@@ -81,6 +81,8 @@ class Cluster:
              self.write_cd_pp(file_name,run_file)
           if calculation_method == 'sd':
              self.write_sd_pp(file_name,run_file)
+          if calculation_method == 'bader':
+             self.write_bader_pp(file_name,run_file)
           if calculation_method == 'spin_wannier':
              self.write_spin_wannier(file_name,run_file)
           if calculation_method == 'nospin_wannier':
@@ -142,6 +144,18 @@ class Cluster:
           run_file.write(\
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
+      def write_bader_pp(self,scf_input_name:str,run_file) -> None: 
+          all_input_name = scf_input_name.replace('scf','all.pp')
+          valence_input_name = scf_input_name.replace('scf','valence.pp')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          all_output_name = all_input_name.replace('.in','.out')
+          valence_output_name = valence_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pp.x -i ' + all_input_name + ' > ' + all_output_name + '\n' + \
+          'srun ' + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
+          'bader ' + valence_input_name + ' -ref ' + all_input_name ) 
+
       def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
           pw2wan_up_input_name = scf_input_name.replace('scf','up.pw2wan')

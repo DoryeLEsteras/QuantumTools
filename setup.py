@@ -17,6 +17,7 @@ setup(
          'scripts/create_projected.py',
          'scripts/create_charge_density.py',
          'scripts/create_spin_density.py',
+         'scripts/create_bader.py',
          'scripts/create_ft.py',
          'scripts/repair_bands.py',     
          'scripts/fatbands_filter.py',
