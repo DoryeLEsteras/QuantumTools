@@ -27,7 +27,7 @@ import QuantumTools
  To add a new type of calculation just add a new function to the cluster class 
  If a new mode is added, remember to update the parser or create_run.py
 """
-def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,run_prefix:str)-> None:
+def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,run_prefix:str,extra_info='')-> None:
     cluster_name_list = ['Tirant','Cobra','Raven']
     number_of_clusters = len(cluster_name_list)
     cluster_dict = dict.fromkeys(cluster_name_list)
@@ -36,7 +36,7 @@ def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,r
         cluster_dict[i].run_prefix = run_prefix
         cluster_dict[i].extract_input_information()
         cluster_dict[i].write_run(calculation_method,run_directory,file_name)
-    return cluster_name_list
+    return extra_info
 class Cluster:
       def __init__(self,cluster_name:str):
          self.cluster_name: str = cluster_name
@@ -59,7 +59,6 @@ class Cluster:
                 header_starting_line = line_number
          for i in range(header_starting_line +1,len(cluster_file_vector),1):
              self.header =  self.header + cluster_file_vector[i]   
-
       def write_run(self,calculation_method:str,run_directory:str,file_name:str) -> None:
           run_name = self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh'
           run_file = open(os.path.join(run_directory,run_name), 'w' )
