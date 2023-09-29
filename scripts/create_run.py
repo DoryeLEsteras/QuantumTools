@@ -20,8 +20,10 @@ def parser():
                                 -spin_bands \n 
                                 -nospin_bands \n 
                                 -projected \n 
-                                -sd \n 
                                 -cd \n 
+                                -sd \n 
+                                -bader\n
+                                -band_alignment\n
                                 -spin_wannier \n 
                                 -nospin_wannier \n
                                 -force_theorem  \n 

@@ -16,15 +16,15 @@ create_Hubbard_convergence
 create_Hubbard_scf_calculation        
 create_qe_template                    DONE
 create_sw 	                      
-create_band_alignment                 
+create_band_alignment                 DONE
 create_bader_analysis                 DONE            
-create_strain                         
-create_wannier_tools                  
-smearing_tester
+create_strain                          *
+smearing_tester                        *   
 kpoint tester                         DONE
 cutoff tester                         DONE            
-create_tb2j_calculation               
-create_wt
+create_tb2j_calculation                *
+create_wt_template                     *
+create_arc_simulator                   *
 
 
 

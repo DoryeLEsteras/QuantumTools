@@ -83,6 +83,8 @@ class Cluster:
              self.write_sd_pp(file_name,run_file)
           if calculation_method == 'bader':
              self.write_bader_pp(file_name,run_file)
+          if calculation_method == 'band_alignment':
+             self.write_band_alignment(file_name,run_file)
           if calculation_method == 'spin_wannier':
              self.write_spin_wannier(file_name,run_file)
           if calculation_method == 'nospin_wannier':
@@ -157,7 +159,16 @@ class Cluster:
           'srun ' + self.qepath + 'pp.x -i ' + all_input_name + ' > ' + all_output_name + '\n' + \
           'srun ' + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
           'bader ' + valence_cube + ' -ref ' + all_cube ) 
-
+      def write_band_alignment(self,scf_input_name:str,run_file) -> None: 
+          pp_input_name = scf_input_name.replace('scf','ba.pp')
+          avg_input_name = scf_input_name.replace('scf','avg')
+          scf_output_name = scf_input_name.replace('.in','.out')
+          pp_output_name = pp_input_name.replace('.in','.out')
+          avg_output_name = avg_input_name.replace('.in','.out')
+          run_file.write(\
+          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n' + \
+          'mpirun -np 1 ' + self.qepath + 'avg.x ' + avg_input_name + ' > ' + avg_output_name + '\n') 
       def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
           pw2wan_up_input_name = scf_input_name.replace('scf','up.pw2wan')
