@@ -66,6 +66,7 @@ def create_template(input_name_and_dir:str,calculation_type:str,version:str) -> 
         file.write("!edir = 3\n")
         file.write("!eopreg = 0.1 \n")
         file.write("!eamp = 0\n")
+        file.write("!tot_charge = -0.806\n")
         file.write("/\n\n") 
         file.write("&ELECTRONS\n")
         file.write("electron_maxstep = 500\n")

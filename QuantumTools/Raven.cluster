@@ -1,6 +1,7 @@
 ######### Raven directories #########
 QE_dir:  
 Wan_dir:  
+WT_dir:
 
 ######### Raven run header #########
 #!/bin/bash -l

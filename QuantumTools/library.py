@@ -42,6 +42,7 @@ class Cluster:
          self.cluster_name: str = cluster_name
          self.qepath: str = ''
          self.wanpath: str = ''
+         self.wtpath: str = ''
          self.header: str = ''
          self.run_prefix: str = ''
       def extract_input_information(self)-> None:
@@ -55,6 +56,8 @@ class Cluster:
                self.qepath = splitted_line[1]
              if splitted_line[0] == 'Wan_dir:':
                self.wanpath = splitted_line[1]
+             if splitted_line[0] == 'WT_dir:':
+               self.wtpath = splitted_line[1]
              if line == cluster_header:
                 header_starting_line = line_number
          for i in range(header_starting_line +1,len(cluster_file_vector),1):
@@ -90,6 +93,8 @@ class Cluster:
              self.write_nospin_wannier(file_name,run_file)
           if calculation_method == 'force_theorem':
              self.write_force_theorem(file_name,run_file)
+          if calculation_method == 'wt':
+             self.write_wt('',run_file)
           run_file.close()
       def write_launcher(self,run_name:str,launcher_file) -> None:  
           launcher_file.write(\
@@ -214,6 +219,10 @@ class Cluster:
           'srun ' + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
           'srun ' + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
+      def write_wt(self,scf_input_name:str,run_file) -> None:  
+          run_file.write(\
+          'srun ' + self.wtpath +  ' wt.x wt.in\n'
+          )
 def count_nbands(bands_file_name:str) -> int:
     nbands = 0
     with open(bands_file_name,'r') as f:
@@ -542,5 +551,46 @@ class QEoutput:
                              self.atomic_matrix[i][6] = atomic_coord[6]                          
                       self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
 
+
+@dataclass
+class WannierCalculation:
+      nbands: int = 0
+      nwan: int = 0
+      nat: int = 0
+      cell_matrix_angstrom: np.ndarray = np.array([[]])
+      atomic_positions_units: str = ''
+      atomic_matrix: np.ndarray = np.array([['0','0','0','0']])
+      def extract_input_information(self,file_name: str) -> None:
+          uncommented_file = handle_comments(file_name)
+          clean_file = clean_uncommented_file(uncommented_file)
+          for line_number, line in enumerate(clean_file): 
+              splitted_line = line.split(); splitted_line.append('end')  
+              if splitted_line[0] == 'num_bands':
+                 self.nbands = int(splitted_line[1])
+              if splitted_line[0] == 'num_wann':
+                 self.nwan = int(splitted_line[1])
+              if splitted_line[0].lower() == 'begin' and splitted_line[1].lower() == 'unit_cell_cart':
+                 v1 = clean_file[line_number + 1].split()
+                 v2 = clean_file[line_number + 2].split()
+                 v3 = clean_file[line_number + 3].split()
+                 self.cell_matrix_angstrom = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
+                                      ,[float(v2[0]),float(v2[1]),float(v2[2])],
+                                      [float(v3[0]),float(v3[1]),float(v3[2])]])
+              if line.lower() == 'begin atoms_cart\n' or line.lower() == 'begin atoms_frac\n':
+                 if splitted_line[1].lower() == 'atoms_frac':
+                    self.atomic_positions_units = 'crystal'
+                 if splitted_line[1].lower() == 'atoms_cart':
+                    self.atomic_positions_units = 'cartesian'
+                 
+                 i=0
+                 while line.lower() != 'this loop is infinite':
+                     atomic_coord  = np.array(clean_file[line_number + 1 + i].split())      
+                     if atomic_coord.size == 2:
+                        break
+                     self.atomic_matrix = np.vstack((self.atomic_matrix,atomic_coord))
+                     i = i + 1
+
+          self.atomic_matrix = np.delete(self.atomic_matrix,[0],axis=0)
+          self.nat = int(self.atomic_matrix.size/4)
 if __name__ == '__main__':
    print('hi !')

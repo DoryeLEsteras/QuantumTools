@@ -1,6 +1,7 @@
 ######### Cobra directories #########
 QE_dir:  
 Wan_dir:  
+WT_dir:
 
 ######### Cobra run header #########
 #!/bin/bash -l

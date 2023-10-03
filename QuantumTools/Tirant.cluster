@@ -1,6 +1,7 @@
 ######### Tirant directories #########
 QE_dir:  /storage/home/vlc92/vlc92721/qe-6.8/bin/
 Wan_dir:  
+WT_dir:
 
 ######### Tirant run header #########
 #!/bin/bash -l
