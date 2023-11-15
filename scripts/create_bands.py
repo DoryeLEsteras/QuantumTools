@@ -21,7 +21,8 @@ def parser():
                         required=False,
                         default='none',
                         help="Desired kpath. Actual library:\n hex : hexagonal\n" +\
-                        "rmc : rectangular monoclinic\n ort : orthorombic ")
+                                "rmc : rectangular monoclinic\n ort : orthorombic\n bcc : bcc " + \
+                                "pmc : primitive monoclinic")
     args = parser.parse_args()
     return args.input,args.outdir,args.kpath
     
