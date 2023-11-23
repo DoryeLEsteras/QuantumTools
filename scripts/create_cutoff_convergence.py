@@ -1,10 +1,11 @@
 import os
+import sys
 from argparse import ArgumentParser
-
 from typing import List
 import numpy as np
-from QuantumTools.library import manage_input_dir, substitute_pattern,initialize_clusters, QECalculation
-
+from QuantumTools.directory_and_files_tools import manage_input_dir,substitute_pattern
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.qe_tools import QECalculation
 
 def parser():
     parser = ArgumentParser(description="Script to converge the cutoffs")
@@ -76,6 +77,7 @@ def create_total_scan():
             elif wfc == 0 and rho != 0:
               cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
     return cluster_name_list
+
 def create_launcher(cluster_name_list:List):
     for cluster_name in cluster_name_list:
         with open(os.path.join(outdir,cluster_name.lower() +'.launcher_for_cutoff_convergence.sh') ,'w') as file:
@@ -89,6 +91,10 @@ def create_launcher(cluster_name_list:List):
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
+   if wfcmin == 0 and wfcmax == 0 and rhomax == 0 and rhomin == 0:
+      print('!!!NO CUTOFF RANGE PROVIDED!!! --> ABORT')
+      sys.exit()
    file_name,file_dir = manage_input_dir(file_dir_and_name)
    cluster_name_list = create_total_scan()
+   print(cluster_name_list)
    create_launcher(cluster_name_list)

@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 
-from QuantumTools.library import (QECalculation, initialize_clusters,
-                                  manage_input_dir)
+from QuantumTools.qe_tools import QECalculation 
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
 
 
 def parser():
@@ -22,7 +23,7 @@ def parser():
     return args.input,args.outdir
 
 def create_pp(scf_input_name:str,output_dir:str)-> None: 
-    ba_file_name = scf_input_name.replace('scf','ba.pp')
+    ba_file_name = scf_input_name.replace('scf','wf.pp')
     ba_file = open(output_dir + '/' + ba_file_name, 'w')
     ba_file.write('&inputpp\n')
     ba_file.write("prefix = '" +str(Scf.prefix)+ "'\n")

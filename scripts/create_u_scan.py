@@ -1,9 +1,11 @@
 import re
-from QuantumTools.library import substitute_pattern,manage_input_dir, initialize_clusters, QECalculation
 import numpy as np
 import os
 from typing import List
 from argparse import ArgumentParser
+from QuantumTools.directory_and_files_tools import substitute_pattern,manage_input_dir 
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.qe_tools import QECalculation
 
 # requires an input that already includes a particular value of Hubbard U
 

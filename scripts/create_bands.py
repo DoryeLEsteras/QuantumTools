@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
+from QuantumTools.band_tools import DFT_Kpath_dict
+from QuantumTools.qe_tools import QECalculation
+
+"""
 from QuantumTools.library import initialize_clusters, \
      QECalculation, manage_input_dir,DFT_Kpath_dict
+"""
 
 def parser():
     parser = ArgumentParser(description="Script to create band calculation inputs")

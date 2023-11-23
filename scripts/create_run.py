@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 
-from QuantumTools.library import initialize_clusters, manage_input_dir
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
 
 
 def parser():
@@ -15,19 +16,19 @@ def parser():
     parser.add_argument("-calculation", "--calculation",
                         type=str,
                         required=True,
-                        help="""Calculation type for the run, options available:\n
-                                -basic_scf \n
-                                -spin_bands \n 
-                                -nospin_bands \n 
-                                -projected \n 
-                                -cd \n 
-                                -sd \n 
-                                -bader\n
-                                -band_alignment\n
-                                -spin_wannier \n 
-                                -nospin_wannier \n
-                                -force_theorem  \n 
-                                -wt  \n 
+                        help="""Calculation type for the run, options available:
+                                basic_scf, 
+                                spin_bands, 
+                                nospin_bands,  
+                                projected,  
+                                cd,  
+                                sd,  
+                                bader, 
+                                band_alignment, 
+                                spin_wannier,  
+                                nospin_wannier, 
+                                force_theorem, 
+                                wt, 
                              """)
     args = parser.parse_args()
     return args.input,args.calculation

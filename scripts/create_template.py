@@ -1,5 +1,7 @@
+#!/usr/bin/python3
 from argparse import ArgumentParser
-from QuantumTools.library import manage_input_dir,initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
+from QuantumTools.cluster_tools import initialize_clusters
 
 def parser():
     parser = ArgumentParser(description="Script to create a basic template for QE")

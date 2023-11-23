@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
 from typing import List
-
-from QuantumTools.library import (QECalculation, initialize_clusters,
-                                  manage_input_dir)
-
+from QuantumTools.qe_tools import QECalculation
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
 
 def parser():
     parser = ArgumentParser(description="Script to create inputs for Force theorem calculations")
@@ -35,6 +34,7 @@ def parser():
                         help="Label of the magnetic atoms. Separator: spaces.")
     args = parser.parse_args()
     return args.input,args.outdir,args.k,args.conv,args.mat
+    
 def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
     scf_input_file_name = scf_dir + '/' + scf_input_name
     with open(scf_input_file_name, 'r') as scf_file:

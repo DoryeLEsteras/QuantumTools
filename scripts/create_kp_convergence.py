@@ -1,7 +1,8 @@
 import os
 from typing import List
-from QuantumTools.library import QECalculation,manage_input_dir
 from argparse import ArgumentParser
+from QuantumTools.qe_tools import QECalculation
+from QuantumTools.directory_and_files_tools import manage_input_dir
 
 def parser():
     parser = ArgumentParser(description="Script to converge the kpoints")
@@ -26,7 +27,8 @@ def parser():
                         help="Starting value for kpoint scanning")
     parser.add_argument("-step", "--step",
                         type=int,
-                        required=True,
+                        required=False,
+                        default='1',
                         help=" Step for kpoint scanning")
     args = parser.parse_args()
     return args.input,args.outdir,args.min,args.max,args.step

@@ -5,9 +5,10 @@ import os
 from typing import List
 import numpy as np
 import QuantumTools  # to find kmesh path
-from QuantumTools.library import (Cluster, QECalculation, Wan_Kpath_dict,
-                                  clean_uncommented_file, initialize_clusters,
-                                  manage_input_dir)
+from QuantumTools.qe_tools import QECalculation
+from QuantumTools.directory_and_files_tools import clean_uncommented_file,manage_input_dir
+from QuantumTools.cluster_tools import initialize_clusters, Cluster
+from QuantumTools.wannier90_tools import Wan_Kpath_dict
 
 
 def parser():

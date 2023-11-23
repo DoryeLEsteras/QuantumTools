@@ -1,7 +1,9 @@
-from QuantumTools.library import manage_input_dir, initialize_clusters, QECalculation,WannierCalculation
 import numpy as np
 from argparse import ArgumentParser
-
+from QuantumTools.directory_and_files_tools import manage_input_dir
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.qe_tools import QECalculation
+from QuantumTools.wannier90_tools import WannierCalculation
 
 def parser():
     parser = ArgumentParser(description="Script to create WT file")
