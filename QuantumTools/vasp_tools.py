@@ -19,4 +19,3 @@ class Outcar:
                       if line[0] == 'Dimension' and line[2] == 'arrays:':
                          line = f.readline().split()
                          self.nbands = int(line[-1])
-          print(self.nbands,self.nk,self.ispin)
