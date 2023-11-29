@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 from QuantumTools.directory_and_files_tools import manage_input_dir
+from QuantumTools.vasp_tools import Outcar
 
 def parser():
     parser = ArgumentParser(description="Script for Wannier bands with VASP")
@@ -12,6 +13,13 @@ def parser():
                         help="""
                         Relative or absolute path for the OUTCAR file 
                         """)
+    parser.add_argument("-outdir", "--outdir",
+                       type=str,
+                       required=False,
+                       default='',
+                       help="""
+                       Number of high symmetry points in the band calculation
+                       """) 
     parser.add_argument("-hs", "--hs",
                        type=int,
                        required=True,
@@ -19,44 +27,16 @@ def parser():
                        Number of high symmetry points in the band calculation
                        """) 
     args = parser.parse_args()
-    return args.outcar, args.hs
+    return args.outcar, args.outdir,args.hs
 
-def vasp_extract_nk(file_name:str) -> int:
-    with open (file_name,'r') as f:
-         for line in f:
-             line = line.split()
-             if len(line)>1: 
-                if line[0] == 'Generated' and line[-1] == 'k-points:':
-                   nkpoints = int(line[-2])
-    return nkpoints
-
-def vasp_extract_ispin(file_name:str) -> int:
-    with open (file_name,'r') as f:
-         for line in f:
-             line = line.split()
-             if len(line)>1: 
-                if line[0] == 'ISPIN':
-                   ispin = int(line[2])
-    return ispin
-
-def vasp_extract_nbands(file_name:str) -> int:
-    with open (file_name,'r') as f:
-         for line in f:
-             line = line.split()
-             if len(line)>1: 
-                if line[0] == 'Dimension' and line[2] == 'arrays:':
-                   line = f.readline().split()
-                   nbands = int(line[-1])
-    return nbands
-
-def vasp_extract_band_kpoints(nk:int,high_symmetry_points_number:int) -> np.ndarray:
+def vasp_extract_band_kpoints(high_symmetry_points_number:int) -> np.ndarray:
     with open (outcar,'r') as f:
          for line in f:
              line = line.split()
              if len(line)> 1:
                 if line[0] == 'k-points' and line[-1] == 'h' and line[4] == '2pi/SCALE': 
-                   k_matrix = np.zeros((nk+1,3))
-                   for i in range(nk):
+                   k_matrix = np.zeros((Vasp_outcar.nk+1,3))
+                   for i in range(Vasp_outcar.nk):
                        line = f.readline().split()
                        k_matrix[i+1][0] = float(line[0])
                        k_matrix[i+1][1] = float(line[1])
@@ -64,54 +44,54 @@ def vasp_extract_band_kpoints(nk:int,high_symmetry_points_number:int) -> np.ndar
     distance = np.array([])
     kvector = np.array([0])
     band_points = np.array([])
-    for i in range(1, nk+1, 1):
+    for i in range(1, Vasp_outcar.nk+1, 1):
         distance = np.append(distance,np.linalg.norm(k_matrix[i][:]-k_matrix[i-1][:]))
     for x in range(1, len(distance), 1):
         kvector = np.append(kvector,distance[x] + kvector[x-1])
     #nstep = high_symmetry_points_number - 1
-    for j in range(0, len(kvector), int(nk/high_symmetry_points_number)):
+    for j in range(0, len(kvector), int(Vasp_outcar.nk/high_symmetry_points_number)):
         band_points = np.append(band_points,kvector[j])
     print(band_points)
     return band_points,kvector
 
-def vasp_extract_electronic_bands(nk:int,nbands:int,ispin:int,kvector:np.ndarray)-> None:
-    bands_up = np.zeros((nbands,nk))
-    bands_down = np.zeros((nbands,nk))
+def vasp_extract_electronic_bands(kvector:np.ndarray)-> None:
+    bands_up = np.zeros((Vasp_outcar.nbands,Vasp_outcar.nk))
+    bands_down = np.zeros((Vasp_outcar.nbands,Vasp_outcar.nk))
     with open (outcar,'r') as f:
         for line in f:
             line = line.split()
             if len(line)>1: 
                 if line[0] == 'Fermi' and line[1] == 'energy:':
                    f.readline();f.readline()
-                   for k in range(nk):
+                   for k in range(Vasp_outcar.nk):
                        f.readline();f.readline();f.readline()
-                       for band in range(nbands):
+                       for band in range(Vasp_outcar.nbands):
                            line = f.readline().split()[1] 
                            bands_up[band][k] = line
                    f.readline();f.readline();f.readline()
-                   for k in range(nk):
+                   for k in range(Vasp_outcar.nk):
                        f.readline();f.readline();f.readline()
-                       for band in range(nbands):
+                       for band in range(Vasp_outcar.nbands):
                            line = f.readline().split()[1] 
                            bands_down[band][k] = line
     band_vector_up = np.array([])
     band_vector_down = np.array([])
-    for dim1 in range(nbands):
+    for dim1 in range(Vasp_outcar.nbands):
         band_vector_up = np.append(band_vector_up,bands_up[:][dim1])
         band_vector_up = np.append(band_vector_up,' ')
-    if ispin == 2:
-       for dim1 in range(nbands):
+    if Vasp_outcar.ispin == 2:
+       for dim1 in range(Vasp_outcar.nbands):
            band_vector_down = np.append(band_vector_down,bands_down[:][dim1])
            band_vector_down = np.append(band_vector_down,' ')
 
     kp = np.append(kvector,' ')
     kpf = np.array([])
-    for i in range(0,nbands):
+    for i in range(0,Vasp_outcar.nbands):
         kpf = np.append(kpf,kp)
-    with open(os.path.join(outcar_dir,'dft_up.dat.gnu'),'w') as f:
+    with open(os.path.join(outdir,'dft_up.dat.gnu'),'w') as f:
         for element in range(len(kpf)):
             f.write(str(kpf[element]) + ' ' + str(band_vector_up[element]) + '\n')
-    with open(os.path.join(outcar_dir,'dft_down.dat.gnu'),'w') as f:
+    with open(os.path.join(outdir,'dft_down.dat.gnu'),'w') as f:
         for element in range(len(kpf)):
             f.write(str(kpf[element]) + ' ' + str(band_vector_down[element]) + '\n') 
 
@@ -139,11 +119,14 @@ def plot_wannier_and_dft_bands(wannier_bands_up:str,wannier_bands_down:str,kpf:n
 """    
 
 if __name__ == '__main__':
-    outcar,high_symmetry_points_number = parser()
+    outcar,outdir,high_symmetry_points_number = parser()
     outcar_name,outcar_dir = manage_input_dir(outcar)
-    ispin = vasp_extract_ispin(outcar)
-    nb = vasp_extract_nbands(outcar)
-    nk = vasp_extract_nk(outcar)
-    band_points,kvector = vasp_extract_band_kpoints(nk,high_symmetry_points_number)
-    vasp_extract_electronic_bands(nk,nb,ispin,kvector)
+    if outdir == '':
+       outdir = outcar_dir 
+
+    Vasp_outcar = Outcar()
+    Vasp_outcar.extract_information(outcar)
+    
+    band_points,kvector = vasp_extract_band_kpoints(high_symmetry_points_number)
+    vasp_extract_electronic_bands(kvector)
     #plot_wannier_and_dft_bands(wannier_bands_up,wannier_bands_down,kpf,dft_bands_up)

@@ -28,7 +28,8 @@ setup(
          'scripts/create_run.py',
          'scripts/create_template.py',
          'scripts/create_u_scan.py',
-         'scripts/create_cutoff_convergence.py'
+         'scripts/create_cutoff_convergence.py',
+         'scripts/extract_vasp_bands.py'
      ],
     install_requires=[
         'numpy',
