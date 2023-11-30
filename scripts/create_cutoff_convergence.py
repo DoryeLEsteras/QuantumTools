@@ -34,7 +34,7 @@ def parser():
     parser.add_argument("-wfcstep", "--wfcstep",
                         type=int,
                         required=False,
-                        default='1',
+                        default='10',
                         help=" Step for ecutwfc scanning")
     parser.add_argument("-rhomax", "--rhomax",
                         type=int,
@@ -49,7 +49,7 @@ def parser():
     parser.add_argument("-rhostep", "--rhostep",
                         type=int,
                         required=False,
-                        default='1',
+                        default='10',
                         help=" Step for ecutrho scanning")
     args = parser.parse_args()
     return args.input,args.outdir,args.wfcmin,args.wfcmax,args.wfcstep,args.rhomin,args.rhomax,args.rhostep

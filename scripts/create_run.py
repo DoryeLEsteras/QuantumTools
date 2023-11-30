@@ -28,7 +28,7 @@ def parser():
                                 spin_wannier,  
                                 nospin_wannier, 
                                 force_theorem, 
-                                wt, 
+                                wt 
                              """)
     args = parser.parse_args()
     return args.input,args.calculation

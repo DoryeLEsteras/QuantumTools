@@ -1,57 +1,55 @@
 .. installation:
 
-*******
-Scripts
-*******
+******************
+create_template.py
+******************
 
-Installation of python
-======================
-First, you need python3 (>=3.7) installed in your machine. Once python is installed, you can use pip (or pip3) to install the following packages:
+Usage
+=====
 
-* NumPy
-
-
-Installation with pip
-======================
-After these requirements are satisfied, QuantumTools can be installed using pip with the command:
+The first thing you can do to start a project, is create a template for your structure. This template contains all the basic flags you should consider in a QuantumEspresso calculation.
+It is fast, and avoids forgetting an important flag in the modelling of the systems. To do this you can use the 'create_template.py' script:
 
 .. code-block:: console
 
-   pip install QuantumTools
+   create_template.py -input qe.scf.in -calculation scf -version new
 
-or depending on your installation:
+This execution creates a QuantumEspresso file called 'qe.scf.in' with the parameters required for the selected calculation type (scf, relax or vc-relax). 
 
-.. code-block:: console
 
-   pip3 install QuantumTools
+.. note::
+   An important point to consider is that in QuantumEspresso version 7.0, the input format was changed (in particular for the Hubbard corrections). Because of this, you create_template has a flag called 'version' to generate templates for the 'old' or 'new' versions.
 
-Update Version
-==============
 
-For updating the version of the code, upgrade using pip:
+Options
+=======
 
-.. code-block:: console
+.. _create_template:
 
-   pip install QuantumTools --upgrade
+-input, --input
+---------------
+Name for the template 
 
-Installing from source
-======================
+   Optional: No
+   Type: str
 
-Start clonning the project to your machine:
+-calculation, --calculation
+---------------------------
+Type of calculation to run
+   
+   Optional: No 
+   
+   Type: str
 
-.. code-block:: python
+   Options: scf, relax, vc-relax
 
-   git clone https://github.com/DoryeLEsteras/QuantumTools.git
 
-* Enter in the main folder:
+-version, --version
+-------------------
+Version of QuantumEspresso to format the template (< 7.0 or >= 7.0)
 
-.. code-block:: python
+   Optional: No 
+   
+   Type: str
 
-   cd QuantumTools
-
-* Run pip (or pip3) locally:
-
-.. code-block:: console
-
-   pip install .
-
+   Options: old, new

@@ -1,8 +1,13 @@
 .. scripts_cover :
 
-************************************
-Introduction to QuantumTools scripts
-************************************
+****************************
+Introduction to QuantumTools 
+****************************
+
+
+Presentation
+============
+QuantumTools is a package oriented to automatize the input creation associated to Density Functional Theory calculations. Working in DFT requires many skills, however, an important part of the time is spent in a cluster, creating inputs and running computationally expensive calculations, where a single mistake can ruin months of work. Also, a genuine characteristic of DFT softwares is their complexity, thus the learning process is usually slow and difficult. QuantumTools offers a workflow that makes running DFT calculations very accessible for beginners, at the same time that drastically reduces the user efforts and time spent creating and manipulating files, giving you efficiency and avoiding costly errors in your DFT journey. In the current version QuantumTools is focused in QuantumEspresso and the interface between QuantumEspresso with other packages such as Wannier90, WannierTools, TB2J and spinW.Extending the workflow to other DFT codes is under development.
 
 Workflow
 ========
@@ -12,7 +17,7 @@ The QuantumTools workflow is organized in three main pilars. 1) The automatizati
 * Learn about the 'create' scripts
 * Learn about the 'extract' scripts
 
-At the moment, the package is highly focused in creation over extraction, thus extract scripts are more limited. Also, the majority of the tools are based in QuantumEspresso and the interface of other packages such as Wannier90, WannierTools, TB2J and spinW with QuantumEspresso. Extending the workflow to other DFT codes is under development.
+At the moment, the package is highly focused in creation over extraction, thus extract scripts are more limited.
 
 Examples of usage
 =================
