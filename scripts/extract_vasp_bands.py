@@ -52,6 +52,7 @@ def vasp_extract_band_kpoints(high_symmetry_points_number:int) -> np.ndarray:
     #nstep = high_symmetry_points_number - 1
     for j in range(0, len(kvector), int(Vasp_outcar.nk/high_symmetry_points_number)):
         band_points = np.append(band_points,kvector[j])
+    band_points = np.append(band_points,kvector[-1])
     print(band_points)
     return band_points,kvector
 
