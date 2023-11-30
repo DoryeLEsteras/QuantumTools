@@ -4,9 +4,9 @@ from typing import List
 import os
 import numpy as np
 #from subprocess import run
-from QuantumTools.library import (QECalculation, QEoutput,
-                                  clean_uncommented_file, initialize_clusters,
-                                  manage_input_dir)
+from QuantumTools.qe_tools import QECalculation, QEoutput
+from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.directory_and_files_tools import clean_uncommented_file,manage_input_dir
 
 # TO DO LIST
 """
@@ -15,6 +15,8 @@ implement do something with the 0 0 0 at the right of coordinates
 the output. If the answer is yes, it should work, if not i should implement here
 how to add the new coordinates + columns from the input)
 # new options for scf
+
+Also implement optimization with cell_dofree ibrav
 """
 
 """
@@ -49,6 +51,7 @@ def parser():
  
     args = parser.parse_args()
     return args.optin,args.optout,args.newname
+
 def substitute_coordinates(file_vector:List[str], new_coordinates: np.ndarray) -> List[str]:
    for line_number,line in enumerate(file_vector):
       splited_line = line.split();splited_line.append('end')
@@ -59,6 +62,7 @@ def substitute_coordinates(file_vector:List[str], new_coordinates: np.ndarray) -
            file_vector[line_number + i +1] = file_vector[line_number + i +1].replace("'","")
            file_vector[line_number + i +1] = file_vector[line_number + i +1] +'\n'
    return file_vector
+
 def substitute_cell_parameters(file_vector:List[str], new_cell_parameters: np.ndarray) ->List[str]:          
    for line_number,line in enumerate(file_vector):
        splited_line = line.split();splited_line.append('end')
@@ -97,6 +101,7 @@ def substitute_cell_parameters(file_vector:List[str], new_cell_parameters: np.nd
              str(Optimization.a*new_cell_parameters[2]).replace(']','').replace('[','') + '\n' + \
              file_vector[line_number]
    return file_vector
+
 def generate_input(opt_input_dir_and_name:str,new_file_name:str):
    input_file = open(opt_input_dir_and_name,'r')
    file_vector = input_file.readlines()  

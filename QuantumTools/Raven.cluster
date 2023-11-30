@@ -10,7 +10,7 @@ WT_dir:
 #SBATCH -D ./
 
 # Job Name
-#SBATCH --job-name= job_name
+#SBATCH --job-name=job_name
 #SBATCH --nodes=1
 #SBATCH --mem=200gb
 #SBATCH --partition=interactive

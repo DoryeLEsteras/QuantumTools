@@ -25,6 +25,7 @@ setup(
          'scripts/create_u_scan.py',
          'scripts/create_updated_optimization.py',
          'scripts/create_cutoff_convergence.py',
+         'scripts/create_kp_convergence.py',
          'scripts/extract_vasp_bands.py',
          'scripts/extract_repaired_bands.py',     
          'scripts/extract_fatbands.py',
