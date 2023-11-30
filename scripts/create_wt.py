@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import numpy as np
 from argparse import ArgumentParser
 from QuantumTools.directory_and_files_tools import manage_input_dir
