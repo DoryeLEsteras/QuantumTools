@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+      <title>Introduction to QuantumTools scripts</title>
+    
+          <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../_static/theme.css " type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../_static/theme-vendors.js"></script> -->
+      <script src="../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../genindex.html" />
+  <link rel="search" title="Search" href="../search.html" />
+  <link rel="next" title="Released versions" href="../package_versions/index.html" />
+  <link rel="prev" title="Tutorials" href="index.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../index.html" class="home-link">
+    
+      <span class="site-name">QuantumTools</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../index.html#welcome-to-quantumtools-package">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../installation.html" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="index.html" class="reference internal ">Tutorials</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../package_versions/index.html" class="reference internal ">Released versions</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="index.html">Tutorials</a> &raquo;</li>
+    
+    <li>Introduction to QuantumTools scripts</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="index.html"
+       title="previous chapter">← Tutorials</a>
+  </li>
+  <li class="next">
+    <a href="../package_versions/index.html"
+       title="next chapter">Released versions →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="introduction-to-quantumtools-scripts">
+<h1>Introduction to QuantumTools scripts<a class="headerlink" href="#introduction-to-quantumtools-scripts" title="Permalink to this heading">¶</a></h1>
+<section id="workflow">
+<h2>Workflow<a class="headerlink" href="#workflow" title="Permalink to this heading">¶</a></h2>
+<p>The QuantumTools workflow is organized in three main pilars. 1) The automatization of input creation for your DFT softwares, 2) The synchronization with your cluster to create the run files for your calculations and 3) Extraction tools for treating the obtained outputs. To start with the workflow, documentation is structured in this three pilars:</p>
+<ul class="simple">
+<li><p>Sync your cluster’s batch files</p></li>
+<li><p>Learn about the ‘create’ scripts</p></li>
+<li><p>Learn about the ‘extract’ scripts</p></li>
+</ul>
+<p>At the moment, the package is highly focused in creation over extraction, thus extract scripts are more limited. Also, the majority of the tools are based in QuantumEspresso and the interface of other packages such as Wannier90, WannierTools, TB2J and spinW with QuantumEspresso. Extending the workflow to other DFT codes is under development.</p>
+</section>
+<section id="examples-of-usage">
+<h2>Examples of usage<a class="headerlink" href="#examples-of-usage" title="Permalink to this heading">¶</a></h2>
+<p>To illustrate the workflow, two examples are shown. The first one represents the automatization of inputs and runs for the interface with an external package, Wannier90.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">create_wannier.py -input qe.scf.in -k 9 9 9 -kpath hex -nbands 100 -nwan 20 -Mo 10 -mo -10 -Mi 2 -mi -2 -orb Fe:d-P:s,p-S:s,p</span>
+</pre></div>
+</div>
+<p>This script creates using the scf input qe.scf.in all the files to run a Wannier calculation, considering if the system is non-magnetic, magnetic (two separated calculations) or magnetic noncollinear.</p>
+<p>Moreover, it creates a run ready to sbatch the calculations for each synchronized cluster.</p>
+<p>Example of the created run of a particular cluster (magnetic wannier):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--output<span class="o">=</span>task.out.%j
+<span class="gp">#</span>SBATCH<span class="w"> </span>--error<span class="o">=</span>task.err.%j
+<span class="gp">#</span>SBATCH<span class="w"> </span>-D<span class="w"> </span>./
+
+<span class="gp"># </span>Job<span class="w"> </span>Name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span><span class="w"> </span>job_name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--mem<span class="o">=</span>200gb
+<span class="gp">#</span>SBATCH<span class="w"> </span>--partition<span class="o">=</span>interactive
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">72</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">0</span>-01:59:00
+
+<span class="gp">#</span>Libraries<span class="w"> </span>and<span class="w"> </span>modules
+<span class="go">module load intel/21.5.0</span>
+<span class="go">module load  impi/2021.5</span>
+<span class="go">module load mkl/2022.2</span>
+<span class="go">module load qe/6.8</span>
+<span class="go">module load wannier90/3.1.0</span>
+
+<span class="go">srun pw.x -i qe.scf.in &gt; qe.scf.out</span>
+<span class="go">srun pw.x -i qe.nscf.in &gt; qe.nscf.out</span>
+<span class="go">srun wannier90.x -pp qe.up.win</span>
+<span class="go">srun pw2wannier90.x -i qe.up.pw2wan.in &gt; qe.up.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.up.win</span>
+<span class="go">srun wannier90.x -pp qe.down.win</span>
+<span class="go">srun pw2wannier90.x -i qe.down.pw2wan.in &gt; qe.down.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.down.win</span>
+</pre></div>
+</div>
+<p>Example of the created run in a cluster with different configuration (non-magnetic wannier):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span><span class="w"> </span>job_name
+<span class="gp">#</span><span class="c1">#SBATCH --nodes= 2</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--workdir<span class="o">=</span>./
+<span class="gp">#</span>SBATCH<span class="w"> </span>--output<span class="o">=</span>task.out.%j
+<span class="gp">#</span>SBATCH<span class="w"> </span>--error<span class="o">=</span>task.err.%j
+<span class="gp">#</span><span class="c1">#SBATCH --mem-per-cpu=2GB</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks<span class="o">=</span><span class="m">32</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">1</span>
+<span class="gp">#</span><span class="c1">#SBATCH --tasks-per-node=8</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">0</span>-03:10:00
+
+<span class="go">export LD_LIBRARY_PATH=/storage/apps/Intel_Comp/xe_2019u4/mpi/intel64/:$LD_LIBRARY_PATH</span>
+
+<span class="go">module load intel/2018.3.222</span>
+<span class="go">module load mkl/2018.3.222</span>
+<span class="go">module load impi/2018.3.222</span>
+<span class="go">module load hdf5/1.10.1</span>
+<span class="go">module load wannier90/3.1</span>
+
+<span class="go">ulimit -s unlimited</span>
+<span class="go">export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}</span>
+
+<span class="go">srun /storage/home/vlc93/qe-6.8/bin/pw.x -i qe.scf.in &gt; qe.scf.out</span>
+<span class="go">srun /storage/home/vlc93/qe-6.8/bin/pw.x -i qe.nscf.in &gt; qe.nscf.out</span>
+<span class="go">srun wannier90.x -pp qe.win</span>
+<span class="go">srun /storage/home/vlc93/qe-6.8/bin/pw2wannier90.x -i qe.pw2wan.in &gt; qe.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.win</span>
+</pre></div>
+</div>
+<p>The second example illustrates a case that requires to prepare decens or hundreds of files,the convergence of a cutoff in QuantumEspresso:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">create_cutoff_convergence.py -input qe.scf.in -wfcmin 50 -wfcmax 150 -rhomin 500 -rhomax 1500 -wfcstep 10 -rhostep 100</span>
+</pre></div>
+</div>
+<p>The previous script will generate a sizable grid of calculations, with their respective run.sh files and a launcher ready to submit everything. This represents a clear case where automatization saves a lot of time and avoid errors. However, this way of using the cutoff script is too based in brute force, because of that, the next sections have the purpose of teaching how to use appropriately this and the rest of scripts in QuantumTools package..</p>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="index.html"
+       title="previous chapter">← Tutorials</a>
+  </li>
+  <li class="next">
+    <a href="../package_versions/index.html"
+       title="next chapter">Released versions →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, DoryeLEsteras.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.2.1 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

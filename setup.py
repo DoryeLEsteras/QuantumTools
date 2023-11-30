@@ -20,16 +20,15 @@ setup(
          'scripts/create_bader.py',
          'scripts/create_work_function.py',
          'scripts/create_ft.py',
-         'scripts/repair_bands.py',     
-         'scripts/fatbands_filter.py',
-#         'scripts/resolved_exchange_strain_u_plotter.py',
-         'scripts/h_reader.py',
-         'scripts/update_optimization.py',
          'scripts/create_run.py',
          'scripts/create_template.py',
          'scripts/create_u_scan.py',
+         'scripts/create_updated_optimization.py',
          'scripts/create_cutoff_convergence.py',
-         'scripts/extract_vasp_bands.py'
+         'scripts/extract_vasp_bands.py',
+         'scripts/extract_repaired_bands.py',     
+         'scripts/extract_fatbands.py',
+         'scripts/extract_wan_h.py'
      ],
     install_requires=[
         'numpy',
