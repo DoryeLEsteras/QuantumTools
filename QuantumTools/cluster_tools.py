@@ -14,9 +14,10 @@ from typing import List
  If a new mode is added, remember to update the parser or create_run.py
 """
 
-def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,run_prefix:str,extra_info='')-> str:
-    global cluster_name_list 
-    cluster_name_list = ['Tirant','Cobra','Raven']
+def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,run_prefix:str,extra_info='')-> str: 
+    QT_directory = QuantumTools.__file__.replace('__init__.py','')
+    with open(QT_directory + 'Cluster.config','r') as f:
+         cluster_name_list = f.read().replace('.cluster','').split()
     number_of_clusters = len(cluster_name_list)
     cluster_dict = dict.fromkeys(cluster_name_list)
     for i in cluster_name_list:

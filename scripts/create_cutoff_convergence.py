@@ -7,7 +7,7 @@ import numpy as np
 from QuantumTools.directory_and_files_tools import manage_input_dir,substitute_pattern
 from QuantumTools.cluster_tools import initialize_clusters
 from QuantumTools.qe_tools import QECalculation
-
+import QuantumTools
 def parser():
     parser = ArgumentParser(description="Script to converge the cutoffs")
     parser.add_argument("-input", "--input",
@@ -69,18 +69,19 @@ def create_total_scan():
                 readed_file = substitute_pattern(readed_file,'ecutrho', rho)
                 new_file_name = new_file_name.replace('.scf','.rho.'+ str(rho) + '.scf')
             file_to_print = readed_file.replace(Scf.prefix,Scf.prefix + '_wfc_' + str(wfc) + '_rho_' + str(rho))
-            print(file_to_print)
             with open(os.path.join(outdir,new_file_name),'w') as new_file:
                  new_file.write(file_to_print)    
             if wfc != 0 and rho != 0:
-              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc) + '.rho.' + str(rho))   
+                 initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc) + '.rho.' + str(rho))   
             elif wfc != 0 and rho == 0:
-              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc))
+                 initialize_clusters('basic_scf',outdir,new_file_name,'.wfc.' + str(wfc))
             elif wfc == 0 and rho != 0:
-              cluster_name_list = initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
-    return cluster_name_list
+                 initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
 
-def create_launcher(cluster_name_list:List):
+def create_launcher():
+    QT_directory = QuantumTools.__file__.replace('__init__.py','')
+    with open(QT_directory + 'Cluster.config','r') as f:
+         cluster_name_list = f.read().replace('.cluster','').split()
     for cluster_name in cluster_name_list:
         with open(os.path.join(outdir,cluster_name.lower() +'.launcher_for_cutoff_convergence.sh') ,'w') as file:
              file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
@@ -93,10 +94,9 @@ def create_launcher(cluster_name_list:List):
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
-   print(file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep)
    if wfcmin == 0 and wfcmax == 0 and rhomax == 0 and rhomin == 0:
       print('!!!NO CUTOFF RANGE PROVIDED!!! --> ABORT')
       sys.exit()
    file_name,file_dir = manage_input_dir(file_dir_and_name)
    cluster_name_list = create_total_scan()
-   create_launcher(cluster_name_list)
+   create_launcher()

@@ -9,7 +9,7 @@ setup(
     author='Dorye L. Esteras',
     author_email='dorye.esteras@uv.es',
     packages=find_packages(),
-    package_data={'QuantumTools':['*.cluster','kmesh.pl']},
+    package_data={'QuantumTools':['Cluster.config','*.cluster','kmesh.pl']},
     include_package_data=True,
     scripts=[
          'scripts/create_wannier.py',
