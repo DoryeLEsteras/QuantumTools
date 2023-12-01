@@ -12,7 +12,7 @@ Creation scripts!
    create_cutoff_convergence
    create_kp_convergence
    create_updated_optimization
-   create_u_scan
+   create_hubbard_scan
    create_bands
    create_projected
    create_wannier

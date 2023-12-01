@@ -52,7 +52,7 @@ Name of the vcrelax/relax output file.
    Type: str
 
 -newname, --newname
------------------
+-------------------
 Name for the vcrelax/relax input file for the new calculation.
    
    Optional: No if the optimization was not converged. Ignored if the optimization finished successfully.

@@ -22,7 +22,7 @@ setup(
          'scripts/create_ft.py',
          'scripts/create_run.py',
          'scripts/create_template.py',
-         'scripts/create_u_scan.py',
+         'scripts/create_hubbard_scan.py',
          'scripts/create_updated_optimization.py',
          'scripts/create_cutoff_convergence.py',
          'scripts/create_kp_convergence.py',

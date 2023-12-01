@@ -37,8 +37,7 @@ def parser():
                         help=" Step for Hubbard U scanning")
     parser.add_argument("-version", "--version",
                         type=str,
-                        required=False,
-                        default='old',
+                        required=True,
                         help="version of QE:\n version < 7.0 -> old\n version >= 7.0 -> new ")
     args = parser.parse_args()
     return args.input,args.outdir,args.min,args.max,args.step,args.version
