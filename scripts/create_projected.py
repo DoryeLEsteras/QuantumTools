@@ -20,7 +20,7 @@ def parser():
                         default='./',
                         help="Relative or absolute path for output directory ")
     parser.add_argument("-k", "--k",
-                        type=str,
+                        type=int,
                         required=True,
                         nargs='+',
                         help="kx ky kz for nscf calculation ")

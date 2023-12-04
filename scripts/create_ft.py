@@ -90,7 +90,7 @@ def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_di
         if line_to_check_vector[0] == 'outdir':
            line = "outdir = '" +  Scf.outdir.replace('tmp','tmp' + '_' + spin_direction) + "'\n"
         if line_to_check_vector[0] == 'conv_thr':
-           line = 'conv_thr =   1.0d-0' + str(conv) + '\n'
+           line = 'conv_thr =   1.0d' + str(conv) + '\n'
         if line_to_check_vector[0] == 'nspin':
            line = ''
         if line_to_check_vector[0] == '&system' or line_to_check_vector[0] == '&SYSTEM':
@@ -121,7 +121,7 @@ if __name__ == '__main__':
   if Scf.calculation_type != 'scf':
      print('ERROR: provided scf input does not correspond to scf calculation')
   if Scf.nspin == 4:
-     print('ERROR: noncolinear calculation for PDOS')
+     print('ERROR: noncolinear flags in scf')
   else:  
      file_name,file_dir = manage_input_dir(provided_scf_input_file)
      magnetic_atom_index_list,pp_list = manage_magnetic_species(file_name,file_dir)

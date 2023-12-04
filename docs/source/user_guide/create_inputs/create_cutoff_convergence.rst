@@ -1,4 +1,4 @@
-.. installation:
+.. create_cutoff_convergence:
 
 ****************************
 create_cutoff_convergence.py

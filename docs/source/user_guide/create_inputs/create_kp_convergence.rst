@@ -1,4 +1,4 @@
-.. installation:
+.. create_kp_convergence:
 
 ************************
 create_kp_convergence.py

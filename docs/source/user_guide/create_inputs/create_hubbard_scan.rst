@@ -1,4 +1,4 @@
-.. installation:
+.. create_hubbard_scan:
 
 **********************
 create_hubbard_scan.py

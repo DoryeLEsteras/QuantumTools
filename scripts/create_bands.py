@@ -26,7 +26,7 @@ def parser():
     parser.add_argument("-kpath", "--kpath",
                         type=str,
                         required=False,
-                        default='none',
+                        default='ort',
                         help="Desired kpath. Actual library:\n hex : hexagonal\n" +\
                                 "rmc : rectangular monoclinic\n ort : orthorombic\n bcc : bcc " + \
                                 "pmc : primitive monoclinic")

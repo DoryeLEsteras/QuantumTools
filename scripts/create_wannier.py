@@ -67,6 +67,7 @@ def parser():
                         help="Minimum for inner window")
     parser.add_argument("-orb", "--orb",
                         type=str,
+                        nargs='+',
                         required=False,
                         default='',
                         help="""Set projectors for Wannier90 \n
