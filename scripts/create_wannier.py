@@ -195,7 +195,6 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
 def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                      mo:float, Mi:float, mi:float, projectors:str,k:List[int]) -> None: 
     win_output_name = seed + '.win'
-    projectors = projectors.split(' ')
     with open(os.path.join(file_dir,win_output_name), 'w') as win_file:
          win_file.write(f"{'!'*80}\n")
          win_file.write(f"{'!'*30}VARIABLES TO SELECT{'!'*31}\n")
