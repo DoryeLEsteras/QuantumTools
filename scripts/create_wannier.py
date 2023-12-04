@@ -28,7 +28,7 @@ def parser():
     parser.add_argument("-kpath", "--kpath",
                         type=str,
                         required=False,
-                        default='none',
+                        default='ort',
                         help="Desired kpath\n actual library:\n hex : hexagonal\n pmc : primitive  monoclinic\n ort : orthorombic\n bcc : bcc\n")
     parser.add_argument("-k", "--k",
                         type=int,
