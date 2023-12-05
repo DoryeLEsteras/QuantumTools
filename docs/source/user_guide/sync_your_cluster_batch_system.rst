@@ -1,3 +1,0 @@
-
-Synchronize your clusters!
-==========================

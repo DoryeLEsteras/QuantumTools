@@ -6,35 +6,11 @@ Installation
 
 Prerequisites
 =============
-First, you need python3 (>=3.7) installed in your machine. Once python is installed, you can use pip (or pip3) to install the following packages:
+First, you need python3 (>=3.7) installed in your machine. Once python is installed, you can use pip (or pip3) to install the following packages if they are missing:
 
 * NumPy
 
-
-Installation with pip
-=====================
-After these requirements are satisfied, QuantumTools can be installed using pip with the command:
-
-.. code-block:: console
-
-   pip install QuantumTools
-
-or depending on your installation:
-
-.. code-block:: console
-
-   pip3 install QuantumTools
-
-Update Version
-==============
-
-For updating the version of the code, upgrade using pip:
-
-.. code-block:: console
-
-   pip install QuantumTools --upgrade
-
-Installing from source
+Installing from Github
 ======================
 
 Start clonning the project to your machine:
@@ -55,3 +31,6 @@ Start clonning the project to your machine:
 
    pip install .
 
+.. note::
+
+   An important feature of QuantumTools is the setup of your cluster system. Please take a look to the next section, 'Tutorials: Synchronize your clusters!''

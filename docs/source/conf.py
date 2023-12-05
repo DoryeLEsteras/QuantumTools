@@ -5,7 +5,9 @@ project = 'QuantumTools'
 copyright = '2023, DoryeLEsteras'
 author = 'DoryeLEsteras'
 
-extensions = []
+extensions = [ 
+    "sphinx_copybutton",
+    ]
 
 templates_path = ['_templates']
 exclude_patterns = []
@@ -18,7 +20,8 @@ variables_to_export = [
 
 html_context = {
     "default_mode": "light",
-    "display_github": False,
+    "display_version": True,
+    "display_github": True,
     "github_user": "DoryeLEsteras",
     "github_repo": "QuantumTools",
     "doc_path": "docs/source",

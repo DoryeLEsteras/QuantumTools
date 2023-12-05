@@ -8,13 +8,14 @@ Usage
 =====
 
 This is another script working in the interface between softwares. In particular, Wannier90-WannierTools.
-Given WannierTools inputs are complex and allow to do many different calculations, this script does not provide a complete
-input, but provides a template containing all the necessary parameters you can be interested in. It saves time and avoids missing important flags.
+Given WannierTools inputs are complex and allow to do many different calculations,
+this script does not provide a complete input, but provides a template containing
+all the necessary parameters you can be interested in. It saves time and avoids missing important flags.
 
 
 .. code-block:: console
 
-   create_wt.py -win qe.win
+   create_wt.py -win /mydir/qe.win
 
 Options
 =======
@@ -23,7 +24,7 @@ Options
 
 -win, --win
 ---------------
-Name of the initial Wannier input file
+Initial Wannier input file
 
    Optional: No
 

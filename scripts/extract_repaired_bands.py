@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import numpy as np
 from argparse import ArgumentParser
-from QuantumTools.library import count_nbands,count_nk
+from QuantumTools.band_tools import count_nbands,count_nk
+
 # To Do List
 """
 just valid for homogeneous kpoints (ex: 20 20 20)
@@ -31,7 +32,7 @@ def parser():
                        help="""
                        bands file to be repaired
                        """)  
-    parser.add_argument("-nk", "--nk",
+    parser.add_argument("-hs", "--hs",
                        type=int,
                        required=True,
                        help="""
@@ -39,7 +40,7 @@ def parser():
                        (bands.in)
                        """)                            
     args = parser.parse_args()
-    return args.input, args.bands ,args.nk
+    return args.input, args.bands ,args.hs
 def extract_healthy_kp(bands_out_file:str,nk:int)-> np.ndarray:
     kpoints_x = np.array([]);kpoints_y = np.array([]);kpoints_z = np.array([])
     bands_out = open(bands_out_file, "r")

@@ -11,7 +11,7 @@ This tool creates the files for performing a Bader analysis of charge transfer:
 
 .. code-block:: console
 
-   create_bader.py -input qe.scf.in 
+   create_bader.py -input /mydir/qe.scf.in 
 
 Options
 =======
@@ -20,7 +20,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 

@@ -1,5 +1,7 @@
-Welcome to QuantumTools Package !!!
+QuantumTools
 =========================================
+
+:Release version: |version|
 
 .. toctree::
    :maxdepth: 2

@@ -11,7 +11,7 @@ This is a very simple tool for charge density calculations:
 
 .. code-block:: console
 
-   create_charge_density.py -input qe.scf.in 
+   create_charge_density.py -input /mydir/qe.scf.in 
 
 Options
 =======
@@ -20,7 +20,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 

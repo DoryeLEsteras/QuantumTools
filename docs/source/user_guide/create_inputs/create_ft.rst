@@ -7,17 +7,21 @@ create_ft.py
 Usage
 =====
 
-The next tool creates the necessary input to perform MAE (magnetic anisotropy energy) according to the Force Theorem. As a result, three nscf files (with spin pointing in x, y, z) will start from the previous 
-scf calculations.
+The next tool creates the necessary inputs to perform MAE (magnetic anisotropy energy)
+calculations according to the Force Theorem. As a result, three nscf files 
+(with spin pointing in x, y, z) will start from the previous scf calculations.
 
 .. code-block:: console
 
-   create_ft.py -input qe.scf.in -k 30 30 1 -conv -8 -mat Cr1 Cr2
+   create_ft.py -input /mydir/qe.scf.in -k 30 30 1 -conv -8 -mat Cr1 Cr2
 
-This execution will create the corresponding files to perform the calculations, considering a convergence criteria for the charge density of 10^-6 and considering both species, Cr1 and Cr2 for the spin orientation.
+This execution will create the corresponding files to perform the calculations, 
+considering a convergence criteria for the charge density of 10^-6 and considering
+both species, Cr1 and Cr2 for the spin orientation.
 
 .. note::
-   An important thing to consider, is that nscf calculations should include relativistic pseudopotentials. The script will print a message to remind you to check their names in nscf files.
+   An important thing to consider, is that nscf calculations should include relativistic
+   pseudopotentials. The script will print a message to remind you to check their names in nscf files.
 
 Options
 =======
@@ -26,7 +30,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 
@@ -60,7 +64,8 @@ Convergence criterion for the nscf calculations. It is relevant for MAE calculat
 
 -mat, --mat
 -----------
-List of atom types to be considered (separated by spaces). The spin of this atoms will be oriented in the different Cartesian directions.
+List of atom types to be considered (separated by spaces). The spin of this atoms
+will be oriented in the different Cartesian directions.
    
    Optional: No
 

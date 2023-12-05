@@ -11,7 +11,7 @@ Similar to 'charge_density.py', it is straightforward to create the inputs for s
 
 .. code-block:: console
 
-   create_spin_density.py -input qe.scf.in 
+   create_spin_density.py -input /mydir/qe.scf.in 
 
 Options
 =======
@@ -20,7 +20,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 

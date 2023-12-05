@@ -7,13 +7,16 @@ create_kp_convergence.py
 Usage
 =====
 
-Another important magnitude to converge is the k-point mesh. You can converge them in a very similar way than the cutoff using this time create_kp_convergence.py:
+Another important magnitude to converge is the k-point mesh. You can converge them
+in a very similar way than the cutoff, using this time 'create_kp_convergence.py':
 
 .. code-block:: console
 
-   create_kp_convergence.py -input qe.scf.in -min 2 -max 8 -step 1
+   create_kp_convergence.py -input /mydir/qe.scf.in -min 2 -max 8 -step 1
 
-This execution will create an homogeneous grid of scf files, with different prefixes and cutoffs in the specified range. Also the run files and a launcher.sh ready to submit the calculations will be generated.
+This execution will create an homogeneous grid of scf files, with different 
+prefixes and kmesh in the specified range. Again a 
+launcher.sh ready to submit the calculations will be generated.
 
 Options
 =======
@@ -22,7 +25,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 

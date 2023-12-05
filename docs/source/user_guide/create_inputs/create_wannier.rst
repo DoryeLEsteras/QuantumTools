@@ -7,18 +7,21 @@ create_wannier.py
 Usage
 =====
 
-This script analyzes the presence of magnetism and/or spin-orbit coupling, and creates the inputs necessary to run Wannier90 calculations.
+This script analyzes the presence of magnetism and/or spin-orbit coupling, and 
+creates the inputs necessary to run Wannier90 calculations.
 It is one of the most useful scripts but also the one that requires more flags.
 
 .. code-block:: console
 
-   create_wannier.py -input qe.scf.in -kpath hex -k 6 6 6 -nbands 90 -nwan 13 -mo -5 -Mo 5 -mi 0 -Mi 2 -orb Cr:d I:p,s
+   create_wannier.py -input /mydir/qe.scf.in -kpath hex -k 6 6 6 -nbands 90 -nwan 13 -mo -5 -Mo 5 -mi 0 -Mi 2 -orb Cr:d I:p,s
 
-This execution will create the corresponding files to perform the calculations. In this example, I selected the projectors, windows, number of bands...
+This execution will create the corresponding files to perform the calculations. 
+In this example, I selected the projectors, windows, number of bands...
 All these flags are explained below.
 
 .. warning::
-   As explained in 'create_bands.py', the path library is under development, you can see the available paths in 'create_wannier.py -h'.
+   As explained in 'create_bands.py', the path library is under development, 
+   you can see the available paths in 'create_wannier.py -h'.
 
 Options
 =======
@@ -27,7 +30,7 @@ Options
 
 -input, --input
 ---------------
-Name of the initial input file
+Initial input file
 
    Optional: No
 
