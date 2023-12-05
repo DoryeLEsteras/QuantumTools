@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+      <title>create_ft.py</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+          <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../../genindex.html" />
+  <link rel="search" title="Search" href="../../search.html" />
+  <link rel="next" title="create_charge_density.py" href="create_charge_density.html" />
+  <link rel="prev" title="create_projected.py" href="create_projected.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../index.html" class="home-link">
+    
+      <span class="site-name">QuantumTools</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../index.html#quantumtools">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../cover.html" class="reference internal ">Introduction to QuantumTools</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../installation.html" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../index.html" class="reference internal ">Tutorials</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../package_versions/index.html" class="reference internal ">Released versions</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="../index.html">Tutorials</a> &raquo;</li>
+    
+      <li><a href="index.html">Creation scripts!</a> &raquo;</li>
+    
+    <li>create_ft.py</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="create_projected.html"
+       title="previous chapter">← create_projected.py</a>
+  </li>
+  <li class="next">
+    <a href="create_charge_density.html"
+       title="next chapter">create_charge_density.py →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="create-ft-py">
+<h1>create_ft.py<a class="headerlink" href="#create-ft-py" title="Permalink to this heading">¶</a></h1>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
+<p>The next tool creates the necessary inputs to perform MAE (magnetic anisotropy energy)
+calculations according to the Force Theorem. As a result, three nscf files
+(with spin pointing in x, y, z) will start from the previous scf calculations.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">create_ft.py -input /mydir/qe.scf.in -k 30 30 1 -conv -8 -mat Cr1 Cr2</span>
+</pre></div>
+</div>
+<p>This execution will create the corresponding files to perform the calculations,
+considering a convergence criteria for the charge density of 10^-6 and considering
+both species, Cr1 and Cr2 for the spin orientation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>An important thing to consider, is that nscf calculations should include relativistic
+pseudopotentials. The script will print a message to remind you to check their names in nscf files.</p>
+</div>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
+<section id="input-input">
+<span id="create-ft"></span><h3>-input, –input<a class="headerlink" href="#input-input" title="Permalink to this heading">¶</a></h3>
+<p>Initial input file</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="outdir-outdir">
+<h3>-outdir, –outdir<a class="headerlink" href="#outdir-outdir" title="Permalink to this heading">¶</a></h3>
+<p>Directory where the outputs will be generated.</p>
+<blockquote>
+<div><p>Optional: Yes</p>
+<p>Default: Directory selected with –input flag</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="k-k">
+<h3>-k, –k<a class="headerlink" href="#k-k" title="Permalink to this heading">¶</a></h3>
+<p>Number of k-points for the nscf calculations (should be specially high for these calculations)</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: List of integers</p>
+</div></blockquote>
+</section>
+<section id="conv-conv">
+<h3>-conv, –conv<a class="headerlink" href="#conv-conv" title="Permalink to this heading">¶</a></h3>
+<p>Convergence criterion for the nscf calculations. It is relevant for MAE calculations.</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: float (negative always; ex : -7 -&gt; 10^-7)</p>
+</div></blockquote>
+</section>
+<section id="mat-mat">
+<h3>-mat, –mat<a class="headerlink" href="#mat-mat" title="Permalink to this heading">¶</a></h3>
+<p>List of atom types to be considered (separated by spaces). The spin of this atoms
+will be oriented in the different Cartesian directions.</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: List of strings</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="create_projected.html"
+       title="previous chapter">← create_projected.py</a>
+  </li>
+  <li class="next">
+    <a href="create_charge_density.html"
+       title="next chapter">create_charge_density.py →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, DoryeLEsteras.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.2.1 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

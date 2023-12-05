@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+      <title>create_updated_optimization.py</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+          <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../../genindex.html" />
+  <link rel="search" title="Search" href="../../search.html" />
+  <link rel="next" title="create_hubbard_scan.py" href="create_hubbard_scan.html" />
+  <link rel="prev" title="create_kp_convergence.py" href="create_kp_convergence.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../index.html" class="home-link">
+    
+      <span class="site-name">QuantumTools</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../index.html#quantumtools">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../cover.html" class="reference internal ">Introduction to QuantumTools</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../installation.html" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../index.html" class="reference internal ">Tutorials</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../package_versions/index.html" class="reference internal ">Released versions</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="../index.html">Tutorials</a> &raquo;</li>
+    
+      <li><a href="index.html">Creation scripts!</a> &raquo;</li>
+    
+    <li>create_updated_optimization.py</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="create_kp_convergence.html"
+       title="previous chapter">← create_kp_convergence.py</a>
+  </li>
+  <li class="next">
+    <a href="create_hubbard_scan.html"
+       title="next chapter">create_hubbard_scan.py →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="create-updated-optimization-py">
+<h1>create_updated_optimization.py<a class="headerlink" href="#create-updated-optimization-py" title="Permalink to this heading">¶</a></h1>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
+<p>The objective of this tool is to help you in after the optimization of the structure.
+If the calculation was uncompleted it will create a new file and run to continue
+with the relax or vc-relax calculation, but if convegence was reached it will
+create an updated scf file with the new structure and some flags that you could
+consider for your new scf calculation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script will transform always the structures to ibrav 0 using the cell_parameters matrix.
+It is important to understand that this script is going to be one of the most
+important origins of scf files. Given that some applications such as the Wannier
+calculations just admit ibrav 0 specifying the cell parameter matrix, all the
+scripts of QuantumTools will move around this convention.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>There is one particular case in QuantumEspresso where ibrav = 0 is not admisible,
+this is the case of optimizations that use cell_dofree = ‘ibrav’. If ibrav 0
+is used in this case, your calculation will continue running but in the output
+you will see a warning and basically you will be loosing time. In this case
+is important to use ibrav != 0, but this transformation is not implemented
+yet in QuantumTools, instead ‘create_updated_optimization’ will print a
+warning to remind you that if you selected this conditions by purpose,
+you should manually move to ibrav !=0.</p>
+</div>
+<p>Let’s see two examples of the script usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">create_updated_optimization.py -optin /mydir/qe.vcrelax.in -optout /mydir/qe.vcrelax.out -newname qe.vcrelax2.in</span>
+</pre></div>
+</div>
+<p>This execution takes the ‘qe.vcrelax.in’ input file and the new structure of
+‘qe.vcrelax.out’ to create a new vcrelax input ‘qe.vcrelax2.in’ to continue with the calculations.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">create_updated_optimization.py -optin /mydir/qe.relax.in -optout /mydir/qe.relax.out</span>
+</pre></div>
+</div>
+<p>This execution takes the ‘qe.relax.in’ input file and the optimized structure of
+‘qe.relax.out’. This relax was converged until the end, thus the script directly
+creates a new scf and there is no necessity to specify the -newname flag.</p>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
+<section id="optin-optin">
+<span id="create-updated-optimization"></span><h3>-optin, –optin<a class="headerlink" href="#optin-optin" title="Permalink to this heading">¶</a></h3>
+<p>Initial vcrelax/relax input file</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="optout-optout">
+<h3>-optout, –optout<a class="headerlink" href="#optout-optout" title="Permalink to this heading">¶</a></h3>
+<p>Vcrelax/relax output file.</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="newname-newname">
+<h3>-newname, –newname<a class="headerlink" href="#newname-newname" title="Permalink to this heading">¶</a></h3>
+<p>Name for the vcrelax/relax input file for the new calculation.</p>
+<blockquote>
+<div><p>Optional: No if the optimization was not converged. Ignored if the optimization finished successfully.</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="create_kp_convergence.html"
+       title="previous chapter">← create_kp_convergence.py</a>
+  </li>
+  <li class="next">
+    <a href="create_hubbard_scan.html"
+       title="next chapter">create_hubbard_scan.py →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, DoryeLEsteras.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.2.1 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>

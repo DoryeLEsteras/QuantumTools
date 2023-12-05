@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+      <title>Motivation: examples of usage</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+          <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../../genindex.html" />
+  <link rel="search" title="Search" href="../../search.html" />
+  <link rel="next" title="Creation scripts!" href="../create_inputs/index.html" />
+  <link rel="prev" title="Synchronize your clusters!" href="index.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../index.html" class="home-link">
+    
+      <span class="site-name">QuantumTools</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../index.html#quantumtools">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../cover.html" class="reference internal ">Introduction to QuantumTools</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../installation.html" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../index.html" class="reference internal ">Tutorials</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../package_versions/index.html" class="reference internal ">Released versions</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="../index.html">Tutorials</a> &raquo;</li>
+    
+      <li><a href="index.html">Synchronize your clusters!</a> &raquo;</li>
+    
+    <li>Motivation: examples of usage</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="index.html"
+       title="previous chapter">← Synchronize your clusters!</a>
+  </li>
+  <li class="next">
+    <a href="../create_inputs/index.html"
+       title="next chapter">Creation scripts! →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="motivation-examples-of-usage">
+<h1>Motivation: examples of usage<a class="headerlink" href="#motivation-examples-of-usage" title="Permalink to this heading">¶</a></h1>
+<p>The first thing you can do with QuantumTools is to configure your setup for the
+automatization of the batch files that run the calculations in your clusters.
+Example: Every time you execute the create_wannier.py script used in the previous introduction,
+you will generate the ready to submit batch files for a Wannier calculation with your particular Wannier file names.
+Moreover, one batch file will be generated for each cluster you configured.
+You can configure the same cluster several times with different conditions.
+Let’s see some examples:</p>
+<p>Herein, I have created three configurations, so in every run, three batch files will be generated.
+In particular I configured cluster1 in two ways (cluster1_fast,cluster1_largescale) and then a different cluster (cluster2)</p>
+<p>For the cluster 1 we have this configuration that I called, ‘fast_cluster1’
+which loads and exports libraries in the manner cluster1 needs,
+but in particular is focused in fast calculations (1 node, interactive queue, 30min):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span>job_name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--partition<span class="o">=</span>interactive
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">72</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">0</span>-00:30:00
+
+<span class="go">module load intel/21.5.0</span>
+<span class="go">module load  impi/2021.5</span>
+<span class="go">module load mkl/2022.2</span>
+<span class="go">module load qe/6.8</span>
+<span class="go">module load wannier90/3.1.0</span>
+
+<span class="go">srun pw.x -i qe.scf.in &gt; qe.scf.out</span>
+<span class="go">srun pw.x -i qe.nscf.in &gt; qe.nscf.out</span>
+<span class="go">srun wannier90.x -pp qe.up.win</span>
+<span class="go">srun pw2wannier90.x -i qe.up.pw2wan.in &gt; qe.up.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.up.win</span>
+<span class="go">srun wannier90.x -pp qe.down.win</span>
+<span class="go">srun pw2wannier90.x -i qe.down.pw2wan.in &gt; qe.down.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.down.win</span>
+</pre></div>
+</div>
+<p>But now, I have a second configuration of cluster 1, speciallized in large calculations
+(cluster1_largescale). So when I run the create_wannier.py script, a second batch file is created:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span>job_name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--nodes<span class="o">=</span><span class="m">4</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--partition<span class="o">=</span>large
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks-per-node<span class="o">=</span><span class="m">72</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">2</span>-20:30:00
+<span class="gp">#</span>SBATCH<span class="w"> </span>--mem<span class="o">=</span>200GB
+
+<span class="go">module load intel/21.5.0</span>
+<span class="go">module load  impi/2021.5</span>
+<span class="go">module load mkl/2022.2</span>
+<span class="go">module load qe/6.8</span>
+<span class="go">module load wannier90/3.1.0</span>
+
+<span class="go">srun pw.x -i qe.scf.in &gt; qe.scf.out</span>
+<span class="go">srun pw.x -i qe.nscf.in &gt; qe.nscf.out</span>
+<span class="go">srun wannier90.x -pp qe.up.win</span>
+<span class="go">srun pw2wannier90.x -i qe.up.pw2wan.in &gt; qe.up.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.up.win</span>
+<span class="go">srun wannier90.x -pp qe.down.win</span>
+<span class="go">srun pw2wannier90.x -i qe.down.pw2wan.in &gt; qe.down.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.down.win</span>
+</pre></div>
+</div>
+<p>You can see the cluster details are the same, but now this is ready to submit a
+calculation in a large queue, with 4 nodes, extra large memory and almost 3 days duration.</p>
+<p>Finally we have the third batch file generated, that corresponds to a different cluster:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span>job_name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--nodes<span class="o">=</span><span class="w"> </span><span class="m">2</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks<span class="o">=</span><span class="m">32</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">1</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--tasks-per-node<span class="o">=</span><span class="m">8</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">0</span>-00:30:00
+
+<span class="go">export LD_LIBRARY_PATH=/storage/apps/Intel_Comp/xe_2019u4/mpi/intel64/:$LD_LIBRARY_PATH</span>
+
+<span class="go">module load intel/2018.3.222</span>
+<span class="go">module load mkl/2018.3.222</span>
+<span class="go">module load impi/2018.3.222</span>
+<span class="go">module load hdf5/1.10.1</span>
+<span class="go">module load wannier90/3.1</span>
+
+<span class="go">ulimit -s unlimited</span>
+<span class="go">export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}</span>
+
+<span class="go">srun /storage/home/vlc/qe-6.8/bin/pw.x -i qe.scf.in &gt; qe.scf.out</span>
+<span class="go">srun /storage/home/vlc/qe-6.8/bin/pw.x -i qe.nscf.in &gt; qe.nscf.out</span>
+<span class="go">srun wannier90.x -pp qe.up.win</span>
+<span class="go">srun /storage/home/vlc/qe-6.8/bin/pw2wannier90.x -i qe.up.pw2wan.in &gt; qe.up.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.up.win</span>
+<span class="go">srun wannier90.x -pp qe.down.win</span>
+<span class="go">srun /storage/home/vlc/qe-6.8/bin/pw2wannier90.x -i qe.down.pw2wan.in &gt; qe.down.pw2wan.out</span>
+<span class="go">srun wannier90.x qe.down.win</span>
+</pre></div>
+</div>
+<p>Here, you can see the cluster has different requirements, for example a particular
+version of QuantumEspresso installed by the user is specified in the srun command,
+we need to export some paths with libraries, the version of the modules is different…
+But everything is configured in QuantumTools. You can extend this as much as you want! Let’s see how to do it:</p>
+</section>
+<section id="how-to-setup-quantumtools-with-your-clusters">
+<h1>How to setup QuantumTools with your clusters<a class="headerlink" href="#how-to-setup-quantumtools-with-your-clusters" title="Permalink to this heading">¶</a></h1>
+<p>If you follow the installation guide, you have a Quantum Tools folder in your computer.
+Inside of the QuantumTools package folder, you have another folder called QuantumTools that includes the libraries.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd QuantumTools</span>
+<span class="go">cd QuantumTools</span>
+<span class="go">ls</span>
+</pre></div>
+</div>
+<p>Herein, there are two important files to look at. First, you have several cluster files,
+that end with the extension ‘.cluster’, for example ‘Tirant.cluster’.
+These are some illustrative templates, you can use them to create your own files
+and fill them with the information of your clusters.
+Basically you have two sections, the directories and the header:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">#</span><span class="c1">######## Tirant directories #########</span>
+<span class="go">QE_dir:  /storage/home/vlc/vlc93/qe-6.8/bin/</span>
+<span class="go">Wan_dir:</span>
+<span class="go">WT_dir:</span>
+
+<span class="gp">#</span><span class="c1">######## Tirant run header #########</span>
+<span class="gp">#</span>!/bin/bash<span class="w"> </span>-l
+<span class="gp">#</span>SBATCH<span class="w"> </span>--job-name<span class="o">=</span><span class="w"> </span>job_name
+<span class="gp">#</span>SBATCH<span class="w"> </span>--nodes<span class="o">=</span><span class="w"> </span><span class="m">2</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--workdir<span class="o">=</span>./
+<span class="gp">#</span>SBATCH<span class="w"> </span>--output<span class="o">=</span>task.out.%j
+<span class="gp">#</span>SBATCH<span class="w"> </span>--error<span class="o">=</span>task.err.%j
+<span class="gp">#</span>SBATCH<span class="w"> </span>--mem-per-cpu<span class="o">=</span>2GB
+<span class="gp">#</span>SBATCH<span class="w"> </span>--ntasks<span class="o">=</span><span class="m">32</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--cpus-per-task<span class="o">=</span><span class="m">1</span>
+<span class="gp">#</span><span class="c1">#SBATCH --tasks-per-node=8</span>
+<span class="gp">#</span>SBATCH<span class="w"> </span>--time<span class="o">=</span><span class="m">0</span>-03:10:00
+
+<span class="go">export LD_LIBRARY_PATH=/storage/apps/Intel_Comp/xe_2019u4/compilers_and_libraries_2019.4.243/linux/mpi/intel64/lib/:$LD_LIBRARY_PATH</span>
+
+<span class="go">module load intel/2018.3.222</span>
+<span class="go">module load mkl/2018.3.222</span>
+<span class="go">module load impi/2018.3.222</span>
+<span class="go">module load hdf5/1.10.1</span>
+<span class="go">module load wannier90/3.1</span>
+
+<span class="go">ulimit -s unlimited</span>
+<span class="go">export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}</span>
+</pre></div>
+</div>
+<p>The header makes reference to the contents of your batch file (everything except the sections
+where you launch the calculations with srun, that will be automatically generated),
+you should paste here your personal header</p>
+<p>The directories section is optional, if you want to use a version of QuantumEspresso,
+WannierTools or Wannier90 different from the one you can obtain with ‘module load’ (you installed in the cluster by yourself)
+you can put here the directories, thus when srun is automatically generated, it will specify these directories.</p>
+<p>You can create as many .cluster files as you want, build your own collection!
+This is thanks to the second important file in this folder, Cluster.config, that
+basically contains those particular cluster files from your collection, that you want to consider for batch file generation:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Tirant</span>
+<span class="go">Tirant_largescale</span>
+<span class="go">Tirant_fast</span>
+<span class="go">Vives</span>
+<span class="go">Draco</span>
+</pre></div>
+</div>
+<p>In this example, from my collection QuantumTools will just create 5 batch files,
+one for each cluster (Tirant, Vives, Draco) and in particular
+I have 3 configurations for Tirant (Tirant, Tirant_largescale, Tirant_fast).</p>
+<p>Remember always, after you modify these files to use pip to reinstall QuantumTools,
+you can do this easily in the main folder of QuantumTools with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install .</span>
+</pre></div>
+</div>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="index.html"
+       title="previous chapter">← Synchronize your clusters!</a>
+  </li>
+  <li class="next">
+    <a href="../create_inputs/index.html"
+       title="next chapter">Creation scripts! →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, DoryeLEsteras.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.2.1 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>
