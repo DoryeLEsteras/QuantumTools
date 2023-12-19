@@ -32,7 +32,7 @@ class QECalculation:
           self.nspin = 1
           uncommented_file = handle_comments(file_name)
           clean_file = clean_uncommented_file(uncommented_file)
-          for line_number, line in enumerate(clean_file): 
+          for line_number, line in enumerate(clean_file):
               splitted_line = line.split(); splitted_line.append('end')  
               for word_number, word in enumerate(splitted_line):
                   if word == 'nat':
@@ -68,15 +68,17 @@ class QECalculation:
                   if word == 'cosbc' or word == 'COSBC': 
                          self.cosbc = float(splitted_line[word_number + 1])
                   if word == 'CELL_PARAMETERS':
-                          self.cell_parameters_units = splitted_line[word_number + 1]
+                          splitted_line = str(splitted_line).replace('}','').replace('{','').replace(')','').replace('(','').split()
+                          self.cell_parameters_units = splitted_line[1]
                           v1 = clean_file[line_number + 1].split()
                           v2 = clean_file[line_number + 2].split()
                           v3 = clean_file[line_number + 3].split()
                           self.cell_matrix = np.array([[float(v1[0]),float(v1[1]),float(v1[2])]
                                       ,[float(v2[0]),float(v2[1]),float(v2[2])],
                                       [float(v3[0]),float(v3[1]),float(v3[2])]])
-                  if word == 'ATOMIC_POSITIONS':  
-                          self.atomic_positions_units = splitted_line[word_number + 1]
+                  if word == 'ATOMIC_POSITIONS': 
+                          splitted_line = line.replace('}','').replace('{','').replace(')','').replace('(','').split()
+                          self.atomic_positions_units = splitted_line[1]
                           self.atomic_matrix = np.chararray((self.nat, 7),itemsize=12)         
                           for i in range(0,self.nat,1):
                               atomic_coord  = clean_file[line_number + 1 + i].split()             
@@ -103,6 +105,7 @@ class QEoutput:
   calculation_finished: bool = 0
   nat: int = 0
   a: float = 0.0
+  total_energy: float = 0.0
   cell_parameters_units: str = ''
   cell_matrix: np.ndarray = np.array([[]])
   cell_matrix_angstrom: np.ndarray = np.array([[]])
@@ -123,7 +126,8 @@ class QEoutput:
               self.a =  float(splitted_line[-3]) * 0.529177
           for word_number, word in enumerate(splitted_line):
               if word == 'CELL_PARAMETERS':
-                      self.cell_parameters_units = splitted_line[word_number + 1]                       
+                      splitted_line = line.replace('}','').replace('{','').replace(')','').replace('(','').split()
+                      self.cell_parameters_units = splitted_line[1]
                       v1 = clean_file[line_number + 1].split()
                       v2 = clean_file[line_number + 2].split()
                       v3 = clean_file[line_number + 3].split()
@@ -132,7 +136,8 @@ class QEoutput:
                                   [float(v3[0]),float(v3[1]),float(v3[2])]])
                       self.cell_matrix_angstrom = self.cell_matrix * self.a                
               if word == 'ATOMIC_POSITIONS':  
-                      self.atomic_positions_units = splitted_line[word_number + 1]
+                      splitted_line = line.replace('}','').replace('{','').replace(')','').replace('(','').split()
+                      self.atomic_matrix_units = splitted_line[1]
                       self.atomic_matrix = np.chararray((self.nat, 7),itemsize=12)         
                       for i in range(0,self.nat,1):
                           atomic_coord  = clean_file[line_number + 1 + i].split()           
@@ -147,4 +152,6 @@ class QEoutput:
                              self.atomic_matrix[i][4] = atomic_coord[4]
                              self.atomic_matrix[i][5] = atomic_coord[5]
                              self.atomic_matrix[i][6] = atomic_coord[6]                          
-                      self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
+                      self.atomic_matrix = self.atomic_matrix.decode("utf-8")        
+              if word == '!':
+                      self.total_energy = float(splitted_line[word_number + 3])

@@ -79,6 +79,7 @@ def parser():
     args = parser.parse_args()
     return args.input,args.outdir,args.kpath,args.k,args.nbands,args.nwan, \
            args.Mo,args.mo,args.Mi,args.mi,args.orb
+
 def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
     nscf_output = os.path.join(outdir,nscf_file_name)
@@ -136,6 +137,7 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
                 nscf_file.write(f"{float(cell_matrix_angstrom):.9f} ")
             nscf_file.write(f"\n")
         nscf_file.write(kmesh)  
+
 def create_pw2wan_input(file_dir:str,seed:str) -> None: 
     if SCF.nspin == 1:
        initialize_clusters('nospin_wannier',file_dir,seed + '.scf.in','')    
@@ -192,6 +194,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
              pw2wan_file.write('write_spn=.true.\n')
              pw2wan_file.write('wan_mode = \'standalone\'\n') 
              pw2wan_file.write('/\n') 
+
 def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                      mo:float, Mi:float, mi:float, projectors:str,k:List[int]) -> None: 
     win_output_name = seed + '.win'
@@ -280,10 +283,9 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"\n")
 
          if SCF.atomic_positions_units == 'crystal':
-             win_file.write(f"Begin Atoms_Frac\n")     
+            win_file.write(f"Begin Atoms_Frac\n")    
          if SCF.atomic_positions_units == 'angstrom':
-             win_file.write(f"Begin Atoms_Cart\n") 
-
+            win_file.write(f"Begin Atoms_Cart\n") 
          for i in range(0,SCF.nat,1):
               atomic_matrix = str(SCF.atomic_matrix[i][0]).replace('[','').replace(']','')
               atomic_matrix = atomic_matrix.replace("\'", "")
@@ -296,14 +298,13 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                   atomic_matrix = atomic_matrix.replace("\'", "")
                   win_file.write(f"{float(atomic_matrix):.9f} ")
               win_file.write(f"\n")                
-             
          if SCF.atomic_positions_units == 'crystal':
              win_file.write(f"End Atoms_Frac\n")     
          if SCF.atomic_positions_units == 'angstrom':
              win_file.write(f"End Atoms_Cart\n")                  
-
+         win_file.write(f"\n")                
+         
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
-
          win_file.write(f"begin kpoints \n")   
          QT_directory = QuantumTools.__file__.replace('__init__.py','')
          kmesh = run([QT_directory +'kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
@@ -315,9 +316,9 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
     if SCF.nspin == 2:
         win_up_name = seed + '.up' + '.win'
         win_down_name = seed + '.down' + '.win'  
-        win_template_output = file_dir + win_output_name          
-        win_up_output = file_dir + win_up_name
-        win_down_output = file_dir + win_down_name
+        win_template_output = os.path.join(file_dir,win_output_name)        
+        win_up_output = os.path.join(file_dir,win_up_name)
+        win_down_output = os.path.join(file_dir,win_down_name)
         run(['cp',win_template_output ,win_up_output])
         run(['mv',win_template_output ,win_down_output])
 
