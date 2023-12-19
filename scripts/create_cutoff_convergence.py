@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from typing import List
 import numpy as np
 from QuantumTools.directory_and_files_tools import manage_input_dir,substitute_pattern
-from QuantumTools.cluster_tools import initialize_clusters
+from QuantumTools.cluster_tools import initialize_clusters, Cluster
 from QuantumTools.qe_tools import QECalculation
 import QuantumTools
 def parser():
@@ -55,8 +55,6 @@ def parser():
     return args.input,args.outdir,args.wfcmin,args.wfcmax,args.wfcstep,args.rhomin,args.rhomax,args.rhostep
 
 def create_total_scan(): 
-    Scf = QECalculation()
-    Scf.extract_input_information(file_dir_and_name)
     with open(file_dir_and_name,'r') as file:
         readed_file = file.read()
     for wfc in np.arange(wfcmin,wfcmax + wfcstep,wfcstep):
@@ -78,19 +76,56 @@ def create_total_scan():
             elif wfc == 0 and rho != 0:
                  initialize_clusters('basic_scf',outdir,new_file_name,'.rho.' + str(rho)) 
 
-def create_launcher():
+def create_launcher(): 
     QT_directory = QuantumTools.__file__.replace('__init__.py','')
     with open(QT_directory + 'Cluster.config','r') as f:
          cluster_name_list = f.read().replace('.cluster','').split()
+    cluster_dict = dict.fromkeys(cluster_name_list)
+    initialize_clusters('massive',outdir,'','')  
     for cluster_name in cluster_name_list:
-        with open(os.path.join(outdir,cluster_name.lower() +'.launcher_for_cutoff_convergence.sh') ,'w') as file:
-             file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
-             file.write('do\n')
-             file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
-             file.write('do\n')
-             file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.rho.$rho.sh\n')
-             file.write('done\n')
-             file.write('done\n')
+        cluster_dict[cluster_name] = Cluster(cluster_name)
+        cluster_dict[cluster_name].extract_input_information() 
+
+        launcher_file = open(cluster_name.lower() + '.serial.launcher.sh','a')
+        if wfcmin != 0 and  wfcmax != 0 and rhomin != 0 and rhomax !=0:
+           launcher_file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+           launcher_file.write('do\n')
+           launcher_file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+           launcher_file.write('do\n')
+           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.rho.$rho.scf.out')  + '\n') 
+           launcher_file.write('done\n')
+           launcher_file.write('done\n')
+        if wfcmin == 0 and wfcmax == 0 and rhomin != 0 and rhomax != 0:
+           launcher_file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+           launcher_file.write('do\n')
+           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.rho.$rho.scf.out')  + '\n') 
+           launcher_file.write('done\n')
+        if wfcmin != 0 and wfcmax != 0 and rhomin == 0 and rhomax == 0:
+           launcher_file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+           launcher_file.write('do\n')
+           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.scf.out')  + '\n') 
+           launcher_file.write('done\n')
+    
+    for cluster_name in cluster_name_list:
+        with open(os.path.join(outdir,cluster_name.lower() +'.parallel.launcher.sh') ,'w') as file:
+             if wfcmin != 0 and  wfcmax != 0 and rhomin != 0 and rhomax !=0:
+                file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+                file.write('do\n')
+                file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+                file.write('do\n')
+                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.rho.$rho.sh\n')
+                file.write('done\n')
+                file.write('done\n')
+             if wfcmin == 0 and  wfcmax == 0 and rhomin != 0 and rhomax !=0:
+                file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+                file.write('do\n')
+                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.rho.$rho.sh\n')
+                file.write('done\n')
+             if wfcmin != 0 and  wfcmax != 0 and rhomin == 0 and rhomax ==0:
+                file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+                file.write('do\n')
+                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.sh\n')
+                file.write('done\n')
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
@@ -98,5 +133,7 @@ if __name__ == '__main__':
       print('!!!NO CUTOFF RANGE PROVIDED!!! --> ABORT')
       sys.exit()
    file_name,file_dir = manage_input_dir(file_dir_and_name)
+   Scf = QECalculation()
+   Scf.extract_input_information(file_dir_and_name)
    cluster_name_list = create_total_scan()
    create_launcher()

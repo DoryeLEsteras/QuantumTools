@@ -32,8 +32,8 @@ def clean_uncommented_file(file_list:List[str]) -> List[str]:
 def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     pattern_ecutwfc = re.compile(r'(ecutwfc(\s*)?=(\s*)?)\d*')
     pattern_ecutrho = re.compile(r'(ecutrho(\s*)?=(\s*)?)\d*') 
-    pattern_hubbard_under_v7 = re.compile(r'(Hubbard_U\(\d\)\s*?\=\s*?)(\d*\.?\d*)?')
-    pattern_hubbard_over_v7 = re.compile(r'(U\s\s*?\w*\s\s*?)(\d*\.\d*)?')
+    pattern_hubbard_under_v7 = re.compile(r'(Hubbard_U\(\d\)\s*?\=\s*?) (\d*\.?\d*)?')
+    pattern_hubbard_over_v7 = re.compile(r'(U\s\s*?\w*\s\s*?) (\d*\.\d*)?')
     #prefix = re.compile(r'(prefix\s*?=\s*?\'\w*)\'')
     patterns_and_keywords = {
     'ecutwfc':pattern_ecutwfc,
@@ -47,6 +47,5 @@ def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     #elif pattern_keyword == 'hubbard_over_v7':
     #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
     #elif pattern_keyword == 'ecutwfc':
-    #    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)  
-    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string) 
+    new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)  
     return new_string

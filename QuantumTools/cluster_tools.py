@@ -23,8 +23,12 @@ def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,r
     for i in cluster_name_list:
         cluster_dict[i] = Cluster(i)
         cluster_dict[i].run_prefix = run_prefix
-        cluster_dict[i].extract_input_information()
-        cluster_dict[i].write_run(calculation_method,run_directory,file_name)
+        cluster_dict[i].extract_input_information() 
+        if calculation_method == 'massive':
+           cluster_dict[i].write_launcher(calculation_method,run_directory)
+        else:
+           cluster_dict[i].write_run(calculation_method,run_directory,file_name)
+      
     return extra_info
 
 class Cluster:
@@ -52,15 +56,16 @@ class Cluster:
                 header_starting_line = line_number
          for i in range(header_starting_line +1,len(cluster_file_vector),1):
              self.header =  self.header + cluster_file_vector[i]   
+      def write_launcher(self,calculation_method:str,run_directory:str) -> None:
+          run_name = self.cluster_name.lower() + '.serial.launcher.sh'
+          run_file = open(os.path.join(run_directory,run_name), 'w' )
+          run_file.write(self.header)
+          run_file.write('\n')
       def write_run(self,calculation_method:str,run_directory:str,file_name:str) -> None:
           run_name = self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh'
           run_file = open(os.path.join(run_directory,run_name), 'w' )
           run_file.write(self.header)
           run_file.write('\n')
-          if calculation_method == 'launcher':
-             launcher_name = self.cluster_name.lower() + 'launcher' + '.sh'
-             launcher_file = open(os.path.join(run_directory,launcher_name), 'w' )
-             self.write_launcher(run_name,launcher_file)
           if calculation_method == 'basic_scf':
              self.write_basic_scf(file_name,run_file)  
           if calculation_method == 'spin_bands':
@@ -86,9 +91,6 @@ class Cluster:
           if calculation_method == 'wt':
              self.write_wt('',run_file)
           run_file.close()
-      def write_launcher(self,run_name:str,launcher_file) -> None:  
-          launcher_file.write(\
-          'sbatch ' + run_name + '\n') 
       def write_basic_scf(self,scf_input_name:str,run_file) -> None:  
           scf_output_name = scf_input_name.replace('.in','.out')
           run_file.write(\
