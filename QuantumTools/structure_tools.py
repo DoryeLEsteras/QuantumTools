@@ -4,6 +4,7 @@ import numpy as np
 # Where to put transform_lattice_parameters?
 # Is used inside of the QEcalculation class
 # maybe i should remove the cell_matrix properties
+# complete transform to ibrav 0
 
 def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
                     cosab:float,cosbc:float,cosac:float) -> np.ndarray:
@@ -51,12 +52,23 @@ def transform_to_ibrav0(ibrav:int,a:float,b:float,c:float, \
     return cell_matrix
 def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         cell_parameters_units:np.ndarray,a:float,b:float,c:float, \
-        cosac:float,cosab:float,cosbc:float) -> np.ndarray: 
+        cosac:float,cosab:float,cosbc:float,celldm1:float,\
+        celldm2:float,celldm3:float,celldm4:float,celldm5:float, \
+        celldm6:float) -> np.ndarray: 
     if ibrav == 0 and cell_parameters_units == 'angstrom':
         return cell_matrix
     if ibrav == 0 and cell_parameters_units == 'crystal':
         return np.dot(cell_matrix,a)
     if ibrav == 0 and cell_parameters_units == 'alat':
         return np.dot(cell_matrix,a)
+    if ibrav == 0 and cell_parameters_units == 'bohr':
+        return np.dot(cell_matrix,celldm1)
     if ibrav != 0:
-        return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)
+       if cell_parameters_units == 'bohr':
+          a = celldm1
+          b = celldm2*celldm1
+          c = celldm3*celldm1
+          cosac = celldm5
+          cosab = celldm6
+          cosbc = celldm4
+    return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)

@@ -118,6 +118,18 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
               original_file[line_number] = ''   
             if word == 'cosab'or word == 'COSAB':
               original_file[line_number] = '' 
+            if word == 'celldm(1)':
+              original_file[line_number] = ''
+            if word == 'celldm(2)':
+              original_file[line_number] = ''
+            if word == 'celldm(3)':
+              original_file[line_number] = ''
+            if word == 'celldm(4)':
+              original_file[line_number] = ''
+            if word == 'celldm(5)':
+              original_file[line_number] = ''
+            if word == 'celldm(6)':
+              original_file[line_number] = ''
             if word == 'CELL_PARAMETERS'or word == 'cell_parameters':
                original_file[line_number] = '' 
                original_file[line_number+1] = '' 
@@ -130,11 +142,11 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
     with open(nscf_output, 'w') as nscf_file:   
         for line in original_file: 
             nscf_file.write(str(line))  
-        nscf_file.write('CELL_PARAMETERS (angstrom)\n') 
+        nscf_file.write('CELL_PARAMETERS (' + SCF.cell_parameters_units +')\n') 
         for i in range(0,3,1):
             for j in range(0,3,1):
-                cell_matrix_angstrom = str(SCF.cell_matrix_angstrom[i][j]).replace('[','').replace(']','') 
-                nscf_file.write(f"{float(cell_matrix_angstrom):.9f} ")
+                cell_matrix_cartesian = str(SCF.cell_matrix_cartesian[i][j]).replace('[','').replace(']','') 
+                nscf_file.write(f"{float(cell_matrix_cartesian):.9f} ")
             nscf_file.write(f"\n")
         nscf_file.write(kmesh)  
 
@@ -274,10 +286,12 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          win_file.write(f"\n") 
 
          win_file.write(f"Begin Unit_Cell_Cart\n")   
+         if SCF.cell_parameters_units == 'bohr':
+            win_file.write(f"Bohr\n")   
          for i in range(0,3,1):
             for j in range(0,3,1):
-                cell_matrix_angstrom = str(SCF.cell_matrix_angstrom[i][j]).replace('[','').replace(']','') 
-                win_file.write(f"{float(cell_matrix_angstrom):.9f} ")
+                cell_matrix_cartesian = str(SCF.cell_matrix_cartesian[i][j]).replace('[','').replace(']','') 
+                win_file.write(f"{float(cell_matrix_cartesian):.9f} ")
             win_file.write(f"\n")
          win_file.write(f"End Unit_Cell_Cart\n")  
          win_file.write(f"\n")
@@ -286,6 +300,9 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
             win_file.write(f"Begin Atoms_Frac\n")    
          if SCF.atomic_positions_units == 'angstrom':
             win_file.write(f"Begin Atoms_Cart\n") 
+         if SCF.atomic_positions_units == 'bohr':
+            win_file.write(f"Begin Atoms_Cart\n")    
+            win_file.write(f"Bohr\n")    
          for i in range(0,SCF.nat,1):
               atomic_matrix = str(SCF.atomic_matrix[i][0]).replace('[','').replace(']','')
               atomic_matrix = atomic_matrix.replace("\'", "")
@@ -300,7 +317,7 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
               win_file.write(f"\n")                
          if SCF.atomic_positions_units == 'crystal':
              win_file.write(f"End Atoms_Frac\n")     
-         if SCF.atomic_positions_units == 'angstrom':
+         if SCF.atomic_positions_units == 'angstrom' or SCF.atomic_positions_units == 'bohr':
              win_file.write(f"End Atoms_Cart\n")                  
          win_file.write(f"\n")                
          

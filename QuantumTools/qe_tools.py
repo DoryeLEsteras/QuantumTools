@@ -19,8 +19,14 @@ class QECalculation:
       cosac: float = 0.0
       cosab: float = 0.0
       cosbc: float = 0.0
+      celldm1: float = 0.0
+      celldm2: float = 0.0
+      celldm3: float = 0.0
+      celldm4: float = 0.0
+      celldm5: float = 0.0
+      celldm6: float = 0.0
       cell_matrix: np.ndarray = np.array([[]])
-      cell_matrix_angstrom: np.ndarray = np.array([[]])
+      cell_matrix_cartesian: np.ndarray = np.array([[]])
       atomic_positions_units: str = ''
       atomic_matrix: np.ndarray = np.array([[]])
       kpoints: np.ndarray = np.array([])
@@ -66,7 +72,21 @@ class QECalculation:
                   if word == 'cosab' or word == 'COSAB': 
                          self.cosab = float(splitted_line[word_number + 1])
                   if word == 'cosbc' or word == 'COSBC': 
-                         self.cosbc = float(splitted_line[word_number + 1])
+                         self.cosbc = float(splitted_line[word_number + 1]) 
+                  if word == 'celldm':
+                         if splitted_line[word_number + 1] == '1':
+                            self.cell_parameters_units = 'bohr'
+                            self.celldm1 = float(splitted_line[word_number + 2])
+                         if splitted_line[word_number + 1] == '2':
+                            self.celldm2 = float(splitted_line[word_number + 2])
+                         if splitted_line[word_number + 1] == '3':
+                            self.celldm3 = float(splitted_line[word_number + 2])
+                         if splitted_line[word_number + 1] == '4':
+                            self.celldm4 = float(splitted_line[word_number + 2])
+                         if splitted_line[word_number + 1] == '5':
+                            self.celldm5 = float(splitted_line[word_number + 2])
+                         if splitted_line[word_number + 1] == '6':
+                            self.celldm6 = float(splitted_line[word_number + 2])
                   if word == 'CELL_PARAMETERS':
                           splitted_line = str(splitted_line).replace('}','').replace('{','').replace(')','').replace('(','').split()
                           self.cell_parameters_units = splitted_line[1]
@@ -80,8 +100,10 @@ class QECalculation:
                           splitted_line = line.replace('}','').replace('{','').replace(')','').replace('(','').split()
                           self.atomic_positions_units = splitted_line[1]
                           self.atomic_matrix = np.chararray((self.nat, 7),itemsize=12)         
+                          if clean_file[line_number + 1] == '\n':
+                             line_number = line_number + 1
                           for i in range(0,self.nat,1):
-                              atomic_coord  = clean_file[line_number + 1 + i].split()             
+                              atomic_coord  = clean_file[line_number + 1 + i].split()    
                               self.atomic_matrix[i][0] = atomic_coord[0]
                               self.atomic_matrix[i][1] = atomic_coord[1]
                               self.atomic_matrix[i][2] = atomic_coord[2]
@@ -93,13 +115,14 @@ class QECalculation:
                                  self.atomic_matrix[i][4] = atomic_coord[4]
                                  self.atomic_matrix[i][5] = atomic_coord[5]
                                  self.atomic_matrix[i][6] = atomic_coord[6]                          
-                          self.atomic_matrix = self.atomic_matrix.decode("utf-8")                          
+                          self.atomic_matrix = self.atomic_matrix.decode("utf-8")       
                   if word == 'K_POINTS' or word == 'k_points':
                           self.kpoints = np.array(clean_file[line_number + 1].split())
-          self.cell_matrix_angstrom = transform_lattice_parameters(self.cell_matrix, \
+          self.cell_matrix_cartesian = transform_lattice_parameters(self.cell_matrix, \
                         self.ibrav,self.cell_parameters_units,self.a,self.b, \
-                        self.c,self.cosac,self.cosab,self.cosbc)
-
+                        self.c,self.cosac,self.cosab,self.cosbc, \
+                        self.celldm1,self.celldm2,self.celldm3,self.celldm4, \
+                        self.celldm5,self.celldm6)
 @dataclass
 class QEoutput:
   calculation_finished: bool = 0

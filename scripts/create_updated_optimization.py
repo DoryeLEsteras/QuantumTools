@@ -56,6 +56,8 @@ def substitute_coordinates(file_vector:List[str], new_coordinates: np.ndarray) -
    for line_number,line in enumerate(file_vector):
       splited_line = line.split();splited_line.append('end')
       if splited_line[0] == 'ATOMIC_POSITIONS':
+        if file_vector[line_number + 1] == '\n':
+            line_number = line_number + 1  
         for i in range(0,Optimization.nat,1):
            file_vector[line_number + i +1] = str(new_coordinates[i]).replace('[','')
            file_vector[line_number + i +1] = file_vector[line_number + i +1].replace(']','')
@@ -79,6 +81,18 @@ def substitute_cell_parameters(file_vector:List[str], new_cell_parameters: np.nd
           file_vector[line_number] = ''           
        if splited_line[0] == 'cosac' or splited_line[0] == 'COSAC':
           file_vector[line_number] = '' 
+       if splited_line[0] == 'celldm(1)':
+          file_vector[line_number] = ''
+       if splited_line[0] == 'celldm(2)':
+          file_vector[line_number] = ''           
+       if splited_line[0] == 'celldm(3)':
+          file_vector[line_number] = ''           
+       if splited_line[0] == 'celldm(4)':
+          file_vector[line_number] = ''
+       if splited_line[0] == 'celldm(5)':
+          file_vector[line_number] = ''           
+       if splited_line[0] == 'celldm(6)':
+          file_vector[line_number] = ''           
        if splited_line[0] == 'ibrav':
           file_vector[line_number] = ''       
        if splited_line[0] == 'CELL_PARAMETERS':
@@ -94,11 +108,23 @@ def substitute_cell_parameters(file_vector:List[str], new_cell_parameters: np.nd
              str(new_cell_parameters[1]).replace(']','').replace('[','') + '\n' + \
              str(new_cell_parameters[2]).replace(']','').replace('[','') + '\n' + \
              file_vector[line_number]
-          elif Output.cell_parameters_units == 'alat':
+          elif Output.cell_parameters_units == 'alat' and Optimization.a != 0.0:
              file_vector[line_number] = 'CELL_PARAMETERS (angstrom)\n' + \
              str(Optimization.a*new_cell_parameters[0]).replace(']','').replace('[','') + '\n' + \
              str(Optimization.a*new_cell_parameters[1]).replace(']','').replace('[','') + '\n' + \
              str(Optimization.a*new_cell_parameters[2]).replace(']','').replace('[','') + '\n' + \
+             file_vector[line_number]
+          elif Output.cell_parameters_units == 'alat' and Optimization.celldm1 != 0.0:
+             file_vector[line_number] = 'CELL_PARAMETERS (bohr)\n' + \
+             str(Optimization.celldm1*new_cell_parameters[0]).replace(']','').replace('[','') + '\n' + \
+             str(Optimization.celldm1*new_cell_parameters[1]).replace(']','').replace('[','') + '\n' + \
+             str(Optimization.celldm1*new_cell_parameters[2]).replace(']','').replace('[','') + '\n' + \
+             file_vector[line_number]
+          elif Output.cell_parameters_units == 'bohr':
+             file_vector[line_number] = 'CELL_PARAMETERS (bohr)\n' + \
+             str(new_cell_parameters[0]).replace(']','').replace('[','') + '\n' + \
+             str(new_cell_parameters[1]).replace(']','').replace('[','') + '\n' + \
+             str(new_cell_parameters[2]).replace(']','').replace('[','') + '\n' + \
              file_vector[line_number]
    return file_vector
 
