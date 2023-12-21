@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from argparse import ArgumentParser
 from typing import List
 from QuantumTools.qe_tools import QECalculation
@@ -16,7 +17,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="Relative or absolute path for output directory ")
     parser.add_argument("-k", "--k",
                         type=str,
@@ -36,7 +37,7 @@ def parser():
     return args.input,args.outdir,args.k,args.conv,args.mat
     
 def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
-    scf_input_file_name = scf_dir + '/' + scf_input_name
+    scf_input_file_name = os.path.join(scf_dir,scf_input_name)
     with open(scf_input_file_name, 'r') as scf_file:
         text = scf_file.readlines()
     pos = 1; at_type_list = [];magnetic_atom_index_list = [];pp_list = []
@@ -57,6 +58,7 @@ def manage_magnetic_species(scf_input_name:str,scf_dir:str)-> List:
     for h in range(0,len(pp_list),1):
         pp_list[h] = pp_list[h].replace(at_type_list[h] + '.',str(at_type_list[h]) + '.rel-')
     return magnetic_atom_index_list,pp_list
+
 def manage_angles(magnetic_atom_index_list:List,spin_direction:str)-> str:
     angle_line = ''
     if spin_direction == 'x':
@@ -71,11 +73,12 @@ def manage_angles(magnetic_atom_index_list:List,spin_direction:str)-> str:
     for index, element_position in enumerate(magnetic_atom_index_list):
       angle_line = angle_line + 'angle1(' + str(element_position) + ') = ' + str(angle1) + '\n'
       angle_line = angle_line + 'angle2(' + str(element_position) + ') = ' + str(angle2) + '\n'
-    return angle_line   
+    return angle_line 
+
 def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str,spin_direction:str,magnetic_atom_index_list:List,pp_list:List)-> None: 
     nscf_name = scf_input_name.replace('scf',spin_direction + '.nscf')
-    nscf_file = open(nscf_output_dir + '/' + nscf_name , 'w')
-    scf_input_file = open(scf_dir + '/' + scf_input_name , 'r')
+    nscf_file = open(os.path.join(nscf_output_dir,nscf_name) , 'w')
+    scf_input_file = open(os.path.join(scf_dir,scf_input_name) , 'r')
     angle_line = manage_angles(magnetic_atom_index_list,spin_direction)
     for line in scf_input_file:
         line_to_check = line.replace("=", ' ') 
@@ -124,6 +127,8 @@ if __name__ == '__main__':
      print('ERROR: noncolinear flags in scf')
   else:  
      file_name,file_dir = manage_input_dir(provided_scf_input_file)
+     if provided_output_dir == '':
+        provided_output_dir = file_dir
      magnetic_atom_index_list,pp_list = manage_magnetic_species(file_name,file_dir)
      create_nscf_input(file_name,file_dir,provided_output_dir,'x',magnetic_atom_index_list,pp_list)
      create_nscf_input(file_name,file_dir,provided_output_dir,'y',magnetic_atom_index_list,pp_list)

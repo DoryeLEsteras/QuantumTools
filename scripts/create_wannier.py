@@ -22,7 +22,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="output directory ")
   
     parser.add_argument("-kpath", "--kpath",
@@ -343,6 +343,8 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
 if __name__ == "__main__":
    file_dir_and_name,outdir,kpath,k,nbands,nwan,Mo,mo,Mi,mi,projectors = parser()
    file_name, file_dir = manage_input_dir(file_dir_and_name)
+   if outdir == '':
+      outdir = file_dir
    SCF = QECalculation()   
    SCF.extract_input_information(file_dir_and_name) 
    if SCF.calculation_type != 'scf':

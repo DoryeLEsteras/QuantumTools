@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from argparse import ArgumentParser
 from QuantumTools.cluster_tools import initialize_clusters
 from QuantumTools.qe_tools import QECalculation
@@ -17,7 +18,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="Relative or absolute path for output directory ")
     parser.add_argument("-k", "--k",
                         type=int,
@@ -29,8 +30,8 @@ def parser():
 
 def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str)-> None: 
     nscf_name = scf_input_name.replace('scf','nscf')
-    nscf_file = open(nscf_output_dir + '/' + nscf_name , 'w')
-    scf_input_file = open(scf_dir + '/' + scf_input_name , 'r')
+    nscf_file = open(os.path.join(nscf_output_dir,nscf_name) , 'w')
+    scf_input_file = open(os.path.join(scf_dir,scf_input_name) , 'r')
     for line in scf_input_file:
         line_to_check = line.replace("=", ' ') 
         line_to_check = line_to_check.replace(",", ' ') 
@@ -55,7 +56,7 @@ def create_nscf_input(scf_input_name:str,scf_dir:str,nscf_output_dir:str)-> None
     nscf_file.close()
 def create_projwfc_input(scf_input_name:str,projwfc_output_dir:str)-> None:
     projwfc_name = scf_input_name.replace('scf','proj')
-    projwfc_file = open(projwfc_output_dir + '/' + projwfc_name , 'w')
+    projwfc_file = open(os.path.join(projwfc_output_dir,projwfc_name) , 'w')
     projwfc_file.write('&PROJWFC\n')
     projwfc_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     projwfc_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
@@ -76,6 +77,8 @@ if __name__ == '__main__':
      print('ERROR: provided scf input does not correspond to scf calculation')
   else:  
      file_name,file_dir = manage_input_dir(provided_scf_input_file)
+     if provided_output_dir == '':
+        provided_output_dir = file_dir
      create_nscf_input(file_name,file_dir,provided_output_dir)
      create_projwfc_input(file_name,provided_output_dir)
      # Security check doesnt stop input creation because someone can want to do SOC PDOS

@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from argparse import ArgumentParser
 
 from QuantumTools.library import (QECalculation, initialize_clusters,
@@ -16,13 +17,13 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="Relative or absolute path for output directory ")   
     args = parser.parse_args()
     return args.input,args.outdir
 def create_charge_density_input(scf_input_name:str,charge_density_output_dir:str)-> None: 
     charge_density_file_name = scf_input_name.replace('scf','cd.pp')
-    charge_density_file = open(charge_density_output_dir + '/' + charge_density_file_name, 'w')
+    charge_density_file = open(os.path.join(charge_density_output_dir,charge_density_file_name), 'w')
     charge_density_file.write('&inputpp\n')
     charge_density_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     charge_density_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
@@ -41,5 +42,7 @@ if __name__ == '__main__':
   Scf = QECalculation()
   Scf.extract_input_information(provided_scf_input_file)
   file_name,file_dir =manage_input_dir(provided_scf_input_file)
+  if provided_output_dir == '':
+     provided_output_dir = file_dir
   create_charge_density_input(file_name,provided_output_dir)
 

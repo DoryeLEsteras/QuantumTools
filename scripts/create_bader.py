@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from argparse import ArgumentParser
 from QuantumTools.qe_tools import QECalculation
 from QuantumTools.cluster_tools import initialize_clusters
@@ -15,14 +16,14 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="Relative or absolute path for output directory ")   
     args = parser.parse_args()
     return args.input,args.outdir
 
 def create_bader_all_input(scf_input_name:str,bader_output_dir:str)-> None: 
     bader_file_name = scf_input_name.replace('scf','all.pp')
-    bader_file = open(bader_output_dir + '/' + bader_file_name, 'w')
+    bader_file = open(os.path.join(bader_output_dir,bader_file_name), 'w')
     bader_file.write('&inputpp\n')
     bader_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     bader_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
@@ -39,7 +40,7 @@ def create_bader_all_input(scf_input_name:str,bader_output_dir:str)-> None:
 
 def create_bader_valence_input(scf_input_name:str,bader_output_dir:str)-> None: 
     bader_file_name = scf_input_name.replace('scf','valence.pp')
-    bader_file = open(bader_output_dir + '/' + bader_file_name, 'w')
+    bader_file = open(os.path.join(bader_output_dir,bader_file_name), 'w')
     bader_file.write('&inputpp\n')
     bader_file.write("prefix = '" +str(Scf.prefix)+ "'\n")
     bader_file.write("outdir = '" +str(Scf.outdir)+ "'\n")
@@ -59,6 +60,8 @@ if __name__ == '__main__':
   Scf = QECalculation()
   Scf.extract_input_information(provided_scf_input_file)
   file_name,file_dir =manage_input_dir(provided_scf_input_file)
+  if provided_output_dir == '':
+     provided_output_dir = file_dir 
   create_bader_all_input(file_name,provided_output_dir)
   create_bader_valence_input(file_name,provided_output_dir)
   initialize_clusters('bader',provided_output_dir, provided_scf_input_file,'')

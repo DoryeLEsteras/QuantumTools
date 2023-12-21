@@ -17,7 +17,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="Relative or absolute path for output directory ")   
     args = parser.parse_args()
     return args.win,args.outdir
@@ -102,6 +102,8 @@ Angstrom
 if __name__ == '__main__': 
     file_dir_and_name,outdir = parser()
     file_name,file_dir = manage_input_dir(file_dir_and_name)
+    if outdir == '':
+       outdir = file_dir
     hr_file = file_name.replace('.win', '_hr.dat')
     Win = WannierCalculation()
     Win.extract_input_information(file_dir_and_name)

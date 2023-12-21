@@ -19,7 +19,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="output directory ")
     parser.add_argument("-wfcmax", "--wfcmax",
                         type=int,
@@ -129,6 +129,9 @@ def create_launcher():
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
+   file_name,file_dir =manage_input_dir(file_dir_and_name)
+   if outdir == '':
+      outdir = file_dir
    if wfcmin == 0 and wfcmax == 0 and rhomax == 0 and rhomin == 0:
       print('!!!NO CUTOFF RANGE PROVIDED!!! --> ABORT')
       sys.exit()

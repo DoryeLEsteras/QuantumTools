@@ -41,6 +41,12 @@ def parser():
                         help="""
                         Optimization output
                         """)    
+    parser.add_argument("-outdir", "--outdir",
+                        type=str,
+                        required=False,
+                        default='',
+                        help="Relative or absolute path for output directory ")   
+                        )    
     parser.add_argument("-newname", "--newname",
                         type=str,
                         required=False,
@@ -50,7 +56,7 @@ def parser():
                         """)  
  
     args = parser.parse_args()
-    return args.optin,args.optout,args.newname
+    return args.optin,args.optout,args.outdir,args.newname
 
 def substitute_coordinates(file_vector:List[str], new_coordinates: np.ndarray) -> List[str]:
    for line_number,line in enumerate(file_vector):
@@ -138,9 +144,9 @@ def generate_input(opt_input_dir_and_name:str,new_file_name:str):
            print('WARNING: vc-relax with cell_dofree = ibrav, move the new input' + 
            ' from ibrav 0 to ibrav != 0') 
    if Output.calculation_finished != True:
-      generated_file = open(os.path.join(opt_out_dir,new_file_name),'w') 
+      generated_file = open(os.path.join(provided_output_dir,new_file_name),'w') 
    elif Output.calculation_finished == True:
-      generated_file_name_and_dir = os.path.join(opt_out_dir,opt_input_name.replace('vcrelax','scf'))
+      generated_file_name_and_dir = os.path.join(provided_output_dir,opt_input_name.replace('vcrelax','scf'))
       generated_file_name_and_dir = generated_file_name_and_dir.replace('relax','scf')
       generated_file = open(generated_file_name_and_dir,'w')     
       file_clean_copy = clean_uncommented_file(updated_file_vector)
@@ -191,9 +197,11 @@ def generate_input(opt_input_dir_and_name:str,new_file_name:str):
    #names? set U?
 
 if __name__ == '__main__':
-  opt_input_dir_and_name, opt_out_dir_and_name, new_file_name = parser()
+  opt_input_dir_and_name, opt_out_dir_and_name, provided_output_dir,new_file_name = parser()
   opt_out_name, opt_out_dir = manage_input_dir(opt_out_dir_and_name)
   opt_input_name, opt_input_dir = manage_input_dir(opt_input_dir_and_name)
+  if provided_output_dir == '':
+     provided_output_dir = file_dir
   Optimization = QECalculation()
   Optimization.extract_input_information(opt_input_dir_and_name)
   Output = QEoutput()

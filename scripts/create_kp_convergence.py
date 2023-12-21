@@ -18,7 +18,7 @@ def parser():
     parser.add_argument("-outdir", "--outdir",
                         type=str,
                         required=False,
-                        default='./',
+                        default='',
                         help="output directory ")
     parser.add_argument("-max", "--max",
                         type=int,
@@ -98,6 +98,8 @@ def create_launcher():
 if __name__ == '__main__':
     file_dir_and_name,outdir,kpmin,kpmax,kpstep = parser()
     file_name,file_dir = manage_input_dir(file_dir_and_name)
+    if outdir == '':
+       outdir = file_dir
     Scf = QECalculation()
     Scf.extract_input_information(file_dir_and_name)
     line_to_be_modified,readed_vector = extract_info()
