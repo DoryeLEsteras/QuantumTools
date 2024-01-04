@@ -40,17 +40,22 @@ def extract_info():
     with open(file_dir_and_name,'r') as file:
          readed_vector = file.readlines() 
     for line_number, line in enumerate(readed_vector):
-        if line.startswith('K_POINTS') or line.startswith('k_points'):
-           line_to_be_modified = line_number + 1
-    return line_to_be_modified, readed_vector
+        line_to_check = line.replace('(','').replace('{','').split()
+        if len(line_to_check)>1:
+           if line_to_check[0].lower() == 'k_points':
+              line_to_be_modified = line_number + 1
+           if line_to_check[0].lower() == 'prefix':
+              prefix_line_number = line_number
+    return line_to_be_modified,prefix_line_number, readed_vector
 
-def create_scan(line_to_be_modified:int, readed_vector:List) -> None:
+def create_scan(line_to_be_modified:int, prefix_line_number:int,readed_vector:List) -> None:
     original_kp = Scf.kpoints
     if str(Scf.kpoints[2]) == '1':
         for i in range(kpmin,kpmax + kpstep,kpstep):
             new_file_name = file_name.replace('scf.in', 'kx' + str(i) + '.ky'  + str(i) + '.kz' + '1' + '.scf.in')  
             readed_vector[line_to_be_modified] = str(i) + " " + str(i) + " " + '1 ' + str(Scf.kpoints[3]) +\
                  " " +  str(Scf.kpoints[4]) + " " + str(Scf.kpoints[5])
+            readed_vector[prefix_line_number] = "prefix = '" + Scf.prefix + '_k_' + str(i) +"'\n"
             initialize_clusters('basic_scf',outdir,new_file_name,'.kx' + str(i) + '.ky' + str(i) +'.kz1') 
             with open(os.path.join(file_dir,new_file_name),'w') as file:
                 for line in readed_vector:
@@ -102,6 +107,6 @@ if __name__ == '__main__':
        outdir = file_dir
     Scf = QECalculation()
     Scf.extract_input_information(file_dir_and_name)
-    line_to_be_modified,readed_vector = extract_info()
-    create_scan(line_to_be_modified,readed_vector)
+    line_to_be_modified,prefix_line_number,readed_vector = extract_info()
+    create_scan(line_to_be_modified,prefix_line_number,readed_vector)
     create_launcher()

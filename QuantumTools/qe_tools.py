@@ -116,7 +116,7 @@ class QECalculation:
                                  self.atomic_matrix[i][5] = atomic_coord[5]
                                  self.atomic_matrix[i][6] = atomic_coord[6]                          
                           self.atomic_matrix = self.atomic_matrix.decode("utf-8")       
-                  if word == 'K_POINTS' or word == 'k_points':
+                  if word.lower().replace('(','').replace('{','') == 'k_points':
                           self.kpoints = np.array(clean_file[line_number + 1].split())
           self.cell_matrix_cartesian = transform_lattice_parameters(self.cell_matrix, \
                         self.ibrav,self.cell_parameters_units,self.a,self.b, \
