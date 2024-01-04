@@ -46,7 +46,6 @@ def parser():
                         required=False,
                         default='',
                         help="Relative or absolute path for output directory ")   
-                        )    
     parser.add_argument("-newname", "--newname",
                         type=str,
                         required=False,
@@ -201,7 +200,7 @@ if __name__ == '__main__':
   opt_out_name, opt_out_dir = manage_input_dir(opt_out_dir_and_name)
   opt_input_name, opt_input_dir = manage_input_dir(opt_input_dir_and_name)
   if provided_output_dir == '':
-     provided_output_dir = file_dir
+     provided_output_dir = opt_out_dir
   Optimization = QECalculation()
   Optimization.extract_input_information(opt_input_dir_and_name)
   Output = QEoutput()
