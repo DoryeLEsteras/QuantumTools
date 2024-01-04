@@ -145,8 +145,9 @@ def generate_input(opt_input_dir_and_name:str,new_file_name:str):
    if Output.calculation_finished != True:
       generated_file = open(os.path.join(provided_output_dir,new_file_name),'w') 
    elif Output.calculation_finished == True:
-      generated_file_name_and_dir = os.path.join(provided_output_dir,opt_input_name.replace('vcrelax','scf'))
-      generated_file_name_and_dir = generated_file_name_and_dir.replace('relax','scf')
+      generated_file_name = opt_input_name.replace('vcrelax','scf')
+      generated_file_name = generated_file_name.replace('relax','scf')
+      generated_file_name_and_dir = os.path.join(provided_output_dir,generated_file_name)
       generated_file = open(generated_file_name_and_dir,'w')     
       file_clean_copy = clean_uncommented_file(updated_file_vector)
       # loop checks the clean copy and edits the original vector
