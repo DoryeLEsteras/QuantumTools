@@ -80,7 +80,7 @@ def create_launcher():
         cluster_dict[cluster_name] = Cluster(cluster_name)
         cluster_dict[cluster_name].extract_input_information() 
 
-        launcher_file = open(cluster_name.lower() + '.serial.launcher.sh','a')
+        launcher_file = open(os.path.join(outdir,cluster_name.lower() + '.serial.launcher.sh'),'a')
         launcher_file.write('for kp in $(seq ' + str(kpmin) + ' ' + str(kpstep) + ' ' + str(kpmax) + ')\n' )
         launcher_file.write('do\n')
         if str(Scf.kpoints[2]) == '1':
