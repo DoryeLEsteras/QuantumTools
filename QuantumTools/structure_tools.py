@@ -55,6 +55,7 @@ def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
         cosac:float,cosab:float,cosbc:float,celldm1:float,\
         celldm2:float,celldm3:float,celldm4:float,celldm5:float, \
         celldm6:float) -> np.ndarray: 
+    
     if ibrav == 0 and cell_parameters_units == 'angstrom':
         return cell_matrix
     if ibrav == 0 and cell_parameters_units == 'crystal':
@@ -64,11 +65,11 @@ def transform_lattice_parameters(cell_matrix:np.ndarray,ibrav:int, \
     if ibrav == 0 and cell_parameters_units == 'bohr':
         return np.dot(cell_matrix,celldm1)
     if ibrav != 0:
-       if cell_parameters_units == 'bohr':
-          a = celldm1
-          b = celldm2*celldm1
-          c = celldm3*celldm1
-          cosac = celldm5
-          cosab = celldm6
-          cosbc = celldm4
-    return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)
+        if cell_parameters_units == 'bohr':
+           a = celldm1
+           b = celldm2*celldm1
+           c = celldm3*celldm1
+           cosac = celldm5
+           cosab = celldm6
+           cosbc = celldm4
+        return transform_to_ibrav0(ibrav,a,b,c,cosab,cosbc,cosac)

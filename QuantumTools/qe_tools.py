@@ -88,7 +88,7 @@ class QECalculation:
                          if splitted_line[word_number + 1] == '6':
                             self.celldm6 = float(splitted_line[word_number + 2])
                   if word == 'CELL_PARAMETERS':
-                          splitted_line = str(splitted_line).replace('}','').replace('{','').replace(')','').replace('(','').split()
+                          splitted_line = line.replace('}','').replace('{','').replace(')','').replace('(','').split()
                           self.cell_parameters_units = splitted_line[1]
                           v1 = clean_file[line_number + 1].split()
                           v2 = clean_file[line_number + 2].split()
@@ -123,6 +123,7 @@ class QECalculation:
                         self.c,self.cosac,self.cosab,self.cosbc, \
                         self.celldm1,self.celldm2,self.celldm3,self.celldm4, \
                         self.celldm5,self.celldm6)
+         
 @dataclass
 class QEoutput:
   calculation_finished: bool = 0

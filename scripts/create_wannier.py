@@ -145,7 +145,7 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
         nscf_file.write('CELL_PARAMETERS (' + SCF.cell_parameters_units +')\n') 
         for i in range(0,3,1):
             for j in range(0,3,1):
-                cell_matrix_cartesian = str(SCF.cell_matrix_cartesian[i][j]).replace('[','').replace(']','') 
+                cell_matrix_cartesian = str(SCF.cell_matrix_cartesian[i][j]).replace('[','').replace(']','')
                 nscf_file.write(f"{float(cell_matrix_cartesian):.9f} ")
             nscf_file.write(f"\n")
         nscf_file.write(kmesh)  
