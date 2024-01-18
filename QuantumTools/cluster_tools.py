@@ -156,7 +156,7 @@ class Cluster:
           'srun ' + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
           'bader ' + valence_cube + ' -ref ' + all_cube ) 
       def write_band_alignment(self,scf_input_name:str,run_file) -> None: 
-          pp_input_name = scf_input_name.replace('scf','ba.pp')
+          pp_input_name = scf_input_name.replace('scf','wf.pp')
           avg_input_name = scf_input_name.replace('scf','avg')
           scf_output_name = scf_input_name.replace('.in','.out')
           pp_output_name = pp_input_name.replace('.in','.out')
