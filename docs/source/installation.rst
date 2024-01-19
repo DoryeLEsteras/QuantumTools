@@ -6,7 +6,7 @@ Installation
 
 Prerequisites
 =============
-aFirst, you need python3 (>=3.7) installed in your machine. Once python is installed, you can use pip (or pip3) to install the following packages if they are missing:
+First, you need python3 (>=3.7) installed in your machine. Once python is installed, you can use pip (or pip3) to install the following packages if they are missing:
 
 * NumPy
 
