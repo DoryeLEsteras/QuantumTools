@@ -164,7 +164,7 @@ class Cluster:
           run_file.write(\
           'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n' + \
-          'mpirun -np 1 ' + self.qepath + 'avg.x ' + avg_input_name + ' > ' + avg_output_name + '\n') 
+          'mpirun -np 1 ' + self.qepath + 'average.x ' + '<' + avg_input_name + ' > ' + avg_output_name + '\n') 
       def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
           pw2wan_up_input_name = scf_input_name.replace('scf','up.pw2wan')
