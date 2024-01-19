@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html  lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+      <title>extract_vasp_bands.py</title>
+    
+          <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+          <link rel="stylesheet" href="../../_static/theme.css " type="text/css" />
+          <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      
+      <!-- sphinx script_files -->
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+
+      
+      <!-- bundled in js (rollup iife) -->
+      <!-- <script src="../../_static/theme-vendors.js"></script> -->
+      <script src="../../_static/theme.js" defer></script>
+    
+  <link rel="index" title="Index" href="../../genindex.html" />
+  <link rel="search" title="Search" href="../../search.html" />
+  <link rel="next" title="extract_fatbands.py" href="extract_fatbands.html" />
+  <link rel="prev" title="extract_repaired_bands.py" href="extract_repaired_bands.html" /> 
+  </head>
+
+  <body>
+    <div id="app">
+    <div class="theme-container" :class="pageClasses"><navbar @toggle-sidebar="toggleSidebar">
+  <router-link to="../../index.html" class="home-link">
+    
+      <span class="site-name">QuantumTools</span>
+    
+  </router-link>
+
+  <div class="links">
+    <navlinks class="can-hide">
+
+
+
+    </navlinks>
+  </div>
+</navbar>
+
+      
+      <div class="sidebar-mask" @click="toggleSidebar(false)">
+      </div>
+        <sidebar @toggle-sidebar="toggleSidebar">
+          
+          <navlinks>
+            
+
+
+
+            
+          </navlinks><div id="searchbox" class="searchbox" role="search">
+  <div class="caption"><span class="caption-text">Quick search</span>
+    <div class="searchformwrapper">
+      <form class="search" action="../../search.html" method="get">
+        <input type="text" name="q" />
+        <input type="submit" value="Search" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+      </form>
+    </div>
+  </div>
+</div><div class="sidebar-links" role="navigation" aria-label="main navigation">
+  
+    <div class="sidebar-group">
+      <p class="caption">
+        <span class="caption-text"><a href="../../index.html#quantumtools">Contents:</a></span>
+      </p>
+      <ul class="">
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../cover.html" class="reference internal ">Introduction to QuantumTools</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../installation.html" class="reference internal ">Installation</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../index.html" class="reference internal ">Tutorials</a>
+            
+
+            
+          </li>
+
+        
+          <li class="toctree-l1 ">
+            
+              <a href="../../package_versions/index.html" class="reference internal ">Released versions</a>
+            
+
+            
+          </li>
+
+        
+      </ul>
+    </div>
+  
+</div>
+        </sidebar>
+
+      <page>
+          <div class="body-header" role="navigation" aria-label="navigation">
+  
+  <ul class="breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+    
+      <li><a href="../index.html">Tutorials</a> &raquo;</li>
+    
+      <li><a href="index.html">Extraction scripts!</a> &raquo;</li>
+    
+    <li>extract_vasp_bands.py</li>
+  </ul>
+  
+
+  <ul class="page-nav">
+  <li class="prev">
+    <a href="extract_repaired_bands.html"
+       title="previous chapter">← extract_repaired_bands.py</a>
+  </li>
+  <li class="next">
+    <a href="extract_fatbands.html"
+       title="next chapter">extract_fatbands.py →</a>
+  </li>
+</ul>
+  
+</div>
+<hr>
+          <div class="content" role="main" v-pre>
+            
+  <section id="extract-vasp-bands-py">
+<h1>extract_vasp_bands.py<a class="headerlink" href="#extract-vasp-bands-py" title="Permalink to this heading">¶</a></h1>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
+<p>This is a first script for VASP. In Vasp the computed bands are located inside of
+the file OUTCAR, in a particular format that is not straightforward to extract.
+There are different tools to directly plot the bands from the OUTCAR, but they do not
+provide the raw data in a simple-to-plot format, thus flexibility is lost.
+‘extract_vasp_bands.py’ provides the bands in the format of QuantumEspresso, so
+you can plot them in a simple way. The script work in a very similar way than ‘extract_repaired_bands.py’:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">extract_vasp_bands.py -outcar /mydir/OUTCAR  -hs 5</span>
+</pre></div>
+</div>
+<p>This execution extracts the repaired bands and provides you the data and the new
+high symmetry points in the usual format.</p>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this heading">¶</a></h2>
+<section id="outcar-outcar">
+<span id="extract-vasp-bands"></span><h3>-outcar, –outcar<a class="headerlink" href="#outcar-outcar" title="Permalink to this heading">¶</a></h3>
+<p>OUTCAR file of VASP</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="outdir-outdir">
+<h3>-outdir, –outdir<a class="headerlink" href="#outdir-outdir" title="Permalink to this heading">¶</a></h3>
+<p>Directory where the outputs will be generated.</p>
+<blockquote>
+<div><p>Optional: Yes</p>
+<p>Default: Directory selected with –input flag</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="bands-bands">
+<h3>-bands, –bands<a class="headerlink" href="#bands-bands" title="Permalink to this heading">¶</a></h3>
+<p>File with the bands calculated with bands.x (the wrong ones)</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: str</p>
+</div></blockquote>
+</section>
+<section id="nk-nk">
+<h3>-nk, –nk<a class="headerlink" href="#nk-nk" title="Permalink to this heading">¶</a></h3>
+<p>Number of high symmetry points in the calculation (Ex: Gamma-K-M-K-Gamma -&gt; 5)</p>
+<blockquote>
+<div><p>Optional: No</p>
+<p>Type: int</p>
+</div></blockquote>
+</section>
+</section>
+</section>
+
+
+          </div>
+          <div class="page-nav">
+            <div class="inner"><ul class="page-nav">
+  <li class="prev">
+    <a href="extract_repaired_bands.html"
+       title="previous chapter">← extract_repaired_bands.py</a>
+  </li>
+  <li class="next">
+    <a href="extract_fatbands.html"
+       title="next chapter">extract_fatbands.py →</a>
+  </li>
+</ul><div class="footer" role="contentinfo">
+      &#169; Copyright 2023, DoryeLEsteras.
+    <br>
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.2.1 with <a href="https://github.com/schettino72/sphinx_press_theme">Press Theme</a> 0.8.0.
+</div>
+            </div>
+          </div>
+      </page>
+    </div></div>
+    
+    
+  </body>
+</html>
