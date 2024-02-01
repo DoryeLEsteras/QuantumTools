@@ -142,9 +142,8 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
                d_d_hamiltonian[index1-1][index2-1] = 0 
             if d_d_hamiltonian[index1-1][index2-1] < 0 \
                and d_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
-               d_d_hamiltonian[index1-1][index2-1] = 0         
-            d_d_output_file.write(str(d_d_hamiltonian[index1-1][index2-1]))
-            d_d_output_file.write(' ')
+               d_d_hamiltonian[index1-1][index2-1] = 0        
+            d_d_output_file.write(f"{d_d_hamiltonian[index1-1][index2-1]:>8.4f}")
         d_d_output_file.write('\n')
     d_d_output_file.close()
 
@@ -161,8 +160,7 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
             if ligand_ligand_hamiltonian[index1-1][index2-1] < 0 \
                 and ligand_ligand_hamiltonian[index1-1][index2-1] > -cut: 
                ligand_ligand_hamiltonian[index1-1][index2-1] = 0
-            l_l_output_file.write(str(ligand_ligand_hamiltonian[index1-1][index2-1]))
-            l_l_output_file.write(' ')
+            l_l_output_file.write(f"{ligand_ligand_hamiltonian[index1-1][index2-1]:>8.4f}")
         l_l_output_file.write('\n')
     l_l_output_file.close()
 
@@ -179,8 +177,7 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
             if d_ligand_hamiltonian[index1-1][index2-1] < 0 \
                 and d_ligand_hamiltonian[index1-1][index2-1] > -cut: #filter data here
                d_ligand_hamiltonian[index1-1][index2-1] = 0 
-            d_l_output_file.write(str(d_ligand_hamiltonian[index1-1][index2-1]))
-            d_l_output_file.write('  ')
+            d_l_output_file.write(f"{d_ligand_hamiltonian[index1-1][index2-1]:>8.4f}")
         d_l_output_file.write('\n')
     d_l_output_file.close()
 
@@ -197,8 +194,7 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
             if ligand_d_hamiltonian[index1-1][index2-1] < 0 \
                 and ligand_d_hamiltonian[index1-1][index2-1] > -cut: #filter data here
                ligand_d_hamiltonian[index1-1][index2-1] = 0 
-            l_d_output_file.write(str(ligand_d_hamiltonian[index1-1][index2-1]))
-            l_d_output_file.write(' ')
+            l_d_output_file.write(f"{ligand_d_hamiltonian[index1-1][index2-1]:>8.4f}")
         l_d_output_file.write('\n')
     l_d_output_file.close()
 

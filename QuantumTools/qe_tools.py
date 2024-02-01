@@ -128,6 +128,7 @@ class QECalculation:
 class QEoutput:
   calculation_finished: bool = 0
   nat: int = 0
+  mag_vector: np.ndarray = np.array([])
   a: float = 0.0
   total_energy: float = 0.0
   cell_parameters_units: str = ''
@@ -146,6 +147,9 @@ class QEoutput:
           if splitted_line[0] == 'number' and splitted_line[1] == 'of': 
              if splitted_line[2] == 'atoms/cell' or splitted_line[2] == 'atoms':
                 self.nat = int(splitted_line[-2]) 
+          if splitted_line[0:4] == ['Magnetic', 'moment', 'per', 'site']:
+            for i in range(0,self.nat):
+                self.mag_vector = np.append(self.mag_vector,clean_file[line_number + i + 1].split()[-1])
           if splitted_line[0] == 'lattice' and splitted_line[1] == 'parameter':
               self.a =  float(splitted_line[-3]) * 0.529177
           for word_number, word in enumerate(splitted_line):
