@@ -93,14 +93,13 @@ def create_hamiltonians(hamiltonian:np.ndarray,cell:str) -> None:
     ligand_ligand_hamiltonian = np.zeros((nwan - norb, nwan - norb))
     d_ligand_hamiltonian = np.zeros((norb, nwan - norb))
     ligand_d_hamiltonian = np.zeros((nwan - norb, norb))
-
-    provided_output_name_d_d_hoppings = cell.replace(' ','_') + \
+    provided_output_name_d_d_hoppings = cell.replace(' ','_').replace('-','m') + \
         '_d_d_hoppings.txt'
-    provided_output_name_d_l_hoppings = cell.replace(' ','_') + \
+    provided_output_name_d_l_hoppings = cell.replace(' ','_').replace('-','m') + \
         '_d_l_hoppings.txt'
-    provided_output_name_l_d_hoppings = cell.replace(' ','_') + \
+    provided_output_name_l_d_hoppings = cell.replace(' ','_').replace('-','m') + \
         '_l_d_hoppings.txt'
-    provided_output_name_l_l_hoppings = cell.replace(' ','_') + \
+    provided_output_name_l_l_hoppings = cell.replace(' ','_').replace('-','m') + \
         '_l_l_hoppings.txt'
     d_d_output_file = \
         open(os.path.join(outdir,provided_output_name_d_d_hoppings), 'w')
