@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
-from subprocess import run
+#from subprocess import run
 import os
 from typing import List
 import numpy as np
-import QuantumTools  # to find kmesh path
+#import QuantumTools  # to find kmesh path
 from QuantumTools.qe_tools import QECalculation
 from QuantumTools.directory_and_files_tools import clean_uncommented_file,manage_input_dir
 from QuantumTools.cluster_tools import initialize_clusters, Cluster
@@ -80,6 +80,21 @@ def parser():
     return args.input,args.outdir,args.kpath,args.k,args.nbands,args.nwan, \
            args.Mo,args.mo,args.Mi,args.mi,args.orb
 
+def kmesh(k,wan,file_to_write):
+    totpts = int(k[0]) * int(k[1]) * int(k[2])
+    if wan == 'no':
+       file_to_write.write("\nK_POINTS crystal\n")
+       file_to_write.write(str(totpts)+'\n')
+       for x in range(int(k[0])):
+           for y in range(int(k[1])):
+               for z in range(int(k[2])):
+                   file_to_write.write("{:12.8f}{:12.8f}{:12.8f}{:14.6e}\n".format(x/int(k[0]), y/int(k[1]), z/int(k[2]), 1/totpts))
+    if wan == 'yes':
+        for x in range(int(k[0])):
+            for y in range(int(k[1])):
+                for z in range(int(k[2])):
+                    file_to_write.write("{:12.8f}{:12.8f}{:12.8f}\n".format(x/int(k[0]), y/int(k[1]), z/int(k[2])))
+
 def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]) -> None:
     nscf_file_name = file_name.replace('scf','nscf')
     nscf_output = os.path.join(outdir,nscf_file_name)
@@ -135,10 +150,11 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
                original_file[line_number+1] = '' 
                original_file[line_number+2] = '' 
                original_file[line_number+3] = '' 
-            QT_directory = QuantumTools.__file__.replace('__init__.py','')
-            kmesh = run([QT_directory +'kmesh.pl', \
-                    str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
-            output = kmesh.stdout; kmesh = output.decode("utf-8")
+            
+            #QT_directory = QuantumTools.__file__.replace('__init__.py','')
+            #kmesh = run([QT_directory +'kmesh.pl', \
+            #        str(k[0]), str(k[1]), str(k[2])],capture_output=True) 
+            #output = kmesh.stdout; kmesh = output.decode("utf-8")
     with open(nscf_output, 'w') as nscf_file:   
         for line in original_file: 
             nscf_file.write(str(line))  
@@ -148,7 +164,8 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
                 cell_matrix_cartesian = str(SCF.cell_matrix_cartesian[i][j]).replace('[','').replace(']','')
                 nscf_file.write(f"{float(cell_matrix_cartesian):.9f} ")
             nscf_file.write(f"\n")
-        nscf_file.write(kmesh)  
+        kmesh(k,'no',nscf_file)
+        #nscf_file.write(kmesh)  
 
 def create_pw2wan_input(file_dir:str,seed:str) -> None: 
     if SCF.nspin == 1:
@@ -210,7 +227,7 @@ def create_pw2wan_input(file_dir:str,seed:str) -> None:
 def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
                      mo:float, Mi:float, mi:float, projectors:str,k:List[int]) -> None: 
     win_output_name = seed + '.win'
-    with open(os.path.join(file_dir,win_output_name), 'w') as win_file:
+    with open(os.path.join(file_dir,win_output_name), 'w',encoding="utf-8") as win_file:
          win_file.write(f"{'!'*80}\n")
          win_file.write(f"{'!'*30}VARIABLES TO SELECT{'!'*31}\n")
          win_file.write(f"{'!'*80}\n")
@@ -323,10 +340,11 @@ def create_win_input(file_dir:str, seed:str, nbands:int, nwan:int, Mo:float, \
          
          win_file.write(f"mp_grid = {str(k[0]):3}{str(k[1]):3}{str(k[2]):3}\n")     
          win_file.write(f"begin kpoints \n")   
-         QT_directory = QuantumTools.__file__.replace('__init__.py','')
-         kmesh = run([QT_directory +'kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
-         output = kmesh.stdout; kmesh = output.decode("utf-8")
-         win_file.write(f"{kmesh}")   
+         #QT_directory = QuantumTools.__file__.replace('__init__.py','')
+         #kmesh = run([QT_directory +'kmesh.pl', str(k[0]), str(k[1]), str(k[2]), 'wan'],capture_output=True)
+         #output = kmesh.stdout; kmesh = output.decode("utf-8")
+         kmesh(k,'yes',win_file)
+         #win_file.write(f"{kmesh}")   
          win_file.write(f"end kpoints \n")    
          win_file.write(f"{'!'*34}END OF FILE{'!'*35}\n")
 
