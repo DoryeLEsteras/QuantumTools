@@ -1,4 +1,7 @@
+from email.policy import default
 import numpy as np
+from pydantic.dataclasses import dataclass
+from pydantic import ConfigDict, Field
 from dataclasses import dataclass
 from QuantumTools.directory_and_files_tools import handle_comments, clean_uncommented_file
 from QuantumTools.structure_tools import transform_lattice_parameters
@@ -25,11 +28,11 @@ class QECalculation:
       celldm4: float = 0.0
       celldm5: float = 0.0
       celldm6: float = 0.0
-      cell_matrix: np.ndarray = np.array([[]])
-      cell_matrix_cartesian: np.ndarray = np.array([[]])
+      cell_matrix: np.ndarray = Field(default_factory=lambda:np.array([[]]))
+      cell_matrix_cartesian: Field(default_factory=lambda:np.ndarray = np.array([[]]))
       atomic_positions_units: str = ''
-      atomic_matrix: np.ndarray = np.array([[]])
-      kpoints: np.ndarray = np.array([])
+      atomic_matrix: Field(default_factory=lambda:np.ndarray = np.array([[]]))
+      kpoints: Field(default_factory=lambda:np.ndarray = np.array([]))
       cell_dofree: str = ''
       def extract_input_information(self,file_name: str) -> None:
           # extract a,b,c will fail if someone uses A,B,C. However if I include
@@ -128,14 +131,14 @@ class QECalculation:
 class QEoutput:
   calculation_finished: bool = 0
   nat: int = 0
-  mag_vector: np.ndarray = np.array([])
+  mag_vector: np.ndarray = Field(default_factory=lambda:np.array([]))
   a: float = 0.0
   total_energy: float = 0.0
   cell_parameters_units: str = ''
-  cell_matrix: np.ndarray = np.array([[]])
-  cell_matrix_angstrom: np.ndarray = np.array([[]])
+  cell_matrix: Field(default_factory=lambda:np.ndarray = np.array([[]]))
+  cell_matrix_angstrom: Field(default_factory=lambda:np.ndarray = np.array([[]]))
   atomic_positions_units: str = ''
-  atomic_matrix: np.ndarray = np.array([[]])
+  atomic_matrix:        Field(default_factory=lambda:np.ndarray = np.array([[]]))
   def extract_output_information(self,file_name: str) -> None:
       with open(file_name, 'r') as file:
         file_vector = file.readlines()
