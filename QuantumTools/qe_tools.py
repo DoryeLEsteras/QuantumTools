@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from QuantumTools.directory_and_files_tools import handle_comments, clean_uncommented_file
 from QuantumTools.structure_tools import transform_lattice_parameters
 
-@dataclass
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class QECalculation:
       nat: int = 0
       ntyp: int = 0
@@ -127,7 +127,7 @@ class QECalculation:
                         self.celldm1,self.celldm2,self.celldm3,self.celldm4, \
                         self.celldm5,self.celldm6)
          
-@dataclass
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class QEoutput:
   calculation_finished: bool = 0
   nat: int = 0
