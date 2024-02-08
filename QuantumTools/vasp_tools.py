@@ -1,12 +1,13 @@
 
 import numpy as np
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
+from pydantic import ConfigDict, Field
 
-@dataclass
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Outcar:
       nk: int = 0
       ispin: int = 0
-      kpoints: np.ndarray = np.array([])
+      kpoints: np.ndarray = Field(default_factory=lambda:np.array([]))
       def extract_information(self,file_name:str) -> None:
           with open (file_name,'r') as f:
                for line in f:

@@ -1,14 +1,16 @@
 import numpy as np
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
+from pydantic import ConfigDict, Field
 from QuantumTools.directory_and_files_tools import handle_comments,clean_uncommented_file
-@dataclass
+
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class WannierCalculation:
       nbands: int = 0
       nwan: int = 0
       nat: int = 0
-      cell_matrix_angstrom: np.ndarray = np.array([[]])
+      cell_matrix_angstrom: np.ndarray = Field(default_factory=lambda:np.array([[]]))
       atomic_positions_units: str = ''
-      atomic_matrix: np.ndarray = np.array([['0','0','0','0']])
+      atomic_matrix: np.ndarray = Field(default_factory=lambda:np.array([['0','0','0','0']]))
       def extract_input_information(self,file_name: str) -> None:
           uncommented_file = handle_comments(file_name)
           clean_file = clean_uncommented_file(uncommented_file)

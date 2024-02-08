@@ -1,7 +1,6 @@
 import numpy as np
 from pydantic.dataclasses import dataclass
 from pydantic import ConfigDict, Field
-from dataclasses import dataclass
 from QuantumTools.directory_and_files_tools import handle_comments, clean_uncommented_file
 from QuantumTools.structure_tools import transform_lattice_parameters
 
