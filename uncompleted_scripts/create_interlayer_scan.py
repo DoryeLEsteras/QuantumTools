@@ -71,8 +71,11 @@ if __name__ == '__main__':
       """careful just valid for CrSBr"""  
       # creates the shift in the cell parameters
       new_cell_parameters =  np.copy(poscar.cell_parameters)
+      new_coordinates =  np.copy(poscar.atomic_coordinates)
       for d in np.arange(min,max + step,step):
           new_cell_parameters[2,2] = poscar.cell_parameters[2,2] + d
+          for atom_index in atoms_to_be_shifted:
+              new_coordinates[atom_index,2] = poscar.atomic_coordinates[atom_index,2] + d
 
           # copys all the extra files and defines the name of the folder
           folder_name = 'interlayer_' + str(d)
@@ -95,11 +98,11 @@ if __name__ == '__main__':
           new_file =  np.copy(poscar.poscar_file)
           for atom in range(poscar.nat):
               new_file[atom + starting_line + 1] = f"{new_coordinates[atom,0]:.8f} {new_coordinates[atom,1]:.8f} {new_coordinates[atom,2]:.8f}\n"
-
+              
           # Substitutes the cell parameters
-              new_file[starting_line -5] = f"{new_cell_parameters[0,0]:.8f} {new_cell_parameters[0,1]:.8f} {new_cell_parameters[0,2]:.8f}\n"
-              new_file[starting_line -4] = f"{new_cell_parameters[1,0]:.8f} {new_cell_parameters[1,1]:.8f} {new_cell_parameters[1,2]:.8f}\n"
-              new_file[starting_line -3] = f"{new_cell_parameters[2,0]:.8f} {new_cell_parameters[2,1]:.8f} {new_cell_parameters[2,2]:.8f}\n"
+          new_file[starting_line -5] = f"{new_cell_parameters[0,0]:.8f} {new_cell_parameters[0,1]:.8f} {new_cell_parameters[0,2]:.8f}\n"
+          new_file[starting_line -4] = f"{new_cell_parameters[1,0]:.8f} {new_cell_parameters[1,1]:.8f} {new_cell_parameters[1,2]:.8f}\n"
+          new_file[starting_line -3] = f"{new_cell_parameters[2,0]:.8f} {new_cell_parameters[2,1]:.8f} {new_cell_parameters[2,2]:.8f}\n"
           # Write them in the new file
           with open(os.path.join(outdir,folder_name, 'POSCAR'),'w') as output_file:
                for line in new_file:
