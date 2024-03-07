@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from QuantumTools.vasp_tools import Poscar
 from QuantumTools.qe_tools import QECalculation
 from argparse import ArgumentParser
