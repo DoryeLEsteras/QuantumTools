@@ -56,26 +56,25 @@ if __name__ == '__main__':
       else:
          pattern = f"NELECT\s*=\s*{incar.nelect}\d*"
          zero_doping_value = incar.nelect
-      for dop in np.arange(min,max + step,step): 
-          if dop - zero_doping_value > 0.0:
-             folder_name = 'doping_' + str((dop - zero_doping_value)/10) + 'e'
-          elif dop - zero_doping_value < 0.0:
-             folder_name = 'doping_' + str((dop - zero_doping_value)/10) + 'h'
-             folder_name = folder_name.replace('-','')
-          elif dop -zero_doping_value == 0.0:
-             folder_name = 'doping_0.0'
-          if not os.path.exists(folder_name):
-             os.makedirs(folder_name)
+      for dop in np.arange(min,max + step,step):
+          if round(dop - zero_doping_value,3) > 0.0:
+             folder_name = f'doping_{(dop - zero_doping_value)/10:.3f}e'
+          elif round(dop - zero_doping_value,3) < 0.0:
+             folder_name = f'doping_{abs(dop - zero_doping_value)/10:.3f}h'
+          elif round(dop -zero_doping_value,3) == 0.000:
+             folder_name = f'doping_{abs(dop - zero_doping_value)/10:.3f}'
+          if not os.path.exists(os.path.join(outdir,folder_name)):
+             os.makedirs(os.path.join(outdir,folder_name))
              shutil.copy(input_name_and_dir.replace('INCAR','POSCAR'), os.path.join(outdir,folder_name,'POSCAR') )
              shutil.copy(input_name_and_dir.replace('INCAR','KPOINTS'), os.path.join(outdir,folder_name,'KPOINTS') )
              shutil.copy(input_name_and_dir.replace('INCAR','POTCAR'), os.path.join(outdir,folder_name,'POTCAR') )
-             shutil.copy(run, os.path.join(outdir,folder_name, run) )
+             shutil.copy(run, os.path.join(outdir,folder_name, os.path.basename(run)) )
           else:
-             print(f"Folder '{folder_name}' already exists.")
+             print(f"Folder '{os.path.join(outdir,folder_name)}' already exists.")
           
           new_file = []
           for line_number, line in enumerate(incar.incar_file):
-              new_file.append(re.sub(pattern, 'NELECT = ' + str(dop) , incar.incar_file[line_number]))
+              new_file.append(re.sub(pattern, 'NELECT = ' + str(round(dop,3)) , incar.incar_file[line_number]))
               
           with open(os.path.join(outdir,folder_name, 'INCAR'),'w') as output_file:
                for line in new_file:

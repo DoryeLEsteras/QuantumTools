@@ -94,7 +94,6 @@ class Incar:
               for prop in line:
                  pair = prop.split('=')
                  if len(pair)> 1:
-                    
                     if 'prec' == pair[0].lower():
                         self.prec = pair[1]
                     if 'ismear' == pair[0].lower():
