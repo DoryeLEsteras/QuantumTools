@@ -30,6 +30,8 @@ setup(
          'scripts/extract_repaired_bands.py',     
          'scripts/extract_fatbands.py',
          'scripts/extract_wan_h.py'
+         'scripts/create_doping.py'
+         'uncompleted_scripts/create_interlayer_scan.py'
      ],
     install_requires=[
         'numpy',
