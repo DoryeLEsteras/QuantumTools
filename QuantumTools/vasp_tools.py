@@ -8,6 +8,7 @@ from typing import List
 class Outcar:
       nk: int = 0
       ispin: int = 0
+      energy: float = 0.0
       kpoints: np.ndarray = Field(default_factory=lambda:np.array([]))
       def extract_information(self,file_name:str) -> None:
           with open (file_name,'r') as f:
@@ -21,6 +22,8 @@ class Outcar:
                       if line[0] == 'Dimension' and line[2] == 'arrays:':
                          line = f.readline().split()
                          self.nbands = int(line[-1])
+                      if line[0] == 'free' and line[1] == 'energy':
+                         self.energy = float(line[-2])
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Poscar:
@@ -50,7 +53,7 @@ class Poscar:
           for i in range(self.ntyp):
               for j in range(int(number_types[i])):
                   self.atom_label_list.append(labels[i])
-          self.units_atomic_coordinates = file.readline()
+          self.units_atomic_coordinates = file.readline().split()[0]
           self.atomic_coordinates = np.zeros((self.nat,3))
           for i in range(self.nat):
               self.atomic_coordinates[i] = file.readline().split()      
@@ -141,6 +144,6 @@ class Incar:
                     self.ldauj = line[2:] 
 
 if __name__ == '__main__':
-   incar = Incar()
-   incar.read_data('INCAR')
+   incar = Outcar()
+   incar.extract_information('OUTCAR')
    #print(incar)
