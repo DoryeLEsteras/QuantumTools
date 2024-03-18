@@ -1,9 +1,11 @@
-from QuantumTools.vasp_tools import Poscar
+from QuantumTools.vasp_tools import Poscar, Outcar
+from QuantumTools.directory_and_files_tools import get_time,stop_watch
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 import os
 from argparse import ArgumentParser
+import time
 
 def parser():
     parser = ArgumentParser(description="Script to compute shape anisotropy")
@@ -12,6 +14,12 @@ def parser():
                         required=True,
                         help="""
                         Relative or absolute path of the POSCAR file.
+                        """)
+    parser.add_argument("-outcar", "--outcar",
+                        type=str,
+                        required=True,
+                        help="""
+                        Relative or absolute path of the OUTCAR file.
                         """)
     parser.add_argument("-outdir", "--outdir",
                         type=str,
@@ -38,7 +46,7 @@ def parser():
                         """)
    
     args = parser.parse_args()
-    return args.poscar,args.outdir,args.ncells,args.dim,args.mode
+    return args.poscar,args.outcar,args.outdir,args.ncells,args.dim,args.mode
 
 def orient_magnetic_moment(scalar_magnetic_moments,direction):
     magnetic_moment_vector = []
@@ -97,7 +105,6 @@ def calculate_dipolar_energy(xy_coordinates,xy_magmom,number_cells):
                 mirij = np.dot(xy_magmom[atomic_index_i],rij)
                 mjrij = np.dot(xy_magmom[atomic_index_j],rij)
                 mimj = np.dot(xy_magmom[atomic_index_i],xy_magmom[atomic_index_j])
-                #print(distance)
                 E = (mimj - 3*(mirij*mjrij) /(distance**2))/(distance**3) + E
     E = constant * E/(2*number_cells**2)
     return E
@@ -168,7 +175,8 @@ def plot_shape_anisotropy(shape_xy,shape_zx,shape_zy,number_cells):
     #plt.show()
     
 if __name__ == '__main__':
-    poscar_file, outdir, number_cells, dimension, mode = parser()    
+    start = time.time()
+    poscar_file, outcar_file, outdir, number_cells, dimension, mode = parser()    
     #dimension = '2D'
     #mode = 'single' # scan or single
     #number_cells = 100
@@ -178,15 +186,22 @@ if __name__ == '__main__':
         'z':2
     }
     #file = 'shape_poscar_cart'
+    #scalar_magnetic_moments = [2.736387,2.736302,2,2]
+    outcar = Outcar()
+    outcar.extract_information(outcar_file)
+    scalar_magnetic_moments = outcar.metal_magmom
+    #scalar_magnetic_moments = [3,3]
     poscar = Poscar()
     poscar.read_data(poscar_file)
     if poscar.units_atomic_coordinates.lower() == 'cartesian':
        for i in range(0,len(poscar.atomic_coordinates)):
            poscar.atomic_coordinates[i] = np.matmul(np.linalg.inv(poscar.cell_parameters),poscar.atomic_coordinates[i])
-    #scalar_magnetic_moments = [2.736387,2.736302]
-    scalar_magnetic_moments = [3,3]
+    poscar.atomic_coordinates = poscar.atomic_coordinates[0:outcar.nmag]
     if mode == 'single':
        single_shoot(number_cells)
     else:
        shape_xy,shape_zx,shape_zy= compute_shape_anisotropy(number_cells,scalar_magnetic_moments)
        plot_shape_anisotropy(shape_xy,shape_zx,shape_zy,number_cells)
+    with open(os.path.join(outdir,'log.txt'),'w') as f:
+         f.write('Done! ' + stop_watch(start, time.time()) + '\n')
+   

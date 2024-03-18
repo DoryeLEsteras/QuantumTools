@@ -49,3 +49,30 @@ def substitute_pattern(string:str,pattern_keyword:str,replacement:str):
     #elif pattern_keyword == 'ecutwfc':
     new_string = patterns_and_keywords[pattern_keyword].sub(r'\1 '+ str(replacement),string)  
     return new_string
+    
+def get_time(value) -> str:
+    timestr = ''
+    if(value == 0):
+        timestr += '00'
+    elif(value < 10):
+        timestr += '0%s'%value
+    else:
+        timestr += str(value)
+    return timestr
+
+def stop_watch(start, finish) -> str:
+    s_in_h = 3600
+    s_in_min = 60
+    elapsed = int(finish-start)
+    mystr = ''
+    mystr += 'Time wasted: '
+    if(elapsed > 0):
+        mystr += get_time(int(elapsed / s_in_h))
+        mystr += ':'
+        mystr += get_time(int((elapsed % s_in_h) / s_in_min))
+        mystr += ':'
+        mystr += get_time(int((elapsed % s_in_h) % (s_in_min)))
+    else:
+        mystr += '00:00:00'
+    mystr += '\n'
+    return mystr

@@ -7,9 +7,15 @@ from typing import List
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Outcar:
       nk: int = 0
+      nat: int = 0
+      nmag: int = 0
       ispin: int = 0
       energy: float = 0.0
       kpoints: np.ndarray = Field(default_factory=lambda:np.array([]))
+      magmom: np.ndarray = Field(default_factory=lambda:np.array([]))
+      metal_magmom: np.ndarray = Field(default_factory=lambda:np.array([]))
+      atomic_coordinates: np.ndarray = Field(default_factory=lambda:np.array([]))
+      metalic_coordinates: np.ndarray = Field(default_factory=lambda:np.array([]))
       def extract_information(self,file_name:str) -> None:
           with open (file_name,'r') as f:
                for line in f:
@@ -24,6 +30,36 @@ class Outcar:
                          self.nbands = int(line[-1])
                       if line[0] == 'free' and line[1] == 'energy':
                          self.energy = float(line[-2])
+                      if line[0] == 'ion' and line[1] == 'position':
+                         x = ['',''];y=[]
+                         while len(x) > 1:
+                            x = f.readline().split()
+                            if len(x) > 1:
+                               y = x
+                         self.nat = int(y[0])
+                      if line[0] == 'magnetization' and line[1] == '(x)':
+                         magmom = np.array([]);metal_magmom = np.array([])
+                         f.readline();f.readline();f.readline()
+                         for i in range(self.nat):
+                             x = f.readline().split()
+                             magmom = np.append(magmom,float(x[-1]))
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])):
+                                metal_magmom = np.append(metal_magmom,float(x[-1]))
+                         self.magmom = magmom
+                         self.metal_magmom = metal_magmom
+                         self.nmag = len(metal_magmom)
+                         # Falta implementar con SOC, alli hay que repetir para magnetization (y) y magnetization (z)
+                         #  magmom serauna matrix con mx, my, mz y mTot y basicamente vas llenando mx, my, mz 
+                         # despues haces la norma y sacas mTot
+                      if line[0] == 'POSITION':
+                         atomic_coordinates = np.zeros((self.nat,3))
+                         f.readline()
+                         for i in range(self.nat):
+                             atomic_coordinates[i] = f.readline().split()[0:3]
+                         self.atomic_coordinates = atomic_coordinates
+                         self.metalic_coordinates = atomic_coordinates[0:self.nmag]
+                         #no entiendo que unidades tienen estas coordenadas
+
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Poscar:
