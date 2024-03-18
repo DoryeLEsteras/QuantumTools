@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from QuantumTools.vasp_tools import Poscar, Outcar
 from QuantumTools.directory_and_files_tools import get_time,stop_watch
 import numpy as np
