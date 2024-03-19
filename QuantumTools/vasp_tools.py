@@ -37,20 +37,41 @@ class Outcar:
                             if len(x) > 1:
                                y = x
                          self.nat = int(y[0])
+                         magmom = np.zeros((self.nat,4))
                       if line[0] == 'magnetization' and line[1] == '(x)':
-                         magmom = np.array([]);metal_magmom = np.array([])
+                         metal_magmomx = np.array([])
                          f.readline();f.readline();f.readline()
                          for i in range(self.nat):
                              x = f.readline().split()
-                             magmom = np.append(magmom,float(x[-1]))
-                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])):
-                                metal_magmom = np.append(metal_magmom,float(x[-1]))
-                         self.magmom = magmom
-                         self.metal_magmom = metal_magmom
-                         self.nmag = len(metal_magmom)
-                         # Falta implementar con SOC, alli hay que repetir para magnetization (y) y magnetization (z)
-                         #  magmom serauna matrix con mx, my, mz y mTot y basicamente vas llenando mx, my, mz 
-                         # despues haces la norma y sacas mTot
+                             magmom[i,0] = float(x[-1])
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                                metal_magmomx= np.append(metal_magmomx,float(x[-1]))
+                                self.nmag = metal_magmomx.shape[0]
+                                self.metal_magmom = metal_magmomx
+                      if line[0] == 'magnetization' and line[1] == '(y)':
+                         metal_magmomy = np.array([])
+                         f.readline();f.readline();f.readline()
+                         for i in range(self.nat):
+                             x = f.readline().split()
+                             magmom[i,1] = float(x[-1])
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                                metal_magmomy = np.append(metal_magmomy,float(x[-1]))
+                                if np.sum(abs(metal_magmomy)) > np.sum(abs(self.metal_magmom)):
+                                   self.nmag = metal_magmomy.shape[0]
+                                   self.metal_magmom = metal_magmomy
+
+                      if line[0] == 'magnetization' and line[1] == '(z)':
+                         metal_magmomz = np.array([])
+                         f.readline();f.readline();f.readline()
+                         for i in range(self.nat):
+                             x = f.readline().split()
+                             magmom[i,2] = float(x[-1])
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                                metal_magmomz= np.append(metal_magmomz,float(x[-1]))
+                                if np.sum(abs(metal_magmomz)) > np.sum(abs(self.metal_magmom)):
+                                   self.nmag = metal_magmomz.shape[0]
+                                   self.metal_magmom = metal_magmomz
+                         
                       if line[0] == 'POSITION':
                          atomic_coordinates = np.zeros((self.nat,3))
                          f.readline()
@@ -59,8 +80,13 @@ class Outcar:
                          self.atomic_coordinates = atomic_coordinates
                          self.metalic_coordinates = atomic_coordinates[0:self.nmag]
                          #no entiendo que unidades tienen estas coordenadas
-
-
+          
+          for i in range(self.nat):
+              magmom[i,3] = np.linalg.norm(magmom[i,0:3])
+          self.magmom = magmom[:,3]  # in this matrix hay have the moments by components
+                                     # however, for now i am not interested in them
+          self.metal_magmom = self.magmom[0:self.nmag]
+          print(self.metal_magmom)
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Poscar:
       poscar_file: List = Field(default_factory=lambda:[])
@@ -180,6 +206,6 @@ class Incar:
                     self.ldauj = line[2:] 
 
 if __name__ == '__main__':
-   incar = Outcar()
-   incar.extract_information('OUTCAR')
+   outcar = Outcar()
+   outcar.extract_information('OUTCAR')
    #print(incar)

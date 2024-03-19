@@ -107,7 +107,10 @@ def calculate_dipolar_energy(xy_coordinates,xy_magmom,number_cells):
                 mjrij = np.dot(xy_magmom[atomic_index_j],rij)
                 mimj = np.dot(xy_magmom[atomic_index_i],xy_magmom[atomic_index_j])
                 E = (mimj - 3*(mirij*mjrij) /(distance**2))/(distance**3) + E
-    E = constant * E/(2*number_cells**2)
+    if dimension == '2D':
+       E = constant * E/(outcar.nmag*number_cells**2)
+    elif dimension == '3D':
+       E = constant * E/(outcar.nmag*number_cells**3)
     return E
 
 def single_shoot(cell):
