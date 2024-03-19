@@ -71,7 +71,7 @@ class Outcar:
                                 if np.sum(abs(metal_magmomz)) > np.sum(abs(self.metal_magmom)):
                                    self.nmag = metal_magmomz.shape[0]
                                    self.metal_magmom = metal_magmomz
-                         
+                      
                       if line[0] == 'POSITION':
                          atomic_coordinates = np.zeros((self.nat,3))
                          f.readline()
@@ -86,7 +86,6 @@ class Outcar:
           self.magmom = magmom[:,3]  # in this matrix hay have the moments by components
                                      # however, for now i am not interested in them
           self.metal_magmom = self.magmom[0:self.nmag]
-          print(self.metal_magmom)
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Poscar:
       poscar_file: List = Field(default_factory=lambda:[])

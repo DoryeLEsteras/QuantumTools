@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from QuantumTools.vasp_tools import Poscar, Outcar
 from QuantumTools.directory_and_files_tools import get_time,stop_watch
+from QuantumTools.magnetic_tools import orient_magnetic_moment
 import numpy as np
 import math
 import matplotlib.pyplot as plt
@@ -48,20 +49,6 @@ def parser():
    
     args = parser.parse_args()
     return args.poscar,args.outcar,args.outdir,args.ncells,args.dim,args.mode
-
-def orient_magnetic_moment(scalar_magnetic_moments,direction):
-    magnetic_moment_vector = []
-    if direction == 'x':
-       for i in scalar_magnetic_moments:
-           magnetic_moment_vector.append([i,0,0])
-    if direction == 'y':
-       for i in scalar_magnetic_moments:
-           magnetic_moment_vector.append([0,i,0])
-    if direction == 'z':
-       for i in scalar_magnetic_moments:
-           magnetic_moment_vector.append([0,0,i])
-    magnetic_moment_vector = np.array(magnetic_moment_vector)
-    return magnetic_moment_vector
 
 def replicate_direction(old_cell,old_coordinates,old_magmom,direction:str, number_cells:int):
     new_cell_parameters = np.copy(old_cell)
