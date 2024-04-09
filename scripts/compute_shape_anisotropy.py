@@ -28,27 +28,37 @@ def parser():
                         required=False,
                         default='.',
                         help="Output directory ") 
-    parser.add_argument("-ncells", "--ncells",
+    parser.add_argument("-cell", "--cell",
                         type=int,
+                        nargs=3,
                         required=True,
+                        default=[1, 1, 1],
                         help="""
-                        Number of cells por the single-shoot or scan simulation.
+                        Starting cell where to compute shape anisotropy, can be 
+                        for single-shoot calculations or as an starting point for
+                        an scan using rep_step and final_cell. 
+                        Ex: 1 1 1 or 5 5 5
                         """)
-    parser.add_argument("-dim", "--dim",
-                        type=str,
+    parser.add_argument("-rep_step", "--rep_step",
+                        type=int,
+                        nargs=3,
                         required=True,
+                        default=[1, 1, 1],
                         help="""
-                        Replicate structure in 2D or 3D. Options 2D or 3D.
+                        Step to replicate the cell.
+                        Ex: 1 1 1 or  2 2 1
                         """)
-    parser.add_argument("-mode", "--mode",
-                        type=str,
+    parser.add_argument("-final_cell", "--final_cell",
+                        type=int,
+                        nargs=3,
                         required=True,
+                        default=[1, 1, 1],
                         help="""
-                        Single-shoot or scan. Options: single or scan.
+                        Final cell for the replation.
+                        Ex: 8 8 8 or 8 8 1
                         """)
-   
     args = parser.parse_args()
-    return args.poscar,args.outcar,args.outdir,args.ncells,args.dim,args.mode
+    return args.poscar,args.outcar,args.outdir,args.cell,args.rep_step,args.final_cell
 
 def replicate_direction(old_cell,old_coordinates,old_magmom,direction:str, number_cells:int):
     new_cell_parameters = np.copy(old_cell)
@@ -66,89 +76,66 @@ def replicate_direction(old_cell,old_coordinates,old_magmom,direction:str, numbe
     #print(old_coordinates)
     return new_cell_parameters, old_coordinates, new_magmom
     
-def replicate_structure(number_cells:int,magnetic_moments_vector):
-    x_cell,x_coordinates,x_magmom = replicate_direction(poscar.cell_parameters,poscar.atomic_coordinates,magnetic_moments_vector,'x',number_cells)
-    xy_cell,xy_coordinates,xy_magmom = replicate_direction(x_cell,x_coordinates,x_magmom,'y',number_cells)
-    if dimension == '3D':
-       xy_cell,xy_coordinates,xy_magmom = replicate_direction(xy_cell,xy_coordinates,xy_magmom,'z',number_cells)
-    
-    ang_coordinates = np.zeros((len(xy_coordinates),3))
-    for atom in range(0,len(xy_coordinates)):
-        ang_coordinates[atom] = np.matmul(poscar.cell_parameters, xy_coordinates[atom])
+def replicate_structure(number_cells,magnetic_moments_vector): 
+    x_cell,x_coordinates,x_magmom = replicate_direction(poscar.cell_parameters,poscar.atomic_coordinates,magnetic_moments_vector,'x',number_cells[0])
+    xy_cell,xy_coordinates,xy_magmom = replicate_direction(x_cell,x_coordinates,x_magmom,'y',number_cells[1])
+    xyz_cell,xyz_coordinates,xyz_magmom = replicate_direction(xy_cell,xy_coordinates,xy_magmom,'z',number_cells[2])
+    ang_coordinates = np.zeros((len(xyz_coordinates),3))
+    for atom in range(0,len(xyz_coordinates)):
+        ang_coordinates[atom] = np.matmul(poscar.cell_parameters, xyz_coordinates[atom])
         
-    return xy_cell,ang_coordinates,xy_magmom
+    return xyz_cell,ang_coordinates,xyz_magmom
 
-    # Tengo que hacer la 3D
-
-def calculate_dipolar_energy(xy_coordinates,xy_magmom,number_cells):
+def calculate_dipolar_energy(coordinates,magmom,number_cells):
     # eVtomeV*1/8pi * (eV to Joule) * (m0) * (muB)^2 /  (10^-30)
     # 10**-30 is the conversion from A to m ()
     constant = 1000*((1/(8*math.pi))*(1.602177*10**-19)*(1.25663706212*10**-6)*(5.7883818066*10**-5)**2)/(10**-30) 
     E = 0
-    for atomic_index_i, atom_i in enumerate(xy_coordinates):
-        for atomic_index_j, atom_j in enumerate(xy_coordinates):
+    for atomic_index_i, atom_i in enumerate(coordinates):
+        for atomic_index_j, atom_j in enumerate(coordinates):
             if atomic_index_i != atomic_index_j:
                 rij = atom_i-atom_j
                 distance = np.linalg.norm(atom_i-atom_j)
-                mirij = np.dot(xy_magmom[atomic_index_i],rij)
-                mjrij = np.dot(xy_magmom[atomic_index_j],rij)
-                mimj = np.dot(xy_magmom[atomic_index_i],xy_magmom[atomic_index_j])
+                mirij = np.dot(magmom[atomic_index_i],rij)
+                mjrij = np.dot(magmom[atomic_index_j],rij)
+                mimj = np.dot(magmom[atomic_index_i],magmom[atomic_index_j])
                 E = (mimj - 3*(mirij*mjrij) /(distance**2))/(distance**3) + E
-    if dimension == '2D':
-       E = constant * E/(outcar.nmag*number_cells**2)
-    elif dimension == '3D':
-       E = constant * E/(outcar.nmag*number_cells**3)
+    E = constant * E/(outcar.nmag*number_cells)
     return E
 
-def single_shoot(cell):
-    #print(f'Computing single shoot of {number_cells}')
-    magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'x')
-    xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-    Ex = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-    magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'y')
-    xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-    Ey = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-    magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'z')
-    xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-    Ez = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-    shape_xy =Ex-Ey
-    shape_zx =Ez-Ex
-    shape_zy =Ez-Ey
-    print(f' Number of cells {number_cells} Shape_xy {shape_xy} Shape_zx {shape_zx} Shape_zy {shape_zy}')
-
-def compute_shape_anisotropy(number_cells,scalar_magnetic_moments):
-    shape_xyz = np.zeros((number_cells,3))
-    with open(os.path.join(outdir,'dipolar_energy_per_axis_scan.txt'), 'w') as f: 
-         f.write(f'# Shape_xy Shape_zx Shape_zy\n')
-         for cell in range(1,number_cells+1):
-             if dimension == '3D':
-                print(f'Computing cell {cell}x{cell}x{cell} of {number_cells}')
-             else:
-                print(f'Computing cell {cell}x{cell}x{1} of {number_cells}')
-             magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'x')
-             xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-             Ex = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-             magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'y')
-             xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-             Ey = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-             magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'z')
-             xy_cell, xy_coordinates, xy_magmom = replicate_structure(cell,magnetic_moments_vector)
-             Ez = calculate_dipolar_energy(xy_coordinates,xy_magmom,cell)
-             f.write(f'{cell} {Ex} {Ey} {Ez}\n')
-             shape_xyz[cell-1] = [Ex,Ey,Ez]
+def compute_shape_anisotropy(scalar_magnetic_moments):
+    shape_xyz = np.zeros((scan_steps,3))
+    with open(os.path.join(outdir,'dipolar_energy_per_axis.txt'), 'w') as f: 
+         f.write(f'# Cell Shape_xy Shape_zx Shape_zy\n')
+         cell = starting_cell
+         loop_number = 0
+         while (cell != final_cell + replication_step).any():
+               print(f'Computing cell {cell[0]}x{cell[1]}x{cell[2]} of {final_cell[0]}x{final_cell[1]}x{final_cell[2]}')
+               magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'x')
+               xyz_cell, xyz_coordinates, xyz_magmom = replicate_structure(cell,magnetic_moments_vector)
+               Ex = calculate_dipolar_energy(xyz_coordinates,xyz_magmom,np.prod(cell))
+               magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'y')
+               xyz_cell, xyz_coordinates, xyz_magmom = replicate_structure(cell,magnetic_moments_vector)
+               Ey = calculate_dipolar_energy(xyz_coordinates,xyz_magmom,np.prod(cell))
+               magnetic_moments_vector = orient_magnetic_moment(scalar_magnetic_moments,'z')
+               xyz_cell, xyz_coordinates, xyz_magmom = replicate_structure(cell,magnetic_moments_vector)
+               Ez = calculate_dipolar_energy(xyz_coordinates,xyz_magmom,np.prod(cell))
+               cell_str = str(cell).replace('[','').replace(']','')
+               f.write(f'{cell_str} {Ex:.5f} {Ey:.5f} {Ez:.5f}\n')
+               shape_xyz[loop_number] = [Ex,Ey,Ez]
+               loop_number = loop_number + 1
+               cell = cell + replication_step
     shape_xy =shape_xyz[:,0]-shape_xyz[:,1]
     shape_zx =shape_xyz[:,2]-shape_xyz[:,0]
     shape_zy =shape_xyz[:,2]-shape_xyz[:,1]
-    print(f'Shape_xy {shape_xy[-1]} Shape_zx {shape_zx[-1]} Shape_zy {shape_zy[-1]}')
-    np.savetxt(os.path.join(outdir,'dipolar_energy_diference_scan.txt'),np.c_[shape_xy,shape_zx,shape_zy],newline = '\n',header = 'Shape_xy Shape_zx Shape_zy', fmt='%1.5f')
+    np.savetxt(os.path.join(outdir,'dipolar_energy_difference_scan.txt'),np.c_[replication_vector,shape_xy,shape_zx,shape_zy],newline = '\n',header = 'Cell Shape_xy Shape_zx Shape_zy', fmt=["%i"]*3+ ["%1.5f"]*3)
     return shape_xy,shape_zx,shape_zy
 
-def plot_shape_anisotropy(shape_xy,shape_zx,shape_zy,number_cells):
-    x_axis = np.arange(1,number_cells+1)
-    fig,axs = plt.subplots(1,3,figsize=[18,7]) 
-    axs[0].plot(x_axis,shape_xy,'-o',label=r', Shape$_{xy}$',  markersize=10,linewidth=2.0 )
-    axs[1].plot(x_axis,shape_zx,'-o',label=r', Shape$_{zx}$',  markersize=10,linewidth=2.0 )
-    axs[2].plot(x_axis,shape_zy,'-o',label=r', Shape$_{zy}$',  markersize=10,linewidth=2.0 )
+def plot_shape_anisotropy(shape_xy,shape_zx,shape_zy):
+    fig,axs = plt.subplots(1,3,figsize=[24,9]) 
+    axs[0].plot(replication_str,shape_xy,'-o',label=r', Shape$_{xy}$',  markersize=10,linewidth=2.0 )
+    axs[1].plot(replication_str,shape_zx,'-o',label=r', Shape$_{zx}$',  markersize=10,linewidth=2.0 )
+    axs[2].plot(replication_str,shape_zy,'-o',label=r', Shape$_{zy}$',  markersize=10,linewidth=2.0 )
     axs[0].set_ylabel('Shape anisotropy (meV / Cr)',fontsize = 25)
     axs[0].set_xlabel('Number of cells',fontsize = 25)
     axs[1].set_ylabel('Shape anisotropy (meV / Cr)',fontsize = 25)
@@ -161,23 +148,33 @@ def plot_shape_anisotropy(shape_xy,shape_zx,shape_zy,number_cells):
     axs[0].legend(loc=7,fontsize=15)
     axs[1].legend(loc=7,fontsize=15)
     axs[2].legend(loc=7,fontsize=15)
+    axs[0].tick_params(rotation=90)
+    axs[1].tick_params(rotation=90)
+    axs[2].tick_params(rotation=90)
     fig.tight_layout()
     plt.savefig(os.path.join(outdir,'Shape_anisotropy_scan.png'), dpi=400)
     #plt.show()
     
 if __name__ == '__main__':
     start = time.time()
-    poscar_file, outcar_file, outdir, number_cells, dimension, mode = parser()    
-    #dimension = '2D'
-    #mode = 'single' # scan or single
-    #number_cells = 100
+    poscar_file, outcar_file, outdir, starting_cell, replication_step, final_cell = parser()    
+    starting_cell = np.array(starting_cell)
+    replication_cell = np.array(replication_step)
+    final_cell = np.array(final_cell)
+    cell = starting_cell; scan_steps = 0
+    replication_vector = []
+    while (cell != final_cell + replication_step ).any():
+          replication_vector.append(cell)
+          cell = cell + replication_step
+          scan_steps = scan_steps + 1
+    replication_str = [str(x) for x in replication_vector]
+
     directions = {
         'x':0,
         'y':1,
         'z':2
     }
-    #file = 'shape_poscar_cart'
-    #scalar_magnetic_moments = [2.736387,2.736302,2,2]
+
     outcar = Outcar()
     outcar.extract_information(outcar_file)
     scalar_magnetic_moments = outcar.metal_magmom
@@ -188,11 +185,10 @@ if __name__ == '__main__':
        for i in range(0,len(poscar.atomic_coordinates)):
            poscar.atomic_coordinates[i] = np.matmul(np.linalg.inv(poscar.cell_parameters),poscar.atomic_coordinates[i])
     poscar.atomic_coordinates = poscar.atomic_coordinates[0:outcar.nmag]
-    if mode == 'single':
-       single_shoot(number_cells)
-    else:
-       shape_xy,shape_zx,shape_zy= compute_shape_anisotropy(number_cells,scalar_magnetic_moments)
-       plot_shape_anisotropy(shape_xy,shape_zx,shape_zy,number_cells)
+    
+    shape_xy,shape_zx,shape_zy= compute_shape_anisotropy(scalar_magnetic_moments)
+    plot_shape_anisotropy(shape_xy,shape_zx,shape_zy)
     with open(os.path.join(outdir,'log.txt'),'w') as f:
          f.write('Done! ' + stop_watch(start, time.time()) + '\n')
+    
    

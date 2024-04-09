@@ -31,7 +31,7 @@ setup(
          'scripts/extract_fatbands.py',
          'scripts/extract_wan_h.py',
          'scripts/create_doping.py',
-         'scripts/create_vampire.py',
+         #'scripts/create_vampire.py',
          'scripts/compute_shape_anisotropy.py',
          'uncompleted_scripts/create_interlayer_scan.py'
      ],
