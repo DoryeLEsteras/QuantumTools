@@ -31,7 +31,7 @@ def parser():
     parser.add_argument("-cell", "--cell",
                         type=int,
                         nargs=3,
-                        required=True,
+                        required=False,
                         default=[1, 1, 1],
                         help="""
                         Starting cell where to compute shape anisotropy, can be 
@@ -42,7 +42,7 @@ def parser():
     parser.add_argument("-rep_step", "--rep_step",
                         type=int,
                         nargs=3,
-                        required=True,
+                        required=False,
                         default=[1, 1, 1],
                         help="""
                         Step to replicate the cell.
@@ -51,7 +51,7 @@ def parser():
     parser.add_argument("-final_cell", "--final_cell",
                         type=int,
                         nargs=3,
-                        required=True,
+                        required=False,
                         default=[1, 1, 1],
                         help="""
                         Final cell for the replation.
@@ -106,7 +106,7 @@ def calculate_dipolar_energy(coordinates,magmom,number_cells):
 def compute_shape_anisotropy(scalar_magnetic_moments):
     shape_xyz = np.zeros((scan_steps,3))
     with open(os.path.join(outdir,'dipolar_energy_per_axis.txt'), 'w') as f: 
-         f.write(f'# Cell Shape_xy Shape_zx Shape_zy\n')
+         f.write(f'# Cell Ex Ey Ez\n')
          cell = starting_cell
          loop_number = 0
          while (cell != final_cell + replication_step).any():
