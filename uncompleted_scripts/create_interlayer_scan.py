@@ -73,7 +73,7 @@ if __name__ == '__main__':
       new_cell_parameters =  np.copy(poscar.cell_parameters)
       new_coordinates =  np.copy(poscar.atomic_coordinates)
       for d in np.arange(min,max + step,step):
-          new_cell_parameters[2,2] = poscar.cell_parameters[2,2] + d
+          new_cell_parameters[2,2] = poscar.cell_parameters[2,2] + 2*d # shifts the interlayer and also the interlayer of the periodic boiunday conditions
           for atom_index in atoms_to_be_shifted:
               new_coordinates[atom_index,2] = poscar.atomic_coordinates[atom_index,2] + d
 
