@@ -44,7 +44,7 @@ class Outcar:
                          for i in range(self.nat):
                              x = f.readline().split()
                              magmom[i,0] = float(x[-1])
-                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1]) != 0:
                                 metal_magmomx= np.append(metal_magmomx,float(x[-1]))
                                 self.nmag = metal_magmomx.shape[0]
                                 self.metal_magmom = metal_magmomx
@@ -54,7 +54,7 @@ class Outcar:
                          for i in range(self.nat):
                              x = f.readline().split()
                              magmom[i,1] = float(x[-1])
-                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1]) != 0:
                                 metal_magmomy = np.append(metal_magmomy,float(x[-1]))
                                 if np.sum(abs(metal_magmomy)) > np.sum(abs(self.metal_magmom)):
                                    self.nmag = metal_magmomy.shape[0]
@@ -66,7 +66,7 @@ class Outcar:
                          for i in range(self.nat):
                              x = f.readline().split()
                              magmom[i,2] = float(x[-1])
-                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1] != 0):
+                             if abs(float(x[3])) > abs(float(x[2])) and abs(float(x[3])) > abs(float(x[1])) and float(x[-1]) != 0:
                                 metal_magmomz= np.append(metal_magmomz,float(x[-1]))
                                 if np.sum(abs(metal_magmomz)) > np.sum(abs(self.metal_magmom)):
                                    self.nmag = metal_magmomz.shape[0]
