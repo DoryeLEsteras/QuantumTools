@@ -56,9 +56,9 @@ if __name__ == '__main__':
       else:
          pattern = f"NELECT\s*=\s*{incar.nelect}\d*"
          zero_doping_value = incar.nelect
-      for dop in np.arange(min,max + step,step):
+      for dop in np.arange(min,max ,step):
           if round(dop - zero_doping_value,3) > 0.0:
-             folder_name = f'doping_{(dop - zero_doping_value)/10:.3f}e'
+             folder_name = f'doping_{abs(dop - zero_doping_value)/10:.3f}e'
           elif round(dop - zero_doping_value,3) < 0.0:
              folder_name = f'doping_{abs(dop - zero_doping_value)/10:.3f}h'
           elif round(dop -zero_doping_value,3) == 0.000:
