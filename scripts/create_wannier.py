@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from argparse import ArgumentParser
-#from subprocess import run
+from subprocess import run
 import os
 from typing import List
 import numpy as np
@@ -133,18 +133,18 @@ def create_nscf(file_name:str, file_dir:str, outdir:str, nbands:int, k:List[int]
               original_file[line_number] = ''   
             if word == 'cosab'or word == 'COSAB':
               original_file[line_number] = '' 
-            if word == 'celldm(1)':
+            if word == 'celldm':
               original_file[line_number] = ''
-            if word == 'celldm(2)':
-              original_file[line_number] = ''
-            if word == 'celldm(3)':
-              original_file[line_number] = ''
-            if word == 'celldm(4)':
-              original_file[line_number] = ''
-            if word == 'celldm(5)':
-              original_file[line_number] = ''
-            if word == 'celldm(6)':
-              original_file[line_number] = ''
+            #if word == 'celldm(2)':
+            #  original_file[line_number] = ''
+            #if word == 'celldm(3)':
+            #  original_file[line_number] = ''
+            #if word == 'celldm(4)':
+            #  original_file[line_number] = ''
+            #if word == 'celldm(5)':
+            #  original_file[line_number] = ''
+            #if word == 'celldm(6)':
+            #  original_file[line_number] = ''
             if word == 'CELL_PARAMETERS'or word == 'cell_parameters':
                original_file[line_number] = '' 
                original_file[line_number+1] = '' 
