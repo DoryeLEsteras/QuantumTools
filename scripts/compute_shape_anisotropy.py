@@ -178,6 +178,7 @@ if __name__ == '__main__':
     outcar = Outcar()
     outcar.extract_information(outcar_file)
     scalar_magnetic_moments = outcar.metal_magmom
+    print(f'Magnetic moments from metals found in the unit cell: {scalar_magnetic_moments}')
     #scalar_magnetic_moments = [3,3]
     poscar = Poscar()
     poscar.read_data(poscar_file)
@@ -185,7 +186,6 @@ if __name__ == '__main__':
        for i in range(0,len(poscar.atomic_coordinates)):
            poscar.atomic_coordinates[i] = np.matmul(np.linalg.inv(poscar.cell_parameters),poscar.atomic_coordinates[i])
     poscar.atomic_coordinates = poscar.atomic_coordinates[0:outcar.nmag]
-    
     shape_xy,shape_zx,shape_zy= compute_shape_anisotropy(scalar_magnetic_moments)
     plot_shape_anisotropy(shape_xy,shape_zx,shape_zy)
     with open(os.path.join(outdir,'log.txt'),'w') as f:
