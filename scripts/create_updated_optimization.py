@@ -72,9 +72,10 @@ def substitute_coordinates(file_vector:List[str], new_coordinates: np.ndarray) -
 
 def substitute_cell_parameters(file_vector:List[str], new_cell_parameters: np.ndarray) ->List[str]:          
    for line_number,line in enumerate(file_vector):
-       splited_line = line.split();splited_line.append('end')
+       splited_line = line.replace('=',' ').split();splited_line.append('end')
 
        if splited_line[0] == 'a':
+          print(splited_line)
           file_vector[line_number] = ''
        if splited_line[0] == 'b':
           file_vector[line_number] = ''           
