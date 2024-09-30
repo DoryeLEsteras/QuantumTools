@@ -10,7 +10,6 @@ from QuantumTools.directory_and_files_tools import clean_uncommented_file,manage
 from QuantumTools.cluster_tools import initialize_clusters, Cluster
 from QuantumTools.wannier90_tools import Wan_Kpath_dict
 
-
 def parser():
     parser = ArgumentParser(description="Script to create Wannier90 calculation inputs")
     parser.add_argument("-input", "--input",

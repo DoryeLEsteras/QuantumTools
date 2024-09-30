@@ -5,8 +5,6 @@ from QuantumTools.cluster_tools import initialize_clusters
 from QuantumTools.qe_tools import QECalculation
 from QuantumTools.directory_and_files_tools import manage_input_dir
 
-
-
 def parser():
     parser = ArgumentParser(description="Script to create inputs for projected DOS calculations")
     parser.add_argument("-input", "--input",

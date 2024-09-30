@@ -5,7 +5,6 @@ from argparse import ArgumentParser
 from QuantumTools.library import (QECalculation, initialize_clusters,
                                   manage_input_dir)
 
-
 def parser():
     parser = ArgumentParser(description="Script to create inputs for charge density calculations")
     parser.add_argument("-input", "--input",

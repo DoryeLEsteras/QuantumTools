@@ -8,6 +8,7 @@ from QuantumTools.directory_and_files_tools import manage_input_dir,substitute_p
 from QuantumTools.cluster_tools import initialize_clusters, Cluster
 from QuantumTools.qe_tools import QECalculation
 import QuantumTools
+
 def parser():
     parser = ArgumentParser(description="Script to converge the cutoffs")
     parser.add_argument("-input", "--input",

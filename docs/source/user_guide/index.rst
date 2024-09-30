@@ -9,3 +9,4 @@ Tutorials
    sync_clusters/index
    create_inputs/index
    extract_outputs/index
+   compute_properties/index

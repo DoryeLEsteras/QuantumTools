@@ -22,3 +22,4 @@ Creation scripts!
    create_bader
    create_wannier
    create_wt
+   create_doping_scan

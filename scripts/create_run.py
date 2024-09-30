@@ -4,7 +4,6 @@ from argparse import ArgumentParser
 from QuantumTools.cluster_tools import initialize_clusters
 from QuantumTools.directory_and_files_tools import manage_input_dir
 
-
 def parser():
     parser = ArgumentParser(description="Script to generate run.sh files")
     parser.add_argument("-input", "--input",

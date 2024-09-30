@@ -17,7 +17,6 @@ IN: bands.out,broken band.dat.gnu file and number of high symmetry points
 OUT: repaired band.dat.gnu file and file with new hygh symmetry points
 """
 
-
 def parser():
     parser = ArgumentParser(description="Script for repairing QuantumEspresso bands")
     parser.add_argument("-input", "--input",

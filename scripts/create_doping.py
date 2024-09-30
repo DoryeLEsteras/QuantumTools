@@ -7,6 +7,12 @@ import numpy as np
 import re
 import shutil
 
+# TO DO LIST
+"""
+Esta para VASP solo
+Los runs se copian en vez de generarse
+"""
+
 def parser():
     parser = ArgumentParser(description="Script to create electron/hole doping scan in QuantumEspresso or VASP")
     parser.add_argument("-input", "--input",
