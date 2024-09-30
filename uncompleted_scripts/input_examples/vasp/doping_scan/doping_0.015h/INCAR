@@ -1,0 +1,27 @@
+PREC=Accurate
+ISMEAR=0
+SIGMA=0.1
+#LREAL=Auto
+							 
+   ENCUT = 300.00            
+   NELM = 300                
+   ISPIN = 2                 
+   IVDW = 11                 
+   LSORBIT = .TRUE.          
+   EDIFF  = 1E-07            
+   LORBIT = 11 
+   SAXIS = 0 0 1
+   NELECT = 75.85
+   # Phonons
+   #IBRION=6
+   MAGMOM =  3.0 0.0 0.0 3.0 0.0 0.0 -3.0 0.0 0.0 -3.0 0.0 0.0 24*0 
+
+######### LDA + U #########################
+ 
+    LDAU = .TRUE.          
+    LDAUTYPE = 1           
+    LDAUL =  2 -1 -1       
+    LDAUU =  4  0 0        
+    LDAUJ = 1  0  0
+    LMAXMIX   = 4 
+ ###########################################
