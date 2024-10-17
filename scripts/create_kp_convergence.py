@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 import os
-from typing import List
 from argparse import ArgumentParser
-from QuantumTools.qe_tools import QECalculation
-from QuantumTools.directory_and_files_tools import manage_input_dir
-from QuantumTools.cluster_tools import Cluster, initialize_clusters
+from typing import List
+
 import QuantumTools
+from QuantumTools.cluster_tools import Cluster, initialize_clusters
+from QuantumTools.directory_and_files_tools import manage_input_dir
+from QuantumTools.qe_tools import QECalculation
+
 
 def parser():
     parser = ArgumentParser(description="Script to converge the kpoints")
@@ -74,31 +76,35 @@ def create_launcher():
     QT_directory = QuantumTools.__file__.replace('__init__.py','')
     with open(QT_directory + 'Cluster.config','r') as f:
          cluster_name_list = f.read().replace('.cluster','').split()
+    cluster_name_list.append('local')
     cluster_dict = dict.fromkeys(cluster_name_list)
-    initialize_clusters('massive',outdir,'','')  
+    initialize_clusters('massive',outdir,'','') 
     for cluster_name in cluster_name_list:
         cluster_dict[cluster_name] = Cluster(cluster_name)
-        cluster_dict[cluster_name].extract_input_information() 
+        if cluster_name != 'local':
+           cluster_dict[cluster_name].extract_input_information() 
+           cluster_dict[cluster_name].launch_command = 'srun ' 
 
         launcher_file = open(os.path.join(outdir,cluster_name.lower() + '.serial.launcher.sh'),'a')
         launcher_file.write('for kp in $(seq ' + str(kpmin) + ' ' + str(kpstep) + ' ' + str(kpmax) + ')\n' )
         launcher_file.write('do\n')
         if str(Scf.kpoints[2]) == '1':
-           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('scf.in','kx$kp.ky$kp.kz1.scf.in')  + ' > ' + file_name.replace('.scf.in','kx$kp.ky$kp.kz1.scf.out')  + '\n')  
+           launcher_file.write(cluster_dict[cluster_name].launch_command + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('scf.in','kx$kp.ky$kp.kz1.scf.in')  + ' > ' + file_name.replace('.scf.in','kx$kp.ky$kp.kz1.scf.out')  + '\n')  
         if str(Scf.kpoints[2]) != '1':
-           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('scf.in','kx$kp.ky$kp.kz$kp.scf.in')  + ' > ' + file_name.replace('.scf.in','kx$kp.ky$kp.kz$kp.scf.out')  + '\n')  
+           launcher_file.write(cluster_dict[cluster_name].launch_command + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('scf.in','kx$kp.ky$kp.kz$kp.scf.in')  + ' > ' + file_name.replace('.scf.in','kx$kp.ky$kp.kz$kp.scf.out')  + '\n')  
         launcher_file.write('done\n')
         launcher_file.close()
 
     for cluster_name in cluster_name_list:
-        with open(os.path.join(outdir,cluster_name.lower() +'.parallel.launcher.sh') ,'w') as file:
-             file.write('for kp in $(seq ' + str(kpmin) + ' ' + str(kpstep) + ' ' + str(kpmax) + ')\n' )
-             file.write('do\n')
-             if str(Scf.kpoints[2]) == '1':
-                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.kx$kp.ky$kp.kz1.sh\n')
-             if str(Scf.kpoints[2]) != '1':
-                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.kx$kp.ky$kp.kz$kp.sh\n')
-             file.write('done\n')
+        if cluster_name != 'local':
+           with open(os.path.join(outdir,cluster_name.lower() +'.parallel.launcher.sh') ,'w') as file:
+                file.write('for kp in $(seq ' + str(kpmin) + ' ' + str(kpstep) + ' ' + str(kpmax) + ')\n' )
+                file.write('do\n')
+                if str(Scf.kpoints[2]) == '1':
+                   file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.kx$kp.ky$kp.kz1.sh\n')
+                if str(Scf.kpoints[2]) != '1':
+                   file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.kx$kp.ky$kp.kz$kp.sh\n')
+                file.write('done\n')
 
 if __name__ == '__main__':
     file_dir_and_name,outdir,kpmin,kpmax,kpstep = parser()

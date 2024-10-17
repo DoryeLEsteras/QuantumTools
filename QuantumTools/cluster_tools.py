@@ -1,6 +1,7 @@
-import QuantumTools
 import os
 from typing import List
+
+import QuantumTools
 
 """
  To use this in another script, import initialize_clusters and Cluster call directly
@@ -19,16 +20,18 @@ def initialize_clusters(calculation_method:str,run_directory:str,file_name:str,r
     with open(QT_directory + 'Cluster.config','r') as f:
          cluster_name_list = f.read().replace('.cluster','').split()
     number_of_clusters = len(cluster_name_list)
+    cluster_name_list.append('local')
     cluster_dict = dict.fromkeys(cluster_name_list)
     for i in cluster_name_list:
         cluster_dict[i] = Cluster(i)
-        cluster_dict[i].run_prefix = run_prefix
-        cluster_dict[i].extract_input_information() 
+        if i != 'local':
+           cluster_dict[i].run_prefix = run_prefix
+           cluster_dict[i].launch_command = 'srun ' 
+           cluster_dict[i].extract_input_information() 
         if calculation_method == 'massive':
            cluster_dict[i].write_launcher(calculation_method,run_directory)
         else:
            cluster_dict[i].write_run(calculation_method,run_directory,file_name)
-      
     return extra_info
 
 class Cluster:
@@ -39,6 +42,7 @@ class Cluster:
          self.wtpath: str = ''
          self.header: str = ''
          self.run_prefix: str = ''
+         self.launch_command: str = ''
       def extract_input_information(self)-> None:
          QT_directory = QuantumTools.__file__.replace('__init__.py','')
          cluster_file = open(QT_directory + self.cluster_name + '.cluster','r')
@@ -94,7 +98,7 @@ class Cluster:
       def write_basic_scf(self,scf_input_name:str,run_file) -> None:  
           scf_output_name = scf_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n') 
       def write_spin_bands(self,scf_input_name:str,run_file) -> None:  
           bands_input_name = scf_input_name.replace('scf','bands')
           bs1_input_name = scf_input_name.replace('scf','bs1')
@@ -104,10 +108,10 @@ class Cluster:
           bs1_output_name = bs1_input_name.replace('.in','.out')
           bs2_output_name = bs2_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
-          'srun ' + self.qepath + 'bands.x -i ' + bs1_input_name + ' > ' + bs1_output_name + '\n' + \
-          'srun ' + self.qepath + 'bands.x -i ' + bs2_input_name + ' > ' + bs2_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
+          self.launch_command + self.qepath + 'bands.x -i ' + bs1_input_name + ' > ' + bs1_output_name + '\n' + \
+          self.launch_command + self.qepath + 'bands.x -i ' + bs2_input_name + ' > ' + bs2_output_name + '\n') 
       def write_nospin_bands(self,scf_input_name:str,run_file) -> None:  
           bands_input_name = scf_input_name.replace('scf','bands')
           bs_input_name = scf_input_name.replace('scf','bs')
@@ -115,9 +119,9 @@ class Cluster:
           bands_output_name = bands_input_name.replace('.in','.out')
           bs_output_name = bs_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
-          'srun ' + self.qepath + 'bands.x -i ' + bs_input_name + ' > ' + bs_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
+          self.launch_command + self.qepath + 'bands.x -i ' + bs_input_name + ' > ' + bs_output_name + '\n') 
       def write_projected(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
           proj_input_name = scf_input_name.replace('scf','proj')
@@ -125,23 +129,23 @@ class Cluster:
           nscf_output_name = nscf_input_name.replace('.in','.out')
           proj_output_name = proj_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
-          'srun ' + self.qepath + 'projwfc.x -i ' + proj_input_name + ' > ' + proj_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'projwfc.x -i ' + proj_input_name + ' > ' + proj_output_name + '\n') 
       def write_cd_pp(self,scf_input_name:str,run_file) -> None:  
           pp_input_name = scf_input_name.replace('scf','cd.pp')
           scf_output_name = scf_input_name.replace('.in','.out')
           pp_output_name = pp_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
       def write_sd_pp(self,scf_input_name:str,run_file) -> None:  
           pp_input_name = scf_input_name.replace('scf','sd.pp')
           scf_output_name = scf_input_name.replace('.in','.out')
           pp_output_name = pp_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n') 
       def write_bader_pp(self,scf_input_name:str,run_file) -> None: 
           all_input_name = scf_input_name.replace('scf','all.pp')
           valence_input_name = scf_input_name.replace('scf','valence.pp')
@@ -151,9 +155,9 @@ class Cluster:
           valence_cube = valence_input_name.replace('.pp.in','.cube')
           all_cube = all_input_name.replace('.pp.in','.cube')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pp.x -i ' + all_input_name + ' > ' + all_output_name + '\n' + \
-          'srun ' + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pp.x -i ' + all_input_name + ' > ' + all_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pp.x -i ' + valence_input_name + ' > ' + valence_output_name + '\n' + \
           'bader ' + valence_cube + ' -ref ' + all_cube ) 
       def write_band_alignment(self,scf_input_name:str,run_file) -> None: 
           pp_input_name = scf_input_name.replace('scf','wf.pp')
@@ -162,8 +166,8 @@ class Cluster:
           pp_output_name = pp_input_name.replace('.in','.out')
           avg_output_name = avg_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pp.x -i ' + pp_input_name + ' > ' + pp_output_name + '\n' + \
           'mpirun -np 1 ' + self.qepath + 'average.x ' + '<' + avg_input_name + ' > ' + avg_output_name + '\n') 
       def write_spin_wannier(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
@@ -176,14 +180,14 @@ class Cluster:
           pw2wan_up_output_name = pw2wan_up_input_name.replace('.in','.out')
           pw2wan_down_output_name = pw2wan_down_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_up_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_up_input_name + ' > ' + pw2wan_up_output_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x ' + win_up_input_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_down_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_down_input_name + ' > ' + pw2wan_down_output_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x ' + win_down_input_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x -pp ' + win_up_input_name + '\n' + \
+          self.launch_command + self.qepath + 'pw2wannier90.x -i ' + pw2wan_up_input_name + ' > ' + pw2wan_up_output_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x ' + win_up_input_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x -pp ' + win_down_input_name + '\n' + \
+          self.launch_command + self.qepath + 'pw2wannier90.x -i ' + pw2wan_down_input_name + ' > ' + pw2wan_down_output_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x ' + win_down_input_name + '\n') 
       def write_nospin_wannier(self,scf_input_name:str,run_file) -> None:
           nscf_input_name = scf_input_name.replace('scf','nscf')
           pw2wan_input_name = scf_input_name.replace('scf','pw2wan')
@@ -192,11 +196,11 @@ class Cluster:
           nscf_output_name = nscf_input_name.replace('.in','.out')
           pw2wan_output_name = pw2wan_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x -pp ' + win_input_name + '\n' + \
-          'srun ' + self.qepath + 'pw2wannier90.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
-          'srun ' + self.wanpath + 'wannier90.x ' + win_input_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + nscf_input_name + ' > ' + nscf_output_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x -pp ' + win_input_name + '\n' + \
+          self.launch_command + self.qepath + 'pw2wannier90.x -i ' + pw2wan_input_name + ' > ' + pw2wan_output_name + '\n' + \
+          self.launch_command + self.wanpath + 'wannier90.x ' + win_input_name + '\n') 
       def write_force_theorem(self,scf_input_name:str,run_file) -> None:  
           x_nscf_input_name = scf_input_name.replace('scf','x.nscf')
           y_nscf_input_name = scf_input_name.replace('scf','y.nscf')
@@ -206,12 +210,12 @@ class Cluster:
           y_nscf_output_name = y_nscf_input_name.replace('.in','.out')
           z_nscf_output_name = z_nscf_input_name.replace('.in','.out')
           run_file.write(\
-          'srun ' + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           'cp -r tmp tmp_x\n' + 'cp -r tmp tmp_y\n' +  'cp -r tmp tmp_z\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
-          'srun ' + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
+          self.launch_command + self.qepath + 'pw.x -i ' + x_nscf_input_name + ' > ' + x_nscf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + y_nscf_input_name + ' > ' + y_nscf_output_name + '\n' + \
+          self.launch_command + self.qepath + 'pw.x -i ' + z_nscf_input_name + ' > ' + z_nscf_output_name + '\n') 
       def write_wt(self,scf_input_name:str,run_file) -> None:  
           run_file.write(\
-          'srun ' + self.wtpath +  ' wt.x wt.in\n'
+          self.launch_command + self.wtpath +  ' wt.x wt.in\n'
           )

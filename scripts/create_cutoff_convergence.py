@@ -3,11 +3,15 @@ import os
 import sys
 from argparse import ArgumentParser
 from typing import List
+
 import numpy as np
-from QuantumTools.directory_and_files_tools import manage_input_dir,substitute_pattern
-from QuantumTools.cluster_tools import initialize_clusters, Cluster
-from QuantumTools.qe_tools import QECalculation
+
 import QuantumTools
+from QuantumTools.cluster_tools import Cluster, initialize_clusters
+from QuantumTools.directory_and_files_tools import (manage_input_dir,
+                                                    substitute_pattern)
+from QuantumTools.qe_tools import QECalculation
+
 
 def parser():
     parser = ArgumentParser(description="Script to converge the cutoffs")
@@ -81,11 +85,14 @@ def create_launcher():
     QT_directory = QuantumTools.__file__.replace('__init__.py','')
     with open(QT_directory + 'Cluster.config','r') as f:
          cluster_name_list = f.read().replace('.cluster','').split()
+    cluster_name_list.append('local')
     cluster_dict = dict.fromkeys(cluster_name_list)
     initialize_clusters('massive',outdir,'','')  
     for cluster_name in cluster_name_list:
         cluster_dict[cluster_name] = Cluster(cluster_name)
-        cluster_dict[cluster_name].extract_input_information() 
+        if cluster_name != 'local':
+           cluster_dict[cluster_name].extract_input_information() 
+           cluster_dict[cluster_name].launch_command = 'srun ' 
 
         launcher_file = open(cluster_name.lower() + '.serial.launcher.sh','a')
         if wfcmin != 0 and  wfcmax != 0 and rhomin != 0 and rhomax !=0:
@@ -93,40 +100,41 @@ def create_launcher():
            launcher_file.write('do\n')
            launcher_file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
            launcher_file.write('do\n')
-           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.rho.$rho.scf.out')  + '\n') 
+           launcher_file.write(cluster_dict[cluster_name].launch_command + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.rho.$rho.scf.out')  + '\n') 
            launcher_file.write('done\n')
            launcher_file.write('done\n')
         if wfcmin == 0 and wfcmax == 0 and rhomin != 0 and rhomax != 0:
            launcher_file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
            launcher_file.write('do\n')
-           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.rho.$rho.scf.out')  + '\n') 
+           launcher_file.write(cluster_dict[cluster_name].launch_command + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.rho.$rho.scf')  + ' > ' + file_name.replace('.scf.in','.rho.$rho.scf.out')  + '\n') 
            launcher_file.write('done\n')
         if wfcmin != 0 and wfcmax != 0 and rhomin == 0 and rhomax == 0:
            launcher_file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
            launcher_file.write('do\n')
-           launcher_file.write('srun ' + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.scf.out')  + '\n') 
+           launcher_file.write(cluster_dict[cluster_name].launch_command + cluster_dict[cluster_name].qepath + 'pw.x -i ' + file_name.replace('.scf','.wfc.$wfc.scf')  + ' > ' + file_name.replace('.scf.in','.wfc.$wfc.scf.out')  + '\n') 
            launcher_file.write('done\n')
     
     for cluster_name in cluster_name_list:
-        with open(os.path.join(outdir,cluster_name.lower() +'.parallel.launcher.sh') ,'w') as file:
-             if wfcmin != 0 and  wfcmax != 0 and rhomin != 0 and rhomax !=0:
-                file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
-                file.write('do\n')
-                file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
-                file.write('do\n')
-                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.rho.$rho.sh\n')
-                file.write('done\n')
-                file.write('done\n')
-             if wfcmin == 0 and  wfcmax == 0 and rhomin != 0 and rhomax !=0:
-                file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
-                file.write('do\n')
-                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.rho.$rho.sh\n')
-                file.write('done\n')
-             if wfcmin != 0 and  wfcmax != 0 and rhomin == 0 and rhomax ==0:
-                file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
-                file.write('do\n')
-                file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.sh\n')
-                file.write('done\n')
+        if cluster_name != 'local':
+           with open(os.path.join(outdir,cluster_name.lower() +'.parallel.launcher.sh') ,'w') as file:
+                if wfcmin != 0 and  wfcmax != 0 and rhomin != 0 and rhomax !=0:
+                   file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+                   file.write('do\n')
+                   file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+                   file.write('do\n')
+                   file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.rho.$rho.sh\n')
+                   file.write('done\n')
+                   file.write('done\n')
+                if wfcmin == 0 and  wfcmax == 0 and rhomin != 0 and rhomax !=0:
+                   file.write('for rho in $(seq ' + str(rhomin) + ' ' + str(rhostep) + ' ' + str(rhomax) + ')\n' )
+                   file.write('do\n')
+                   file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.rho.$rho.sh\n')
+                   file.write('done\n')
+                if wfcmin != 0 and  wfcmax != 0 and rhomin == 0 and rhomax ==0:
+                   file.write('for wfc in $(seq ' + str(wfcmin) + ' ' + str(wfcstep) + ' ' + str(wfcmax) + ')\n' )
+                   file.write('do\n')
+                   file.write('sbatch ' + cluster_name.lower() + '.run_for_basic_scf.wfc.$wfc.sh\n')
+                   file.write('done\n')
 
 if __name__ == '__main__':    
    file_dir_and_name,outdir,wfcmin,wfcmax,wfcstep,rhomin,rhomax,rhostep = parser()
