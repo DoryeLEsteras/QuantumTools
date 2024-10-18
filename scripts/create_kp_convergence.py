@@ -59,7 +59,7 @@ def create_scan(line_to_be_modified:int, prefix_line_number:int,readed_vector:Li
                  " " +  str(Scf.kpoints[4]) + " " + str(Scf.kpoints[5])
             readed_vector[prefix_line_number] = "prefix = '" + Scf.prefix + '_k_' + str(i) +"'\n"
             initialize_clusters('basic_scf',outdir,new_file_name,'.kx' + str(i) + '.ky' + str(i) +'.kz1') 
-            with open(os.path.join(file_dir,new_file_name),'w') as file:
+            with open(os.path.join(outdir,new_file_name),'w') as file:
                 for line in readed_vector:
                     file.write(line) 
     if str(Scf.kpoints[2]) != '1':
@@ -68,7 +68,7 @@ def create_scan(line_to_be_modified:int, prefix_line_number:int,readed_vector:Li
             readed_vector[line_to_be_modified] = str(i) + " " + str(i) + " " + str(i) + " "  + str(Scf.kpoints[3]) +\
                    " " +  str(Scf.kpoints[4]) + " " + str(Scf.kpoints[5])
             initialize_clusters('basic_scf',outdir,new_file_name,'.kx' + str(i) + '.ky' + str(i) + '.kz' + str(i)) 
-            with open(os.path.join(file_dir,new_file_name),'w') as file:
+            with open(os.path.join(outdir,new_file_name),'w') as file:
                 for line in readed_vector:
                     file.write(line)
 

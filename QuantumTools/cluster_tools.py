@@ -2,7 +2,7 @@ import os
 from typing import List
 
 import QuantumTools
-
+import subprocess
 """
  To use this in another script, import initialize_clusters and Cluster call directly
  initialize_clusters(calculation_method,run_directory,file_name)
@@ -112,7 +112,6 @@ class Cluster:
           self.launch_command + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
           self.launch_command + self.qepath + 'bands.x -i ' + bs1_input_name + ' > ' + bs1_output_name + '\n' + \
           self.launch_command + self.qepath + 'bands.x -i ' + bs2_input_name + ' > ' + bs2_output_name + '\n') 
-          self.submit_calculation(calculation_method='spin_bands')
       def write_nospin_bands(self,scf_input_name:str,run_file) -> None:  
           bands_input_name = scf_input_name.replace('scf','bands')
           bs_input_name = scf_input_name.replace('scf','bs')
@@ -123,6 +122,7 @@ class Cluster:
           self.launch_command + self.qepath + 'pw.x -i ' + scf_input_name + ' > ' + scf_output_name + '\n' + \
           self.launch_command + self.qepath + 'pw.x -i ' + bands_input_name + ' > ' + bands_output_name + '\n' + \
           self.launch_command + self.qepath + 'bands.x -i ' + bs_input_name + ' > ' + bs_output_name + '\n') 
+          self.submit_calculation(calculation_method='nospin_bands')
       def write_projected(self,scf_input_name:str,run_file) -> None:  
           nscf_input_name = scf_input_name.replace('scf','nscf')
           proj_input_name = scf_input_name.replace('scf','proj')
@@ -222,7 +222,15 @@ class Cluster:
           )
       def submit_calculation(self,calculation_method)-> None:
           if self.cluster_name == 'local':
-            os.system('bash ' + self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh')
+            file_name = self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh'
+            os.system('chmod +x ' + file_name)
+            os.system('chmod +r ' + file_name)
+            result = subprocess.run(['cat',file_name],capture_output = True,text=True)
+            print(result)
+            result = subprocess.run(['ls',file_name],capture_output = True,text=True)
+            print(result)
+            result = subprocess.run(['bash',file_name],capture_output = True,text=True)
+            print(result)
           elif self.cluster_name != 'local':
              os.system('sbatch ' + self.cluster_name.lower() + '.run_for_' + calculation_method.lower() + self.run_prefix + '.sh')
       # In the future we will decide the parameters of the sbatch in the case of massive calculations. It is a problem for the 
